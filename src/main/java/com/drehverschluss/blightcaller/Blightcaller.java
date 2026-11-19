@@ -8,6 +8,7 @@ import com.drehverschluss.blightcaller.curse.CurseEffects;
 import com.drehverschluss.blightcaller.curse.CurseEvents;
 import com.drehverschluss.blightcaller.curse.CurseImpacts;
 import com.drehverschluss.blightcaller.curse.CursePredicates;
+import com.drehverschluss.blightcaller.item.BlightcallerItems;
 import com.mojang.logging.LogUtils;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.bus.api.IEventBus;
@@ -16,6 +17,7 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
+import net.neoforged.neoforge.registries.RegisterEvent;
 import org.slf4j.Logger;
 
 @Mod(Blightcaller.MODID)
@@ -28,6 +30,8 @@ public class Blightcaller {
         BlightcallerAttributes.register(modEventBus);
         CurseEffects.register(modEventBus);
         CurseData.register(modEventBus);
+        BlightcallerItems.init();
+        modEventBus.addListener(RegisterEvent.class, BlightcallerItems::onRegister);
         CurseEvents.register();
         CurseImpacts.register();
         CursePredicates.register();

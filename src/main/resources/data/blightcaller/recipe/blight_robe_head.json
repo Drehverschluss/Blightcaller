@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "W": {
+      "tag": "minecraft:wool"
+    },
+    "A": {
+      "tag": "minecraft:soul_fire_base_blocks"
+    }
+  },
+  "pattern": [
+    "  W",
+    " W ",
+    "WAW"
+  ],
+  "result": {
+    "count": 1,
+    "id": "blightcaller:blight_robe_head"
+  }
+}

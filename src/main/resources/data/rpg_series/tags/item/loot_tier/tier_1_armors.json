@@ -1,0 +1,21 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "blightcaller:blightcaller_robe_head",
+      "required": false
+    },
+    {
+      "id": "blightcaller:blightcaller_robe_chest",
+      "required": false
+    },
+    {
+      "id": "blightcaller:blightcaller_robe_legs",
+      "required": false
+    },
+    {
+      "id": "blightcaller:blightcaller_robe_feet",
+      "required": false
+    }
+  ]
+}

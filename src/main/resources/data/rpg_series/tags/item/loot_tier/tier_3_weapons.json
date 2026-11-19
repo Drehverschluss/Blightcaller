@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "blightcaller:wand_netherite_blight",
+      "required": false
+    },
+    {
+      "id": "blightcaller:grimoire_netherite_blight",
+      "required": false
+    }
+  ]
+}

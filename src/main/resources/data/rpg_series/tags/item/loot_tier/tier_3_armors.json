@@ -1,0 +1,21 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "blightcaller:netherite_blight_robe_head",
+      "required": false
+    },
+    {
+      "id": "blightcaller:netherite_blight_robe_chest",
+      "required": false
+    },
+    {
+      "id": "blightcaller:netherite_blight_robe_legs",
+      "required": false
+    },
+    {
+      "id": "blightcaller:netherite_blight_robe_feet",
+      "required": false
+    }
+  ]
+}

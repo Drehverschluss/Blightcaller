@@ -1,0 +1,10 @@
+{
+  "parent": "bettercombat:wand",
+  "attributes": {
+    "attacks": [
+      {
+        "animation": "bettercombat:one_handed_slam"
+      }
+    ]
+  }
+}

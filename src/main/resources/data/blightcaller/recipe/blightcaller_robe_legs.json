@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "W": {
+      "tag": "minecraft:wool"
+    },
+    "A": {
+      "item": "minecraft:amethyst_shard"
+    }
+  },
+  "pattern": [
+    "AAA",
+    "W W",
+    "W W"
+  ],
+  "result": {
+    "count": 1,
+    "id": "blightcaller:blightcaller_robe_legs"
+  }
+}

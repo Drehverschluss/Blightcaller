@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "#blightcaller:spell_scroll/blightcaller",
+      "required": false
+    }
+  ]
+}
