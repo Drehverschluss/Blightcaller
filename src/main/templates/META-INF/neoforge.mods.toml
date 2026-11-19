@@ -3,6 +3,9 @@ loaderVersion="${loader_version_range}"
 license="${mod_license}"
 issueTrackerURL="https://github.com/Drehverschluss/Blightcaller/issues"
 
+[[accessTransformers]]
+file="META-INF/accesstransformer.cfg"
+
 [[mods]]
 modId="${mod_id}"
 version="${mod_version}"
@@ -38,5 +41,13 @@ description='''${mod_description}'''
     modId="spell_power"
     type="required"
     versionRange="${spell_power_version_range}"
+    ordering="AFTER"
+    side="BOTH"
+
+[[dependencies.${mod_id}]]
+    # Runes: the spells cost a soul rune (runes:soul_stone); without Runes they cannot be cast
+    modId="runes"
+    type="required"
+    versionRange="${runes_version_range}"
     ordering="AFTER"
     side="BOTH"

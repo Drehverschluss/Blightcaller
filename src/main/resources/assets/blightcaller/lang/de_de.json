@@ -1,1 +1,21 @@
-{}
+{
+  "attribute.name.blightcaller.curse_duration": "Fluchdauer",
+  "attribute.name.blightcaller.curse_duration.desc": "Deine Flüche halten länger. Jeder Fluch macht seinen Schaden ein paar Sekunden länger, bevor er abläuft.",
+
+  "effect.blightcaller.soulburn": "Seelenbrand",
+  "effect.blightcaller.soulburn.description": "Erleidet jede Sekunde Seelenschaden.",
+
+  "death.attack.blightcaller.curse": "%1$s verdorrte unter einem Fluch",
+  "death.attack.blightcaller.curse.player": "%1$s verdorrte unter dem Fluch von %2$s",
+
+  "commands.blightcaller.curse.not_a_curse": "%s ist kein Fluch (Effekt-Tag #blightcaller:curses)",
+  "commands.blightcaller.curse.apply.done": "%s mit %s für %s s verflucht: %s Schaden je Tick (Kraft %s × Faktor %s)%s",
+  "commands.blightcaller.curse.apply.failed": "%s kann nicht mit %s verflucht werden",
+  "commands.blightcaller.curse.critical": ", kritisch ×%s",
+  "commands.blightcaller.curse.info.none": "%s trägt keine Flüche",
+  "commands.blightcaller.curse.info.header": "%s: Fluchstufe %s (%s Flüche, %s Einträge)",
+  "commands.blightcaller.curse.info.entry": " - %s von %s: %s je Tick%s, noch %s s, nächster Tick in %s s, bisher %s Ticks",
+  "commands.blightcaller.curse.info.no_caster": "ohne Zaubernden",
+  "commands.blightcaller.curse.info.offline": "Zaubernder offline (%s…)",
+  "commands.blightcaller.curse.clear.done": "%s Flüche von %s entfernt"
+}

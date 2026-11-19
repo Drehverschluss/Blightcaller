@@ -1,1 +1,21 @@
-{}
+{
+  "attribute.name.blightcaller.curse_duration": "Curse Duration",
+  "attribute.name.blightcaller.curse_duration.desc": "Your curses last longer. Each curse deals its damage for more seconds before it runs out.",
+
+  "effect.blightcaller.soulburn": "Soulburn",
+  "effect.blightcaller.soulburn.description": "Takes soul damage every second.",
+
+  "death.attack.blightcaller.curse": "%1$s withered away under a curse",
+  "death.attack.blightcaller.curse.player": "%1$s withered away under the curse of %2$s",
+
+  "commands.blightcaller.curse.not_a_curse": "%s is not a curse (mob effect tag #blightcaller:curses)",
+  "commands.blightcaller.curse.apply.done": "Cursed %s with %s for %s s: %s damage per tick (power %s x factor %s)%s",
+  "commands.blightcaller.curse.apply.failed": "%s cannot be cursed with %s",
+  "commands.blightcaller.curse.critical": ", critical x%s",
+  "commands.blightcaller.curse.info.none": "%s has no curses",
+  "commands.blightcaller.curse.info.header": "%s: curse level %s (%s curses, %s entries)",
+  "commands.blightcaller.curse.info.entry": " - %s from %s: %s per tick%s, %s s left, next tick in %s s, %s ticks so far",
+  "commands.blightcaller.curse.info.no_caster": "no caster",
+  "commands.blightcaller.curse.info.offline": "offline caster (%s…)",
+  "commands.blightcaller.curse.clear.done": "Removed %s curses from %s"
+}
