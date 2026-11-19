@@ -15,11 +15,36 @@ import net.spell_engine.api.effect.Synchronized;
  * which only sees effects that are synchronized ({@link Synchronized}).
  * <p>
  * Every curse must also be in the mob effect tag {@code #blightcaller:curses} (curse level, commands, Jade).
+ * <p>
+ * <b>Curses without damage</b> ({@code damaging = false}, e.g. Enfeeble): they count for the curse level and keep one
+ * entry per caster (duration, Jade, later phases), but their entries never hit the target: no 0-damage hit, no red flash,
+ * no hurt sound. What they do comes from the effect itself (attribute modifiers).
  */
 public class CurseEffect extends MobEffect {
+    private final boolean damaging;
+
+    /** A curse that deals soul damage over time. */
     public CurseEffect(int color) {
+        this(color, true);
+    }
+
+    public CurseEffect(int color, boolean damaging) {
         super(MobEffectCategory.HARMFUL, color);
+        this.damaging = damaging;
         Synchronized.configure(this, true);
+    }
+
+    /** Whether the entries of this curse deal damage on their ticks. */
+    public boolean dealsDamage() {
+        return damaging;
+    }
+
+    /**
+     * Amplifier for a new effect of this curse on the target when no spell set one (command, later phases). Spells set
+     * the amplifier themselves with their status effect impact; an existing effect always keeps its amplifier.
+     */
+    public int defaultAmplifier(LivingEntity target) {
+        return 0;
     }
 
     @Override

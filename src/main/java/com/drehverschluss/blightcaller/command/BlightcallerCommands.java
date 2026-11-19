@@ -130,6 +130,11 @@ public final class BlightcallerCommands {
             }
             done++;
             double left = entry.end - living.level().getGameTime();
+            if (!Curses.dealsDamage(curse.value())) {
+                source.sendSuccess(() -> Component.translatable("commands.blightcaller.curse.apply.done_no_damage",
+                        living.getDisplayName(), name(curse), seconds(left)), true);
+                continue;
+            }
             source.sendSuccess(() -> Component.translatable("commands.blightcaller.curse.apply.done", living.getDisplayName(),
                     name(curse), seconds(left), number(CurseDamage.amount(living, entry)), number(entry.power), number(entry.factor),
                     critical(entry)), true);
@@ -161,9 +166,15 @@ public final class BlightcallerCommands {
             }
             long now = living.level().getGameTime();
             for (Map.Entry<ResourceLocation, List<CurseEntry>> e : data.all().entrySet()) {
-                Component curseName = BuiltInRegistries.MOB_EFFECT.getHolder(e.getKey())
-                        .<Component>map(BlightcallerCommands::name).orElse(Component.literal(e.getKey().toString()));
+                var holder = BuiltInRegistries.MOB_EFFECT.getHolder(e.getKey());
+                Component curseName = holder.<Component>map(BlightcallerCommands::name).orElse(Component.literal(e.getKey().toString()));
+                boolean damaging = holder.map(h -> Curses.dealsDamage(h.value())).orElse(true);
                 for (CurseEntry entry : e.getValue()) {
+                    if (!damaging) {
+                        source.sendSuccess(() -> Component.translatable("commands.blightcaller.curse.info.entry_no_damage", curseName,
+                                casterName(living, entry), seconds(entry.end - now)), false);
+                        continue;
+                    }
                     source.sendSuccess(() -> Component.translatable("commands.blightcaller.curse.info.entry", curseName,
                             casterName(living, entry), number(CurseDamage.amount(living, entry)), critical(entry),
                             seconds(entry.end - now), seconds(Math.max(0, entry.nextTick - now)), entry.ticks), false);

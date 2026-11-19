@@ -1,6 +1,8 @@
 {
   "replace": false,
   "values": [
-    "blightcaller:soulburn"
+    "blightcaller:soulburn",
+    "blightcaller:soul_rot",
+    "blightcaller:enfeeble"
   ]
 }

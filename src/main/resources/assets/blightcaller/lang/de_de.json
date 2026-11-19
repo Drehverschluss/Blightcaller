@@ -40,5 +40,23 @@
   "item.blightcaller.grimoire_netherite_blight": "Fäulnis-Netheritegrimoire",
   "item.blightcaller.spell_book/blightcaller": "Buch der Fäulnis",
   "item.blightcaller.spell_book/blightcaller.spell_binding.description": "Zauberbuch der Blightcaller, verflucht Feinde mit Seelenmagie, die sie mit der Zeit verfaulen lässt\n- Stärken: Schaden über Zeit, Schwächung, stark gegen zähe Gegner und Bosse\n- Schwächen: Langsamer Start, wenig Sofortschaden, sehr geringe Verteidigung\n- Ausrüstung: Leicht gepanzert",
-  "item.blightcaller.spell_scroll/blightcaller": "Fäulnis Zauberrolle"
+  "item.blightcaller.spell_scroll/blightcaller": "Fäulnis Zauberrolle",
+
+  "effect.blightcaller.soul_rot": "Seelenfäule",
+  "effect.blightcaller.soul_rot.description": "Erleidet lange Zeit jede Sekunde Seelenschaden.",
+  "effect.blightcaller.enfeeble": "Entkräftung",
+  "effect.blightcaller.enfeeble.description": "Nimmt mehr Schaden aus allen Quellen. Ein Fluch ohne eigenen Schaden.",
+  "spell.blightcaller.hex_bolt.name": "Fluchbolzen",
+  "spell.blightcaller.hex_bolt.description": "Schleudert einen Fluchbolzen, der {damage} Seelenzauber-Schaden verursacht und das Ziel mit Seelenbrand belegt.",
+  "spell.blightcaller.blight_burst.name": "Fäulnisstoß",
+  "spell.blightcaller.blight_burst.description": "Schleudert eine Kugel aus Fäulnis, die beim Aufprall platzt, allen Gegnern im Umkreis von {impact_range} Blöcken {damage} Seelenzauber-Schaden zufügt und sie mit Seelenbrand belegt.",
+  "spell.blightcaller.soul_rot.name": "Seelenfäule",
+  "spell.blightcaller.soul_rot.description": "Verflucht das Ziel mit Seelenfäule, die seine Seele lange Zeit verrotten lässt.",
+  "spell.blightcaller.enfeeble.name": "Entkräftung",
+  "spell.blightcaller.enfeeble.description": "Verflucht das Ziel mit Entkräftung, die es verwundbarer gegen jeden Schaden macht. Verursacht selbst keinen Schaden.",
+  "spell.tooltip.blightcaller.curse_damage": "%1$s: %2$s Seelenschaden pro Sekunde für %3$s s (insgesamt %4$s).",
+  "spell.tooltip.blightcaller.curse_weaken": "%1$s für %2$s s: Das Ziel nimmt %3$s mehr Schaden aus allen Quellen (Bosse %4$s).",
+  "spell.tooltip.blightcaller.curse_level_bonus": "+%1$s Schaden je Fluch auf dem Ziel, bis zu %2$s Flüche.",
+  "commands.blightcaller.curse.apply.done_no_damage": "%s mit %s für %s s verflucht (ohne Schaden)",
+  "commands.blightcaller.curse.info.entry_no_damage": " - %s von %s: ohne Schaden, noch %s s"
 }

@@ -1,0 +1,252 @@
+{
+  "school": "spell_power:soul",
+  "range": 48.0,
+  "tier": 1,
+  "group": "blightcaller_weapon",
+  "learn": {},
+  "active": {
+    "cast": {
+      "duration": 1.1,
+      "animation": {
+        "id": "spell_engine:one_handed_projectile_charge"
+      },
+      "sound": {
+        "id": "spell_engine:generic_soul_casting",
+        "randomness": 0.0
+      },
+      "particles": [
+        {
+          "id": "spell_engine:magic_skull",
+          "appearance": {
+            "color": 2321277183,
+            "motion": "FLOAT",
+            "scale": 0.5
+          },
+          "batch": {
+            "count": 0.6,
+            "shape": "SPHERE",
+            "anchor": "LAUNCH_POINT",
+            "min_speed": 0.02,
+            "max_speed": 0.06
+          }
+        },
+        {
+          "id": "spell_engine:magic_spark",
+          "appearance": {
+            "color": 2583652095,
+            "scale": 0.5
+          },
+          "batch": {
+            "count": 0.8,
+            "shape": "SPHERE",
+            "anchor": "LAUNCH_POINT",
+            "min_speed": 0.02,
+            "max_speed": 0.08
+          }
+        }
+      ]
+    }
+  },
+  "release": {
+    "animation": {
+      "id": "spell_engine:one_handed_projectile_release"
+    }
+  },
+  "target": {
+    "type": "AIM",
+    "aim": {}
+  },
+  "deliver": {
+    "type": "PROJECTILE",
+    "projectile": {
+      "launch_properties": {
+        "velocity": 0.9,
+        "sound": {
+          "id": "spell_engine:generic_soul_release",
+          "pitch": 0.8
+        }
+      },
+      "projectile": {
+        "client_data": {
+          "light_level": 12,
+          "travel_particles": [
+            {
+              "id": "spell_engine:smoke_medium",
+              "appearance": {
+                "color": 2321277081,
+                "scale": 0.55
+              },
+              "batch": {
+                "count": 0.6,
+                "shape": "SPHERE",
+                "anchor": "ENTITY",
+                "min_speed": 0.0,
+                "max_speed": 0.03
+              }
+            },
+            {
+              "id": "spell_engine:magic_skull",
+              "appearance": {
+                "color": 2321277183,
+                "motion": "DECELERATE",
+                "scale": 0.7,
+                "glow": true
+              },
+              "batch": {
+                "count": 0.7,
+                "shape": "SPHERE",
+                "anchor": "ENTITY",
+                "min_speed": 0.0,
+                "max_speed": 0.04
+              }
+            },
+            {
+              "id": "spell_engine:dripping_blood",
+              "appearance": {
+                "color": 2142391039,
+                "scale": 0.9
+              },
+              "batch": {
+                "count": 0.6,
+                "shape": "SPHERE",
+                "anchor": "ENTITY",
+                "min_speed": 0.0,
+                "max_speed": 0.02
+              }
+            }
+          ]
+        }
+      }
+    }
+  },
+  "impacts": [
+    {
+      "action": {
+        "type": "DAMAGE",
+        "damage": {
+          "spell_power_coefficient": 0.4,
+          "knockback": 0.5
+        }
+      },
+      "visuals": {
+        "particles": [
+          {
+            "id": "spell_engine:magic_skull",
+            "appearance": {
+              "color": 2321277183,
+              "motion": "BURST",
+              "scale": 0.8,
+              "glow": true
+            },
+            "batch": {
+              "count": 8.0,
+              "shape": "SPHERE",
+              "anchor": "ENTITY",
+              "min_speed": 0.1,
+              "max_speed": 0.3
+            }
+          }
+        ]
+      }
+    },
+    {
+      "action": {
+        "type": "STATUS_EFFECT",
+        "status_effect": {
+          "effect_id": "blightcaller:soulburn",
+          "duration": 4.0
+        }
+      }
+    },
+    {
+      "action": {
+        "type": "CUSTOM",
+        "custom": {
+          "intent": "HARMFUL",
+          "handler": "blightcaller:curse/0.1"
+        }
+      }
+    }
+  ],
+  "area_impact": {
+    "radius": 3.0,
+    "area": {
+      "distance_dropoff": "NONE"
+    },
+    "visuals": {
+      "particles": [
+        {
+          "id": "spell_engine:area_effect_293",
+          "appearance": {
+            "color": 2321277081,
+            "scale": 3.0
+          },
+          "batch": {
+            "count": 1.0,
+            "shape": "NONE",
+            "anchor": "GROUND"
+          }
+        },
+        {
+          "id": "spell_engine:magic_skull",
+          "appearance": {
+            "color": 2321277183,
+            "motion": "BURST",
+            "scale": 0.9,
+            "glow": true
+          },
+          "batch": {
+            "count": 18.0,
+            "shape": "CIRCLE",
+            "anchor": "GROUND",
+            "min_speed": 0.35,
+            "max_speed": 0.45
+          }
+        },
+        {
+          "id": "spell_engine:smoke_medium",
+          "appearance": {
+            "color": 2321277081,
+            "motion": "BURST",
+            "scale": 1.2
+          },
+          "batch": {
+            "count": 16.0,
+            "shape": "CIRCLE",
+            "anchor": "GROUND",
+            "min_speed": 0.25,
+            "max_speed": 0.4
+          }
+        },
+        {
+          "id": "spell_engine:magic_spark",
+          "appearance": {
+            "color": 2583652095,
+            "motion": "BURST",
+            "scale": 0.7
+          },
+          "batch": {
+            "count": 24.0,
+            "shape": "SPHERE",
+            "anchor": "ENTITY",
+            "min_speed": 0.2,
+            "max_speed": 0.5
+          }
+        }
+      ]
+    },
+    "sound": {
+      "id": "spell_engine:poison_cloud_spawn",
+      "volume": 1.0,
+      "pitch": 0.8
+    }
+  },
+  "cost": {
+    "cooldown": {
+      "group": "weapon"
+    },
+    "item": {
+      "id": "runes:soul_stone"
+    }
+  }
+}

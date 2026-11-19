@@ -15,6 +15,7 @@ public final class BlightcallerConfig {
 
     public static final ModConfigSpec.DoubleValue MAX_CURSE_DURATION_BONUS;
     public static final ModConfigSpec.IntValue CURSE_TICK_INTERVAL;
+    public static final ModConfigSpec.DoubleValue ENFEEBLE_BONUS_PER_LEVEL;
 
     static {
         ModConfigSpec.Builder builder = new ModConfigSpec.Builder();
@@ -32,6 +33,12 @@ public final class BlightcallerConfig {
                         "Every tick is a hit: the target flashes red and plays its hurt sound.",
                         "If a curse ends between two ticks, it ticks once more at its end with the matching share of the damage.")
                 .defineInRange("curse_tick_interval", 20, 1, 200);
+        ENFEEBLE_BONUS_PER_LEVEL = builder
+                .comment("Enfeeble: extra damage the target takes from all sources, per effect level, as a fraction.",
+                        "The spell gives level 2 (amplifier 1) to normal targets and level 1 (amplifier 0) to targets in the",
+                        "entity tag #blightcaller:curse_resistant (bosses). 0.05 = +10% on normal targets, +5% on bosses.",
+                        "Only one Enfeeble effect is on a target, so several casters do not stack it.")
+                .defineInRange("enfeeble_bonus_per_level", 0.05, 0.0, 1.0);
         builder.pop();
 
         SPEC = builder.build();

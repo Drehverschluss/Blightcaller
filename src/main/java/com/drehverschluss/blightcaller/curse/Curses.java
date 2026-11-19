@@ -45,6 +45,11 @@ public final class Curses {
         return effect.is(CurseEffects.CURSES);
     }
 
+    /** Whether a curse deals damage over time (all but curses like Enfeeble, see {@link CurseEffect#dealsDamage()}). */
+    public static boolean dealsDamage(MobEffect effect) {
+        return !(effect instanceof CurseEffect curse) || curse.dealsDamage();
+    }
+
     /** Number of different curses on the entity, capped at {@value #MAX_CURSE_LEVEL}. Server side. */
     public static int curseLevel(LivingEntity entity) {
         return Math.min(MAX_CURSE_LEVEL, curseCount(entity));
@@ -154,7 +159,8 @@ public final class Curses {
         int wanted = (int) Math.min(Integer.MAX_VALUE - 1, latest - now) + 1;
         MobEffectInstance current = target.getEffect(curse);
         if (current == null) {
-            return target.addEffect(instance(curse, wanted, 0), source) && target.hasEffect(curse);
+            int amplifier = curse.value() instanceof CurseEffect effect ? effect.defaultAmplifier(target) : 0;
+            return target.addEffect(instance(curse, wanted, amplifier), source) && target.hasEffect(curse);
         }
         if (current.getDuration() < wanted) {
             target.addEffect(instance(curse, wanted, current.getAmplifier()), source);
@@ -188,6 +194,8 @@ public final class Curses {
             }
             long now = entity.level().getGameTime();
             int interval = BlightcallerConfig.get(BlightcallerConfig.CURSE_TICK_INTERVAL);
+            // curses without damage (Enfeeble) keep their rhythm and tick count, but never hit
+            boolean damaging = dealsDamage(effect);
             // a copy: a tick may kill the target, and death handlers may read the entries
             for (CurseEntry entry : List.copyOf(entries)) {
                 if (now > entry.expires()) {
@@ -211,7 +219,7 @@ public final class Curses {
                         share += fraction;
                     }
                 }
-                if (share > 0.0 && entity.isAlive()) {
+                if (damaging && share > 0.0 && entity.isAlive()) {
                     CurseDamage.tick(entity, entry, share);
                 }
                 if (ends) {

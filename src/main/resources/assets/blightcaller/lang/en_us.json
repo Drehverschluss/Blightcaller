@@ -40,5 +40,23 @@
   "item.blightcaller.grimoire_netherite_blight": "Netherite Blight Grimoire",
   "item.blightcaller.spell_book/blightcaller": "Tome of Blight",
   "item.blightcaller.spell_book/blightcaller.spell_binding.description": "Spell Book of Blightcallers, cursing foes with soul magic that rots them over time\n- Strengths: Damage over time, weakening, strong against tough enemies and bosses\n- Weaknesses: Slow start, little burst damage, very low defense\n- Equipment: Lightly armored",
-  "item.blightcaller.spell_scroll/blightcaller": "Blight Spell Scroll"
+  "item.blightcaller.spell_scroll/blightcaller": "Blight Spell Scroll",
+
+  "effect.blightcaller.soul_rot": "Soul Rot",
+  "effect.blightcaller.soul_rot.description": "Takes soul damage every second for a long time.",
+  "effect.blightcaller.enfeeble": "Enfeeble",
+  "effect.blightcaller.enfeeble.description": "Takes more damage from all sources. A curse without damage of its own.",
+  "spell.blightcaller.hex_bolt.name": "Hex Bolt",
+  "spell.blightcaller.hex_bolt.description": "Hurls a bolt of hex, causing {damage} soul spell damage and setting Soulburn on the target.",
+  "spell.blightcaller.blight_burst.name": "Blight Burst",
+  "spell.blightcaller.blight_burst.description": "Launches a ball of blight that bursts on impact, causing {damage} soul spell damage and setting Soulburn on all enemies within {impact_range} blocks.",
+  "spell.blightcaller.soul_rot.name": "Soul Rot",
+  "spell.blightcaller.soul_rot.description": "Curses the target with Soul Rot, rotting its soul for a long time.",
+  "spell.blightcaller.enfeeble.name": "Enfeeble",
+  "spell.blightcaller.enfeeble.description": "Curses the target with Enfeeble, making it more vulnerable to all damage. Deals no damage itself.",
+  "spell.tooltip.blightcaller.curse_damage": "%1$s: %2$s soul damage per second for %3$s s (%4$s in total).",
+  "spell.tooltip.blightcaller.curse_weaken": "%1$s for %2$s s: the target takes %3$s more damage from all sources (bosses %4$s).",
+  "spell.tooltip.blightcaller.curse_level_bonus": "+%1$s damage per curse on the target, up to %2$s curses.",
+  "commands.blightcaller.curse.apply.done_no_damage": "Cursed %s with %s for %s s (no damage)",
+  "commands.blightcaller.curse.info.entry_no_damage": " - %s from %s: no damage, %s s left"
 }
