@@ -1,0 +1,14 @@
+{
+  "school": "spell_power:soul",
+  "range": 0.0,
+  "tier": 2,
+  "type": "MODIFIER",
+  "modifiers": [
+    {
+      "spell_pattern": "blightcaller:soul_rot",
+      "power_modifier": {
+        "power_multiplier": 0.1
+      }
+    }
+  ]
+}

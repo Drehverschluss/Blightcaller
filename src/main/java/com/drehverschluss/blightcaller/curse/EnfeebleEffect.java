@@ -17,9 +17,10 @@ import org.jetbrains.annotations.Nullable;
  * ticks of everyone) through Spell Engine's attribute {@code spell_engine:damage_taken} (base 100; Spell Engine multiplies
  * every hit at the start of {@code LivingEntity.hurt} with value / 100).
  * <p>
- * <b>Amplifier = strength:</b> bonus = (amplifier + 1) x {@code enfeeble_bonus_per_level} (server config, 0.05). The spell
- * sets amplifier 1 (+10 %) on normal targets and amplifier 0 (+5 %) on targets in {@code #blightcaller:curse_resistant}
- * (bosses), with two status effect impacts that allow / deny that tag. Pack makers change the strength in the spell
+ * <b>Amplifier = strength:</b> bonus = (amplifier + 1) x {@code enfeeble_bonus_per_level} (server config, 0.05), half of it
+ * on targets in {@code #blightcaller:curse_resistant} (bosses). The spell sets amplifier 1: +10 %, bosses +5 %. Since phase 7A
+ * the boss half comes from here, not from a second amplifier in the spell, so modifiers with {@code effect_amplifier_add}
+ * (skill tree: Deep Frailty, +1 = +15 % / bosses +7.5 %) keep the boss rule. Pack makers change the strength in the spell
  * (amplifier) or in the config, and the boss rule in the tag.
  * <p>
  * <b>Several casters:</b> one modifier per target, so its bonus counts once, however many Blightcallers put Enfeeble on it
@@ -36,15 +37,24 @@ public class EnfeebleEffect extends CurseEffect {
         super(color, false);
     }
 
-    /** Damage taken bonus of an Enfeeble effect with this amplifier, as a fraction (0.1 = +10 %). */
+    /** Damage taken bonus of an Enfeeble effect with this amplifier on a normal target, as a fraction (0.1 = +10 %). */
     public static double bonus(int amplifier) {
         return (amplifier + 1) * BlightcallerConfig.get(BlightcallerConfig.ENFEEBLE_BONUS_PER_LEVEL);
     }
 
-    /** Normal targets amplifier 1 (+10 %), curse resistant ones (bosses) amplifier 0 (+5 %). */
+    /** The bonus on a target in {@code #blightcaller:curse_resistant} (bosses): half. */
+    public static double bonus(int amplifier, boolean resistant) {
+        return resistant ? bonus(amplifier) * 0.5 : bonus(amplifier);
+    }
+
+    public static boolean resistant(LivingEntity target) {
+        return target.getType().is(CurseEffects.CURSE_RESISTANT);
+    }
+
+    /** Amplifier 1: +10 %, bosses +5 % (the half comes from {@link #bonus(int, boolean)}). */
     @Override
     public int defaultAmplifier(LivingEntity target) {
-        return target.getType().is(CurseEffects.CURSE_RESISTANT) ? 0 : 1;
+        return 1;
     }
 
     @Nullable
@@ -52,8 +62,8 @@ public class EnfeebleEffect extends CurseEffect {
         return SpellEngineAttributes.DAMAGE_TAKEN.entry;
     }
 
-    private static AttributeModifier modifier(int amplifier) {
-        return new AttributeModifier(MODIFIER_ID, bonus(amplifier), AttributeModifier.Operation.ADD_MULTIPLIED_BASE);
+    private static AttributeModifier modifier(int amplifier, boolean resistant) {
+        return new AttributeModifier(MODIFIER_ID, bonus(amplifier, resistant), AttributeModifier.Operation.ADD_MULTIPLIED_BASE);
     }
 
     @Override
@@ -61,7 +71,7 @@ public class EnfeebleEffect extends CurseEffect {
         super.createModifiers(amplifier, output);
         Holder<Attribute> attribute = damageTaken();
         if (attribute != null) {
-            output.accept(attribute, modifier(amplifier));
+            output.accept(attribute, modifier(amplifier, false));
         }
     }
 
@@ -75,7 +85,7 @@ public class EnfeebleEffect extends CurseEffect {
         AttributeInstance instance = instance(target);
         if (instance != null) {
             instance.removeModifier(MODIFIER_ID);
-            instance.addTransientModifier(modifier(amplifier));
+            instance.addTransientModifier(modifier(amplifier, resistant(target)));
         }
     }
 

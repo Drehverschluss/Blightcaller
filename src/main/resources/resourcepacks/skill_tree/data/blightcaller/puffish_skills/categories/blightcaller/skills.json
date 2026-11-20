@@ -1,0 +1,143 @@
+{
+  "root": {
+    "definition": "blightcaller_root",
+    "x": 0,
+    "y": 150,
+    "root": true
+  },
+  "passive_1_a": {
+    "definition": "blightcaller_soul_migration",
+    "x": -32,
+    "y": 106
+  },
+  "passive_1_b": {
+    "definition": "blightcaller_deepening_rot",
+    "x": 32,
+    "y": 106
+  },
+  "boost_1": {
+    "definition": "blightcaller_boost",
+    "x": 0,
+    "y": 62
+  },
+  "tier_2_a": {
+    "definition": "blightcaller_improved_soul_rot",
+    "x": -64,
+    "y": 62
+  },
+  "tier_2_a_mod_1": {
+    "definition": "blightcaller_spreading_rot",
+    "x": -102,
+    "y": 83
+  },
+  "tier_2_a_mod_2": {
+    "definition": "blightcaller_tenacious_rot",
+    "x": -102,
+    "y": 41
+  },
+  "tier_2_b": {
+    "definition": "blightcaller_improved_enfeeble",
+    "x": 64,
+    "y": 62
+  },
+  "tier_2_b_mod_1": {
+    "definition": "blightcaller_deep_frailty",
+    "x": 102,
+    "y": 83
+  },
+  "tier_2_b_mod_2": {
+    "definition": "blightcaller_enervation",
+    "x": 102,
+    "y": 41
+  },
+  "passive_2_a": {
+    "definition": "blightcaller_blightbloom",
+    "x": -32,
+    "y": 14
+  },
+  "passive_2_b": {
+    "definition": "blightcaller_vengeful_hex",
+    "x": 32,
+    "y": 14
+  },
+  "boost_2": {
+    "definition": "blightcaller_boost",
+    "x": 0,
+    "y": -34
+  },
+  "tier_3_a": {
+    "definition": "blightcaller_improved_gravebind",
+    "x": -64,
+    "y": -34
+  },
+  "tier_3_a_mod_1": {
+    "definition": "blightcaller_enduring_chains",
+    "x": -102,
+    "y": -13
+  },
+  "tier_3_a_mod_2": {
+    "definition": "blightcaller_soulfire_chains",
+    "x": -102,
+    "y": -55
+  },
+  "tier_3_b": {
+    "definition": "blightcaller_improved_drain_soul",
+    "x": 64,
+    "y": -34
+  },
+  "tier_3_b_mod_1": {
+    "definition": "blightcaller_deep_drain",
+    "x": 102,
+    "y": -13
+  },
+  "tier_3_b_mod_2": {
+    "definition": "blightcaller_lingering_rend",
+    "x": 102,
+    "y": -55
+  },
+  "passive_3_a": {
+    "definition": "blightcaller_infectious_curses",
+    "x": -32,
+    "y": -82
+  },
+  "passive_3_b": {
+    "definition": "blightcaller_coup_de_grace",
+    "x": 32,
+    "y": -82
+  },
+  "boost_3": {
+    "definition": "blightcaller_boost",
+    "x": 0,
+    "y": -130
+  },
+  "tier_4_a": {
+    "definition": "blightcaller_improved_pestilence",
+    "x": -64,
+    "y": -130
+  },
+  "tier_4_a_mod_1": {
+    "definition": "blightcaller_rapid_contagion",
+    "x": -102,
+    "y": -109
+  },
+  "tier_4_a_mod_2": {
+    "definition": "blightcaller_wide_contagion",
+    "x": -102,
+    "y": -151
+  },
+  "tier_4_b": {
+    "definition": "blightcaller_improved_last_rites",
+    "x": 64,
+    "y": -130
+  },
+  "tier_4_b_mod_1": {
+    "definition": "blightcaller_swift_rites",
+    "x": 102,
+    "y": -109
+  },
+  "tier_4_b_mod_2": {
+    "definition": "blightcaller_soul_echo",
+    "x": 102,
+    "y": -151
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "school": "spell_power:soul",
+  "range": 0.0,
+  "tier": 2,
+  "type": "MODIFIER",
+  "modifiers": [
+    {
+      "spell_pattern": "blightcaller:soul_rot",
+      "mutate_impacts": "APPEND",
+      "impacts": [
+        {
+          "action": {
+            "type": "CUSTOM",
+            "custom": {
+              "intent": "HARMFUL",
+              "handler": "blightcaller:spreading_rot/4.0"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

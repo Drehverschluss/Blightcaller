@@ -2,6 +2,10 @@ package com.drehverschluss.blightcaller;
 
 import com.drehverschluss.blightcaller.client.CurseParticles;
 import com.drehverschluss.blightcaller.client.CurseTooltips;
+import com.drehverschluss.blightcaller.client.SkillNodeTooltips;
+import com.drehverschluss.blightcaller.compat.skilltree.SkillTab;
+import com.drehverschluss.blightcaller.compat.skilltree.client.ClassLockClient;
+import com.drehverschluss.blightcaller.compat.skilltree.client.SkillTreeClient;
 import com.drehverschluss.blightcaller.client.display.CurseDisplay;
 import com.drehverschluss.blightcaller.client.fx.FxClient;
 import com.drehverschluss.blightcaller.config.BlightcallerClientConfig;
@@ -23,6 +27,11 @@ public class BlightcallerClient {
         container.registerExtensionPoint(IConfigScreenFactory.class, ConfigurationScreen::new);
         modEventBus.addListener(FMLClientSetupEvent.class, event -> event.enqueueWork(CurseParticles::register));
         CurseTooltips.register();
+        SkillNodeTooltips.register();
+        ClassLockClient.init();
+        if (SkillTab.enabled()) {
+            SkillTreeClient.init();
+        }
         FxClient.register(modEventBus);
         CurseDisplay.register(modEventBus);
     }

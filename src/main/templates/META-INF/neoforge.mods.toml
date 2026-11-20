@@ -10,6 +10,10 @@ file="META-INF/accesstransformer.cfg"
 [[mixins]]
 config="${mod_id}.mixins.json"
 
+# Only applied when Pufferfish's Skills is installed (see mixin.skills.SkillsMixinPlugin)
+[[mixins]]
+config="${mod_id}.skills.mixins.json"
+
 [[mods]]
 modId="${mod_id}"
 version="${mod_version}"
@@ -62,4 +66,20 @@ description='''${mod_description}'''
     type="optional"
     versionRange="${jade_version_range}"
     ordering="NONE"
+    side="BOTH"
+
+[[dependencies.${mod_id}]]
+    # Optional: the Blightcaller skill tab, or its branch in the Class Skills tab (compat/skilltree, only with Skill Tree)
+    modId="skill_tree_rpgs"
+    type="optional"
+    versionRange="${skill_tree_version_range}"
+    ordering="AFTER"
+    side="BOTH"
+
+[[dependencies.${mod_id}]]
+    # Optional: the skill tab runs on Pufferfish's Skills (comes with Skill Tree)
+    modId="puffish_skills"
+    type="optional"
+    versionRange="${puffish_skills_version_range}"
+    ordering="AFTER"
     side="BOTH"

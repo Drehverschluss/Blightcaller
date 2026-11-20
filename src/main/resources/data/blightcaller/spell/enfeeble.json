@@ -131,7 +131,7 @@
         "status_effect": {
           "effect_id": "blightcaller:enfeeble",
           "duration": 8.0,
-          "amplifier": 0
+          "amplifier": 1
         }
       },
       "target_modifiers": [

@@ -217,8 +217,20 @@ public final class CurseTooltips {
                 return I18n.get(SLOW_KEY, name, number(extended), percent(GravebindEffect.slow(normal)),
                         percent(GravebindEffect.slow(resistant)));
             }
-            return I18n.get(WEAKEN_KEY, name, number(extended), percent(EnfeebleEffect.bonus(normal)),
-                    percent(EnfeebleEffect.bonus(resistant)));
+            // bosses get half in code; modifiers (Deep Frailty) raise the amplifier of the impact
+            int amplifier = normal;
+            if (player != null) {
+                for (Spell.Impact impact : impactsOf(spell)) {
+                    if (curse.equals(curseOf(impact))) {
+                        for (Spell.Modifier modifier : SpellModifiers.ofImpact(player, entry, impact, null)) {
+                            amplifier += modifier.effect_amplifier_add;
+                        }
+                        break;
+                    }
+                }
+            }
+            return I18n.get(WEAKEN_KEY, name, number(extended), percent(EnfeebleEffect.bonus(amplifier, false)),
+                    percent(EnfeebleEffect.bonus(amplifier, true)));
         }
 
         double power = player == null ? 0.0 : SpellPower.getSpellPower(SpellSchools.SOUL, player).baseValue();

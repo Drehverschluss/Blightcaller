@@ -1,0 +1,24 @@
+{
+  "school": "spell_power:soul",
+  "range": 0.0,
+  "tier": 1,
+  "type": "PASSIVE",
+  "passive": {
+    "triggers": []
+  },
+  "impacts": [
+    {
+      "action": {
+        "type": "CUSTOM",
+        "custom": {
+          "intent": "HARMFUL",
+          "handler": "blightcaller:soul_migration"
+        }
+      }
+    }
+  ],
+  "cost": {
+    "exhaust": 0.0,
+    "durability": 0
+  }
+}

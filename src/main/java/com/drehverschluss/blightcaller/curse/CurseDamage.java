@@ -51,14 +51,23 @@ public final class CurseDamage {
      * interval, up to 2 when a full tick and the last share fall into the same game tick). Returns whether the hit landed.
      */
     public static boolean tick(LivingEntity target, CurseEntry entry, double share) {
+        return tick(target, entry, share, 1);
+    }
+
+    /**
+     * Like {@link #tick(LivingEntity, CurseEntry, double)}, as the {@code number}-th tick of the entry on this target: with
+     * Deepening Rot (skill tree) the caster's ticks grow stronger with every tick ({@link DeepeningRot}).
+     */
+    public static boolean tick(LivingEntity target, CurseEntry entry, double share, int number) {
         if (!(target.level() instanceof ServerLevel level) || target.isDeadOrDying()) {
             return false;
         }
-        float amount = (float) (amount(target, entry) * share);
+        LivingEntity caster = resolveCaster(level, entry.caster);
+        float amount = (float) (amount(target, entry) * share * (1.0 + DeepeningRot.bonus(caster, number)));
         if (amount <= 0.0F) {
             return false;
         }
-        return hurt(target, new CurseDamageSource(type(level), resolveCaster(level, entry.caster)), amount);
+        return hurt(target, new CurseDamageSource(type(level), caster), amount);
     }
 
     /** Hurts the target without touching its invulnerability window (save, reset, hit, restore). */

@@ -27,11 +27,14 @@ public final class CurseEntry {
             UUIDUtil.CODEC.optionalFieldOf("chain").forGetter(e -> Optional.ofNullable(e.chain)),
             Codec.INT.optionalFieldOf("ticks", 0).forGetter(e -> e.ticks),
             Codec.BOOL.optionalFieldOf("transferred", false).forGetter(e -> e.transferred),
-            Codec.LONG.optionalFieldOf("next_spread", 0L).forGetter(e -> e.nextSpread)
-    ).apply(i, (caster, power, factor, critical, criticalDamage, nextTick, end, jumps, chain, ticks, transferred, nextSpread) -> {
+            Codec.LONG.optionalFieldOf("next_spread", 0L).forGetter(e -> e.nextSpread),
+            Codec.DOUBLE.optionalFieldOf("enervation", 0.0).forGetter(e -> e.enervation)
+    ).apply(i, (caster, power, factor, critical, criticalDamage, nextTick, end, jumps, chain, ticks, transferred, nextSpread,
+                enervation) -> {
         CurseEntry entry = new CurseEntry(caster.orElse(null), power, factor, critical, criticalDamage, nextTick, end, jumps,
                 chain.orElse(null), ticks, transferred);
         entry.nextSpread = nextSpread;
+        entry.enervation = enervation;
         return entry;
     }));
 
@@ -54,17 +57,27 @@ public final class CurseEntry {
      * fraction of the damage ({@link Curses}).
      */
     public final double end;
-    /** Times this curse has jumped to a new target (Soul Migration, later phase). */
+    /** Times this curse has moved to a new target (Soul Migration). */
     public final int jumps;
     /** Shared id of all copies made by one cast of Pestilence ({@link Pestilence}): their common carrier budget. */
     @Nullable
     public final UUID chain;
-    /** Damage ticks this entry has dealt so far (Deepening Rot, later phase). Kept when the same caster refreshes. */
+    /** Damage ticks this entry has dealt so far (Deepening Rot). Kept when the same caster refreshes. */
     public int ticks;
     /** Moved here from another target: keeps its remaining duration and is never extended by Curse Duration again. */
     public final boolean transferred;
     /** Game time of the next spreading attempt (Pestilence), 0 for curses that do not spread. */
     public long nextSpread;
+    /**
+     * Enervation (skill tree, Enfeeble): the target deals this much less damage while the entry lasts (0.1 = 10 %, bosses
+     * half). Set by the marker {@code blightcaller:enervation/<fraction>} right after the curse; a refresh without it clears it.
+     */
+    public double enervation;
+    /**
+     * Client view only, not saved: game time from which the ring of the curse icon runs for a curse that moved here (Soul
+     * Migration keeps the ring where it was). -1 = none.
+     */
+    public long viewSince = -1;
 
     public CurseEntry(@Nullable UUID caster, double power, double factor, boolean critical, double criticalDamage,
                       long nextTick, double end, int jumps, @Nullable UUID chain, int ticks, boolean transferred) {
@@ -100,6 +113,7 @@ public final class CurseEntry {
     public String toString() {
         return "CurseEntry{caster=" + caster + ", power=" + power + ", factor=" + factor + ", critical=" + critical
                 + ", criticalDamage=" + criticalDamage + ", nextTick=" + nextTick + ", end=" + end + ", jumps=" + jumps
-                + ", chain=" + chain + ", ticks=" + ticks + ", transferred=" + transferred + ", nextSpread=" + nextSpread + "}";
+                + ", chain=" + chain + ", ticks=" + ticks + ", transferred=" + transferred + ", nextSpread=" + nextSpread
+                + ", enervation=" + enervation + "}";
     }
 }

@@ -2,8 +2,6 @@ package com.drehverschluss.blightcaller.curse;
 
 import com.drehverschluss.blightcaller.Blightcaller;
 import com.drehverschluss.blightcaller.config.BlightcallerConfig;
-import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,7 +19,6 @@ import net.minecraft.world.entity.OwnableEntity;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.server.ServerStoppedEvent;
@@ -30,7 +27,6 @@ import net.spell_engine.api.spell.Spell;
 import net.spell_engine.internals.SpellModifiers;
 import net.spell_engine.internals.target.EntityRelations;
 import net.spell_engine.internals.target.SpellTarget;
-import net.spell_engine.utils.TargetHelper;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 
@@ -113,7 +109,16 @@ public final class Pestilence {
         return app.withChain(id);
     }
 
-    /** After a cast: first spreading attempt one interval from now; a failed cast drops its chain again. */
+    /** A Pestilence entry moved to a new carrier (Soul Migration): no new place in its chain, it spreads on from there. */
+    static void afterMigration(LivingEntity target, CurseEntry entry) {
+        entry.nextSpread = target.level().getGameTime() + interval();
+        Chain chain = entry.chain == null ? null : CHAINS.get(entry.chain);
+        if (chain != null) {
+            chain.expires = Math.max(chain.expires, entry.end);
+        }
+    }
+
+    /** After a cast: first spreading attempt after {@code first_spread} ticks; a failed cast drops its chain again. */
     public static void afterCast(LivingEntity target, CurseApplication app, @Nullable CurseEntry entry) {
         if (app.chain() == null) {
             return;
@@ -122,7 +127,7 @@ public final class Pestilence {
             CHAINS.remove(app.chain());
             return;
         }
-        entry.nextSpread = target.level().getGameTime() + interval();
+        entry.nextSpread = target.level().getGameTime() + BlightcallerConfig.get(BlightcallerConfig.PESTILENCE_FIRST_SPREAD);
         Chain chain = CHAINS.get(app.chain());
         if (chain != null) {
             chain.expires = Math.max(chain.expires, entry.end);
@@ -185,27 +190,23 @@ public final class Pestilence {
         }
     }
 
-    /** Nearest valid new carrier within the radius, or {@code null}. */
+    /** Nearest valid new carrier within the radius (monsters first, phase 7A), or {@code null}. */
     @Nullable
     static LivingEntity findTarget(ServerLevel level, LivingEntity carrier, @Nullable LivingEntity caster, @Nullable UUID casterId) {
         double radius = BlightcallerConfig.get(BlightcallerConfig.PESTILENCE_SPREAD_RADIUS);
-        if (radius <= 0.0) {
-            return null;
-        }
-        AABB box = carrier.getBoundingBox().inflate(radius);
-        List<LivingEntity> candidates = new ArrayList<>(level.getEntitiesOfClass(LivingEntity.class, box,
-                e -> e != carrier && e.distanceTo(carrier) <= radius && valid(e, caster, casterId)));
-        candidates.sort(Comparator.comparingDouble(e -> e.distanceToSqr(carrier)));
-        for (LivingEntity candidate : candidates) {
-            if (TargetHelper.isInLineOfSight(carrier, candidate)) {
-                return candidate;
-            }
-        }
-        return null;
+        return SkillMarkers.nearest(level, carrier, radius, caster, casterId, e -> !Curses.hasCurse(e, CurseEffects.PESTILENCE));
     }
 
     /** Whether an entity may become a new carrier: an enemy of the caster without Pestilence. */
     public static boolean valid(LivingEntity e, @Nullable LivingEntity caster, @Nullable UUID casterId) {
+        return validTarget(e, caster, casterId) && !Curses.hasCurse(e, CurseEffects.PESTILENCE);
+    }
+
+    /**
+     * The target rules of Pestilence, Soul Migration and Spreading Rot: alive, attackable, no player, no armor stand, no tamed
+     * pet, not the caster, not curse immune, and Spell Engine's area relations for the caster (only monsters if offline).
+     */
+    public static boolean validTarget(LivingEntity e, @Nullable LivingEntity caster, @Nullable UUID casterId) {
         if (!e.isAlive() || e.isDeadOrDying() || e.isSpectator() || !e.isAttackable() || e instanceof Player || e instanceof ArmorStand) {
             return false;
         }
@@ -215,7 +216,7 @@ public final class Pestilence {
         if (e instanceof OwnableEntity owned && owned.getOwnerUUID() != null) {
             return false;
         }
-        if (Curses.hasCurse(e, CurseEffects.PESTILENCE) || Curses.isImmune(e)) {
+        if (Curses.isImmune(e)) {
             return false;
         }
         if (caster != null) {

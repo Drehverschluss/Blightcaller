@@ -42,7 +42,7 @@ public final class HealthBarsCompat implements HealthBarsView {
     private final Field anyRendering;
     private final Field guiRendering;
     private final Field levelRendering;
-    private final Method isEntityAllowed;
+    private final Field noHealthBarMobs;
     private final Field levelField;
     private final Field guiField;
     // ClientConfig.Level
@@ -52,7 +52,7 @@ public final class HealthBarsCompat implements HealthBarsView {
     private final Field renderTitleComponent;
     private final Field renderHealthComponent;
     private final Field renderSpriteComponent;
-    private final Field pickedEntity;
+    private final Field maxRenderDistance;
     // ClientConfig.BarConfig (both)
     private final Field healthBarWidth;
     private final Field scaleBarWidthByHealth;
@@ -63,6 +63,7 @@ public final class HealthBarsCompat implements HealthBarsView {
     private final Field renderEntityDisplay;
     private final Field renderAttributeComponents;
     // helpers
+    private final Method isEntityAllowed;
     private final Method getHealthTracker;
     private final Method trackerData;
     private final Method dataDisplayName;
@@ -81,6 +82,7 @@ public final class HealthBarsCompat implements HealthBarsView {
         guiRendering = clientConfigClass.getField("guiRendering");
         levelRendering = clientConfigClass.getField("levelRendering");
         isEntityAllowed = clientConfigClass.getMethod("isEntityAllowed", LivingEntity.class);
+        noHealthBarMobs = clientConfigClass.getField("noHealthBarMobs");
         levelField = clientConfigClass.getField("level");
         guiField = clientConfigClass.getField("gui");
         Class<?> levelClass = Class.forName("fuzs.healthbars.config.ClientConfig$Level");
@@ -90,7 +92,7 @@ public final class HealthBarsCompat implements HealthBarsView {
         renderTitleComponent = levelClass.getField("renderTitleComponent");
         renderHealthComponent = levelClass.getField("renderHealthComponent");
         renderSpriteComponent = levelClass.getField("renderSpriteComponent");
-        pickedEntity = levelClass.getField("pickedEntity");
+        maxRenderDistance = levelClass.getField("maxRenderDistance");
         Class<?> barClass = Class.forName("fuzs.healthbars.config.ClientConfig$BarConfig");
         healthBarWidth = barClass.getField("healthBarWidth");
         scaleBarWidthByHealth = barClass.getField("scaleBarWidthByHealth");
@@ -154,8 +156,13 @@ public final class HealthBarsCompat implements HealthBarsView {
         }
         try {
             Object config = config();
+            // Fixed height (phase 7A): the icons stand where they would stand with a visible bar whenever Health Bars would
+            // draw one for this mob in principle. Reasons that come and go (full health with hide_at_full_health, no line of
+            // sight, not the picked entity with picked_entity, team visibility, being ridden) are ignored, so the icons never
+            // jump when the bar appears or goes. Reasons that last (bars switched off, the mob in no_health_bar_mobs, farther
+            // than max_render_distance) mean no bar: own position, as without Health Bars. F1 hides the icons themselves.
             if (!on(config, anyRendering) || !on(config, levelRendering) || !entity.isAlive()
-                    || !(Boolean) isEntityAllowed.invoke(config, entity)) {
+                    || inNoHealthBarMobs(config, entity)) {
                 return null;
             }
             Object tracker = getHealthTracker.invoke(null, entity, false);
@@ -164,8 +171,7 @@ public final class HealthBarsCompat implements HealthBarsView {
             Vec3 attachment = entity.getAttachments().getNullable(EntityAttachment.NAME_TAG, 0, entity.getViewYRot(partialTick));
             Object level = levelField.get(config);
             if (tracker == null || attachment == null || dispatcher.camera == null || !(mc.getCameraEntity() instanceof LivingEntity)
-                    || mc.player == null
-                    || !(Boolean) isEntityVisible.invoke(null, mc.level, entity, mc.player, partialTick, dispatcher, pickedEntity.getBoolean(level))) {
+                    || mc.player == null || beyondRenderDistance(level, entity, dispatcher)) {
                 return null;
             }
             // the size Health Bars draws at (InLevelRenderingHandler.getRenderScale)
@@ -198,6 +204,21 @@ public final class HealthBarsCompat implements HealthBarsView {
             fail(t);
             return null;
         }
+    }
+
+    /** The mob is in Health Bars' {@code no_health_bar_mobs}: it never gets a bar. */
+    private boolean inNoHealthBarMobs(Object config, LivingEntity entity) throws ReflectiveOperationException {
+        return noHealthBarMobs.get(config) instanceof java.util.Collection<?> set && set.contains(entity.getType());
+    }
+
+    /** Farther than Health Bars' {@code max_render_distance} (half of it for sneaking mobs), as EntityVisibilityHelper checks. */
+    private boolean beyondRenderDistance(Object level, LivingEntity entity, EntityRenderDispatcher dispatcher)
+            throws ReflectiveOperationException {
+        int max = maxRenderDistance.getInt(level);
+        if (entity.isDiscrete()) {
+            max /= 2;
+        }
+        return dispatcher.distanceToSqr(entity) >= (double) max * max;
     }
 
     private static boolean showsName(EntityRendererInvoker invoker, Entity entity) {

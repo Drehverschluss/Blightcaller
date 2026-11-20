@@ -1,0 +1,24 @@
+{
+  "school": "spell_power:soul",
+  "range": 0.0,
+  "tier": 1,
+  "type": "PASSIVE",
+  "passive": {
+    "triggers": []
+  },
+  "impacts": [
+    {
+      "action": {
+        "type": "CUSTOM",
+        "custom": {
+          "intent": "HARMFUL",
+          "handler": "blightcaller:deepening_rot/0.05/0.5"
+        }
+      }
+    }
+  ],
+  "cost": {
+    "exhaust": 0.0,
+    "durability": 0
+  }
+}

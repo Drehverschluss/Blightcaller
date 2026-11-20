@@ -3,6 +3,7 @@ package com.drehverschluss.blightcaller.compat.jade;
 import com.drehverschluss.blightcaller.curse.CurseData;
 import com.drehverschluss.blightcaller.curse.CurseEntry;
 import com.drehverschluss.blightcaller.curse.Curses;
+import com.drehverschluss.blightcaller.curse.DeepeningRot;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -54,13 +55,14 @@ public enum CurseJadeProvider implements IEntityComponentProvider, StreamServerD
     static final int FOREIGN_COLOR = 0xFF767676;
 
     /** One curse on the entity as the tooltip needs it. */
-    public record Line(Holder<MobEffect> curse, int amplifier, long end, boolean own, int casters) {
+    public record Line(Holder<MobEffect> curse, int amplifier, long end, boolean own, int casters, int bonus) {
         static final StreamCodec<RegistryFriendlyByteBuf, Line> STREAM_CODEC = StreamCodec.composite(
                 ByteBufCodecs.holderRegistry(Registries.MOB_EFFECT), Line::curse,
                 ByteBufCodecs.VAR_INT, Line::amplifier,
                 ByteBufCodecs.VAR_LONG, Line::end,
                 ByteBufCodecs.BOOL, Line::own,
                 ByteBufCodecs.VAR_INT, Line::casters,
+                ByteBufCodecs.VAR_INT, Line::bonus,
                 Line::new);
     }
 
@@ -117,14 +119,19 @@ public enum CurseJadeProvider implements IEntityComponentProvider, StreamServerD
             }
             long longest = Long.MIN_VALUE;
             long own = Long.MIN_VALUE;
+            int bonus = 0;
             for (CurseEntry entry : e.getValue()) {
                 longest = Math.max(longest, entry.expires());
                 if (viewer != null && entry.sameCaster(viewer)) {
                     own = Math.max(own, entry.expires());
+                    // Deepening Rot: the bonus of the viewer's own last tick on this target, in percent
+                    if (Curses.dealsDamage(curse.get().value())) {
+                        bonus = (int) Math.round(100.0 * DeepeningRot.currentBonus(player, entry));
+                    }
                 }
             }
             boolean hasOwn = own != Long.MIN_VALUE;
-            lines.add(new Line(curse.get(), data.get().amplifier(e.getKey()), hasOwn ? own : longest, hasOwn, e.getValue().size()));
+            lines.add(new Line(curse.get(), data.get().amplifier(e.getKey()), hasOwn ? own : longest, hasOwn, e.getValue().size(), bonus));
         }
         return lines.isEmpty() ? null : new Data(Curses.curseLevel(living), List.copyOf(lines));
     }
@@ -154,7 +161,9 @@ public enum CurseJadeProvider implements IEntityComponentProvider, StreamServerD
             for (Line line : data.lines()) {
                 String time = time(line.end() - now);
                 Component name = line.curse().value().getDisplayName();
-                Component text = Component.translatable("jade.blightcaller.curse_line", name, time);
+                Component text = line.bonus() > 0
+                        ? Component.translatable("jade.blightcaller.curse_line_bonus", name, time, line.bonus())
+                        : Component.translatable("jade.blightcaller.curse_line", name, time);
                 tooltip.add(new CurseIconElement(line.curse(), text, line.own(), 0));
             }
             return;

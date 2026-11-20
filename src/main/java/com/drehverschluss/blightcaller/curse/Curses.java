@@ -279,8 +279,10 @@ public final class Curses {
                 continue;
             }
             double share = 0.0;
+            boolean full = false;
             if (now >= entry.nextTick && entry.nextTick <= entry.end) {
                 share = 1.0;
+                full = true;
                 entry.ticks++;
                 long next = entry.nextTick + interval;
                 entry.nextTick = next > now ? next : now + interval;
@@ -295,7 +297,8 @@ public final class Curses {
                 }
             }
             if (damaging && share > 0.0 && entity.isAlive()) {
-                CurseDamage.tick(entity, entry, share);
+                // number of this tick on the target (Deepening Rot): the broken last tick alone counts as the next one
+                CurseDamage.tick(entity, entry, share, full ? entry.ticks : entry.ticks + 1);
             }
             if (ends) {
                 entries.remove(entry);
@@ -479,8 +482,9 @@ public final class Curses {
                     end = Math.max(end, entry.expires());
                     // when this caster's entry was put on: kept from the last view while its end stays the same (the ring of
                     // the curse icons runs from there to the end), now for new and refreshed entries
-                    long since = now;
-                    if (oldLine != null) {
+                    // a curse that moved here (Soul Migration) keeps the ring of its old target
+                    long since = entry.viewSince >= 0 ? entry.viewSince : now;
+                    if (oldLine != null && entry.viewSince < 0) {
                         for (CurseView.Caster c : oldLine.casters()) {
                             if (c.end() == entry.expires() && Objects.equals(c.caster().orElse(null), entry.caster)) {
                                 since = c.since();

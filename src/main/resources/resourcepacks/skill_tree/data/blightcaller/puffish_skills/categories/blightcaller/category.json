@@ -1,0 +1,47 @@
+{
+  "title": {
+    "translate": "skill_category.blightcaller.blightcaller"
+  },
+  "description": {
+    "translate": "skill_category.blightcaller.blightcaller.description",
+    "color": "gray"
+  },
+  "icon": {
+    "type": "item",
+    "data": {
+      "item": "spell_engine:spell_book",
+      "components": {
+        "spell_engine:item_model": "blightcaller:item/spell_book/blightcaller"
+      }
+    }
+  },
+  "unlocked_by_default": true,
+  "spent_points_limit": 13,
+  "exclusive_root": true,
+  "background": {
+    "texture": "blightcaller:textures/gui/skill_background.png",
+    "width": 512,
+    "height": 288,
+    "position": "fill"
+  },
+  "colors": {
+    "connections": {
+      "locked": {
+        "fill": "#1d1828",
+        "stroke": "#272033"
+      },
+      "available": {
+        "fill": "#584a72",
+        "stroke": "#675886"
+      },
+      "unlocked": {
+        "fill": "#a77ff0",
+        "stroke": "#bf9cff"
+      },
+      "excluded": {
+        "fill": "#8e2b2b",
+        "stroke": "#a53636"
+      }
+    }
+  }
+}

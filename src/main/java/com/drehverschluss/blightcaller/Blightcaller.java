@@ -2,6 +2,10 @@ package com.drehverschluss.blightcaller;
 
 import com.drehverschluss.blightcaller.attribute.BlightcallerAttributes;
 import com.drehverschluss.blightcaller.command.BlightcallerCommands;
+import com.drehverschluss.blightcaller.compat.skilltree.ClassLockPayload;
+import com.drehverschluss.blightcaller.compat.skilltree.SkillTab;
+import com.drehverschluss.blightcaller.compat.skilltree.SkillTreeCompat;
+import com.drehverschluss.blightcaller.compat.skilltree.SkillTreePack;
 import com.drehverschluss.blightcaller.config.BlightcallerConfig;
 import com.drehverschluss.blightcaller.curse.CurseData;
 import com.drehverschluss.blightcaller.curse.CurseEffects;
@@ -10,6 +14,8 @@ import com.drehverschluss.blightcaller.curse.CurseImpacts;
 import com.drehverschluss.blightcaller.curse.CursePredicates;
 import com.drehverschluss.blightcaller.curse.LastRites;
 import com.drehverschluss.blightcaller.curse.Pestilence;
+import com.drehverschluss.blightcaller.curse.SkillMarkers;
+import com.drehverschluss.blightcaller.curse.SoulMigration;
 import com.drehverschluss.blightcaller.fx.BlightcallerParticles;
 import com.drehverschluss.blightcaller.item.BlightcallerItems;
 import com.mojang.logging.LogUtils;
@@ -19,7 +25,9 @@ import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.AddPackFindersEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
+import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.registries.RegisterEvent;
 import org.slf4j.Logger;
 
@@ -41,6 +49,14 @@ public class Blightcaller {
         CursePredicates.register();
         Pestilence.register();
         LastRites.register();
+        SkillMarkers.register();
+        SoulMigration.register();
+        modEventBus.addListener(RegisterPayloadHandlersEvent.class, ClassLockPayload::register);
+        if (SkillTab.enabled()) {
+            // Blightcaller skill tab and branch: built-in data pack, respec, class lock (Skill Tree classes only behind this check)
+            modEventBus.addListener(AddPackFindersEvent.class, SkillTreePack::onAddPackFinders);
+            SkillTreeCompat.init();
+        }
         NeoForge.EVENT_BUS.addListener(RegisterCommandsEvent.class, BlightcallerCommands::onRegisterCommands);
         LOGGER.info("Blightcaller {} loaded", modContainer.getModInfo().getVersion());
     }

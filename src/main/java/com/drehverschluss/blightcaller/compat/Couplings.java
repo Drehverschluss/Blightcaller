@@ -15,6 +15,7 @@ import java.util.Set;
  */
 public final class Couplings {
     private static final Set<String> REPORTED = new HashSet<>();
+    private static final java.util.Map<String, String> LAST = new java.util.HashMap<>();
 
     private Couplings() {}
 
@@ -23,6 +24,21 @@ public final class Couplings {
         if (REPORTED.add(mod)) {
             Blightcaller.LOGGER.info("[Blightcaller] {} found, {}", mod, what);
         }
+    }
+
+    /**
+     * Like {@link #found}, for couplings that are set up again on every data load (Skill Tree on {@code /reload}): one line
+     * whenever the result differs from the last one, so a reload with the same result stays quiet.
+     */
+    public static synchronized void foundAgain(String mod, String what) {
+        if (!what.equals(LAST.put(mod, what))) {
+            Blightcaller.LOGGER.info("[Blightcaller] {} found, {}", mod, what);
+        }
+    }
+
+    /** Forgets the last result of {@link #foundAgain} (after a fallback, so the next success is reported again). */
+    public static synchronized void forget(String mod) {
+        LAST.remove(mod);
     }
 
     /**

@@ -1,0 +1,19 @@
+{
+  "required": false,
+  "minVersion": "0.8",
+  "package": "com.drehverschluss.blightcaller.mixin.skills",
+  "plugin": "com.drehverschluss.blightcaller.mixin.skills.SkillsMixinPlugin",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "ClientCategoryDataMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 0
+  },
+  "mixins": [
+    "ConfigReaderMixin",
+    "PackConfigReaderAccessor",
+    "PackConfigReaderMixin",
+    "SkillsModMixin"
+  ]
+}
