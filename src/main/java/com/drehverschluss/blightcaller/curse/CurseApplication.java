@@ -24,10 +24,22 @@ import org.jetbrains.annotations.Nullable;
  * @param jumps          jump counter (Soul Migration)
  * @param chain          chain id (Pestilence)
  * @param transferred    moved from another target: keeps its duration, never extended again
+ * @param amplifier      strength of the curse ({@link #DEFAULT_AMPLIFIER}: the curse's default for the target, see
+ *                       {@link CurseEffect#defaultAmplifier}). Spells pass the amplifier of their status effect impact.
  */
 public record CurseApplication(Holder<MobEffect> curse, @Nullable UUID caster, double power, boolean critical,
                                double criticalDamage, double factor, double durationTicks, boolean extend, int jumps,
-                               @Nullable UUID chain, boolean transferred) {
+                               @Nullable UUID chain, boolean transferred, int amplifier) {
+    /** No amplifier given: the curse picks its default for the target. */
+    public static final int DEFAULT_AMPLIFIER = -1;
+
+    /** Without an amplifier (the curse's default for the target). */
+    public CurseApplication(Holder<MobEffect> curse, @Nullable UUID caster, double power, boolean critical,
+                            double criticalDamage, double factor, double durationTicks, boolean extend, int jumps,
+                            @Nullable UUID chain, boolean transferred) {
+        this(curse, caster, power, critical, criticalDamage, factor, durationTicks, extend, jumps, chain, transferred,
+                DEFAULT_AMPLIFIER);
+    }
 
     /** A fresh curse cast by {@code caster} (may be {@code null}) with the given power; the critical roll happens here. */
     public static CurseApplication cast(Holder<MobEffect> curse, @Nullable LivingEntity caster, SpellPower.Result power,
@@ -42,10 +54,22 @@ public record CurseApplication(Holder<MobEffect> curse, @Nullable UUID caster, d
     }
 
     public CurseApplication withDuration(double ticks) {
-        return new CurseApplication(curse, caster, power, critical, criticalDamage, factor, ticks, extend, jumps, chain, transferred);
+        return new CurseApplication(curse, caster, power, critical, criticalDamage, factor, ticks, extend, jumps, chain,
+                transferred, amplifier);
+    }
+
+    public CurseApplication withAmplifier(int value) {
+        return new CurseApplication(curse, caster, power, critical, criticalDamage, factor, durationTicks, extend, jumps, chain,
+                transferred, value);
+    }
+
+    public CurseApplication withChain(@Nullable UUID id) {
+        return new CurseApplication(curse, caster, power, critical, criticalDamage, factor, durationTicks, extend, jumps, id,
+                transferred, amplifier);
     }
 
     public CurseApplication asTransferred() {
-        return new CurseApplication(curse, caster, power, critical, criticalDamage, factor, durationTicks, false, jumps, chain, true);
+        return new CurseApplication(curse, caster, power, critical, criticalDamage, factor, durationTicks, false, jumps, chain,
+                true, amplifier);
     }
 }

@@ -38,6 +38,17 @@ repositories {
             includeGroup 'maven.modrinth'
         }
     }
+    exclusiveContent {
+        forRepository {
+            maven {
+                name = 'CurseMaven'
+                url = 'https://cursemaven.com'
+            }
+        }
+        filter {
+            includeGroup 'curse.maven'
+        }
+    }
 }
 
 base {
@@ -132,6 +143,9 @@ dependencies {
     // tiny_config (ConfigManager for equipment.json), shipped jar-in-jar by Spell Engine and Spell Power, never bundled here
     compileOnly("maven.modrinth:tiny-config:${tiny_config_version}") { transitive = false }
 
+    // Jade (optional): only the plugin in compat/jade uses it, Jade finds it by its @WailaPlugin annotation
+    compileOnly("curse.maven:jade-324717:${jade_file_id}") { transitive = false }
+
     // Local test mods, only present in the dev runs
     localRuntime fileTree(dir: 'libs/test', include: '*.jar')
 }
@@ -153,6 +167,7 @@ var generateModMetadata = tasks.register("generateModMetadata", ProcessResources
             spell_engine_version_range: spell_engine_version_range,
             spell_power_version_range: spell_power_version_range,
             runes_version_range    : runes_version_range,
+            jade_version_range     : jade_version_range,
     ]
     inputs.properties replaceProperties
     expand replaceProperties

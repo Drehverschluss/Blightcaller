@@ -11,7 +11,7 @@ import net.spell_engine.fx.SpellEngineParticles;
  * Particles of the curses, drawn on every cursed entity the client sees (Spell Engine spawns them for synchronized
  * effects). Placeholders until the graphics phase, one look per curse so three curses on one mob can be told apart: Soulburn
  * violet skulls and green sparks, Soul Rot green drips and sculk souls, Enfeeble grey violet haze sinking down, Gravebind
- * pale hands reaching up from dark dust at the feet, Soul Rend cyan shreds torn upwards out of the body, Pestilence an
+ * dark dust at the feet and pale motes (its chains: client.fx.GravebindChains), Soul Rend cyan shreds torn upwards out of the body, Pestilence an
  * olive haze with yellow green spores.
  */
 public final class CurseParticles {
@@ -83,17 +83,19 @@ public final class CurseParticles {
         CustomParticleStatusEffect.register(CurseEffects.ENFEEBLE.get(),
                 new BuffParticleSpawner(haze, motes).withFrequency(5).scaleWithAmplifier(false));
 
-        // Gravebind: pale ghostly hands reaching up at the feet, dark grave dust on the ground (no glow, slow)
-        ParticleGroup hands = ParticleGroupBuilder.magic(SpellEngineParticles.sign_fist, ParticleGroup.Motion.ASCEND)
+        // Gravebind: dark grave dust at the feet and a few pale motes sinking down the chains (the chains themselves are
+        // drawn by client.fx.GravebindChains; no hands any more, decided 20.11.)
+        ParticleGroup graveMotes = ParticleGroupBuilder.magic(SpellEngineParticles.magic_spark, ParticleGroup.Motion.FLOAT)
                 .color(GRAVE_PALE)
-                .scale(0.9F)
-                .batch(b -> b.shape(ParticleGroup.Shape.PIPE).count(1.5F).speed(0.02F, 0.04F).verticalOrigin(0.0F));
+                .scale(0.6F)
+                .gravity(0.02F)
+                .batch(b -> b.shape(ParticleGroup.Shape.PIPE).count(0.8F).speed(0.0F, 0.01F).verticalOrigin(0.6F));
         ParticleGroup dust = ParticleGroupBuilder.of(SpellEngineParticles.smoke_medium)
                 .color(GRAVE_DUST)
                 .scale(1.0F)
                 .batch(b -> b.shape(ParticleGroup.Shape.PIPE).count(1.5F).speed(0.0F, 0.01F).verticalOrigin(0.0F));
         CustomParticleStatusEffect.register(CurseEffects.GRAVEBIND.get(),
-                new BuffParticleSpawner(hands, dust).withFrequency(4).scaleWithAmplifier(false));
+                new BuffParticleSpawner(graveMotes, dust).withFrequency(4).scaleWithAmplifier(false));
 
         // Soul Rend: cyan soul shreds torn upwards out of the chest, now and then a vanilla soul
         ParticleGroup shreds = ParticleGroupBuilder.magic(SpellEngineParticles.magic_stripe, ParticleGroup.Motion.ASCEND)

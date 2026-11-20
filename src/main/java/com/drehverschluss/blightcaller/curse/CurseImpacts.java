@@ -20,6 +20,7 @@ import net.spell_engine.api.spell.event.SpellHandlers;
 import net.spell_engine.api.spell.registry.SpellRegistry;
 import net.spell_engine.internals.SpellExecution;
 import net.spell_engine.internals.SpellModifiers;
+import net.spell_engine.internals.impact.SpellImpacts;
 import net.spell_power.api.SpellPower;
 import org.jetbrains.annotations.Nullable;
 
@@ -82,7 +83,7 @@ public final class CurseImpacts {
         if (!(target instanceof LivingEntity living) || living.level().isClientSide() || living.isDeadOrDying()) {
             return new SpellHandlers.ImpactResult(false, false);
         }
-        CurseSource source = curseSource(caster, spell, handler);
+        CurseSource source = curseSource(caster, spell, handler, living);
         if (source == null) {
             if (warned.add(spell.getRegisteredName() + "|" + handler)) {
                 Blightcaller.LOGGER.warn("Blightcaller: spell {} has the curse impact {} without a curse status effect"
@@ -93,7 +94,8 @@ public final class CurseImpacts {
         int ticks = baseDurationTicks(caster, spell, source.impact(), context);
         SpellPower.Result snapshot = new SpellPower.Result(power.school(), power.baseValue() * context.total(spell),
                 power.criticalChance(), power.criticalDamage());
-        CurseApplication app = CurseApplication.cast(source.curse(), caster, snapshot, factor, ticks, caster.getRandom());
+        CurseApplication app = CurseApplication.cast(source.curse(), caster, snapshot, factor, ticks, caster.getRandom())
+                .withAmplifier(amplifier(caster, spell, source.impact(), context));
         if (Pestilence.isPestilence(source.curse())) {
             // every cast starts its own chain with its own carrier budget
             app = Pestilence.startChain(app, Pestilence.maxCarriers(caster, spell, source.impact(), context.chargeModifier()));
@@ -113,22 +115,55 @@ public final class CurseImpacts {
      */
     @Nullable
     public static CurseSource curseSource(LivingEntity caster, Holder<Spell> spell, String handler) {
+        return curseSource(caster, spell, handler, null);
+    }
+
+    /**
+     * Like {@link #curseSource(LivingEntity, Holder, String)}, but with a target: among the curse impacts before the marker,
+     * the last one whose target conditions allow this target wins (the one Spell Engine applied or tried to apply, e.g. the
+     * boss variant of Enfeeble and Gravebind). If none allows it, the last one at all.
+     */
+    @Nullable
+    public static CurseSource curseSource(LivingEntity caster, Holder<Spell> spell, String handler, @Nullable LivingEntity target) {
         List<Spell.Impact> impacts = SpellModifiers.extendedImpactsOf(caster, spell).impacts();
         CurseSource last = null;
+        CurseSource allowed = null;
         for (Spell.Impact impact : impacts) {
             if (impact == null || impact.action == null) {
                 continue;
             }
             if (impact.action.type == Spell.Impact.Action.Type.CUSTOM && impact.action.custom != null
                     && handler.equals(impact.action.custom.handler)) {
-                return last;
+                return allowed != null ? allowed : last;
             }
             Holder<MobEffect> curse = curseOf(impact);
             if (curse != null) {
                 last = new CurseSource(impact, curse);
+                if (target != null && SpellImpacts.evaluateImpactConditions(target, caster, impact.target_modifiers).allowed()) {
+                    allowed = last;
+                }
             }
         }
         return null;
+    }
+
+    /**
+     * Amplifier of the curse status effect impact, the way Spell Engine computes it: {@code amplifier} plus
+     * {@code effect_amplifier_add} of the caster's modifier spells, capped by {@code amplifier_cap} if set. Targets that
+     * refuse the effect get the curse with this strength all the same.
+     */
+    public static int amplifier(LivingEntity caster, Holder<Spell> spell, Spell.Impact statusImpact, SpellExecution.ImpactContext context) {
+        Spell.Impact.Action.StatusEffect status = statusImpact.action.status_effect;
+        int amplifier = status.amplifier;
+        int cap = status.amplifier_cap;
+        for (Spell.Modifier modifier : SpellModifiers.ofImpact(caster, spell, statusImpact, context.chargeModifier())) {
+            amplifier += modifier.effect_amplifier_add;
+            cap += modifier.effect_amplifier_cap_add;
+        }
+        if (status.amplifier_cap > 0) {
+            amplifier = Math.min(amplifier, cap);
+        }
+        return Math.max(0, amplifier);
     }
 
     @Nullable

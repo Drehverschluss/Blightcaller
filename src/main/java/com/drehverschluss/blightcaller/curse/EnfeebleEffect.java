@@ -8,7 +8,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
-import net.minecraft.world.entity.ai.attributes.AttributeMap;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.spell_engine.api.entity.SpellEngineAttributes;
 import org.jetbrains.annotations.Nullable;
@@ -23,11 +22,12 @@ import org.jetbrains.annotations.Nullable;
  * (bosses), with two status effect impacts that allow / deny that tag. Pack makers change the strength in the spell
  * (amplifier) or in the config, and the boss rule in the tag.
  * <p>
- * <b>Several casters:</b> there is only one effect per target, so its bonus counts once, however many Blightcallers put
- * Enfeeble on it (each still has their own entry for the duration).
+ * <b>Several casters:</b> one modifier per target, so its bonus counts once, however many Blightcallers put Enfeeble on it
+ * (each still has their own entry for the duration).
  * <p>
- * The modifier is added and removed here instead of with {@code addAttributeModifier} in the constructor: Spell Engine
- * registers its attributes after the mob effects, so the attribute holder does not exist yet when this effect is created.
+ * The modifier comes from the curse core ({@link #applyModifiers}), also on targets that refuse the effect (Wither). It is
+ * still reported in {@link #createModifiers}: that is only read for display and by Spell Engine's effect classification
+ * (damage taken is not movement impairing).
  */
 public class EnfeebleEffect extends CurseEffect {
     public static final ResourceLocation MODIFIER_ID = Blightcaller.id("enfeeble");
@@ -66,23 +66,30 @@ public class EnfeebleEffect extends CurseEffect {
     }
 
     @Override
-    public void addAttributeModifiers(AttributeMap attributeMap, int amplifier) {
-        super.addAttributeModifiers(attributeMap, amplifier);
-        Holder<Attribute> attribute = damageTaken();
-        AttributeInstance instance = attribute == null ? null : attributeMap.getInstance(attribute);
+    public boolean hasModifiers() {
+        return true;
+    }
+
+    @Override
+    public void applyModifiers(LivingEntity target, int amplifier) {
+        AttributeInstance instance = instance(target);
         if (instance != null) {
             instance.removeModifier(MODIFIER_ID);
-            instance.addPermanentModifier(modifier(amplifier));
+            instance.addTransientModifier(modifier(amplifier));
         }
     }
 
     @Override
-    public void removeAttributeModifiers(AttributeMap attributeMap) {
-        super.removeAttributeModifiers(attributeMap);
-        Holder<Attribute> attribute = damageTaken();
-        AttributeInstance instance = attribute == null ? null : attributeMap.getInstance(attribute);
+    public void removeModifiers(LivingEntity target) {
+        AttributeInstance instance = instance(target);
         if (instance != null) {
             instance.removeModifier(MODIFIER_ID);
         }
+    }
+
+    @Nullable
+    private static AttributeInstance instance(LivingEntity target) {
+        Holder<Attribute> attribute = damageTaken();
+        return attribute == null ? null : target.getAttributes().getInstance(attribute);
     }
 }

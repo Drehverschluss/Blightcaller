@@ -10,6 +10,7 @@ import com.drehverschluss.blightcaller.curse.CurseImpacts;
 import com.drehverschluss.blightcaller.curse.CursePredicates;
 import com.drehverschluss.blightcaller.curse.LastRites;
 import com.drehverschluss.blightcaller.curse.Pestilence;
+import com.drehverschluss.blightcaller.fx.BlightcallerParticles;
 import com.drehverschluss.blightcaller.item.BlightcallerItems;
 import com.mojang.logging.LogUtils;
 import net.minecraft.resources.ResourceLocation;
@@ -32,6 +33,7 @@ public class Blightcaller {
         BlightcallerAttributes.register(modEventBus);
         CurseEffects.register(modEventBus);
         CurseData.register(modEventBus);
+        BlightcallerParticles.register(modEventBus);
         BlightcallerItems.init();
         modEventBus.addListener(RegisterEvent.class, BlightcallerItems::onRegister);
         CurseEvents.register();

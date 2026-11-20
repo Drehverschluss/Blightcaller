@@ -34,6 +34,12 @@ public final class CurseEffects {
      */
     public static final TagKey<EntityType<?>> CURSE_RESISTANT = TagKey.create(Registries.ENTITY_TYPE, Blightcaller.id("curse_resistant"));
 
+    /**
+     * Entities that never get a curse (empty by default). For pack makers who want a mob immune on purpose; targets that
+     * merely refuse mob effects (Wither, Ender Dragon, Cataclysm bosses) are cursed all the same.
+     */
+    public static final TagKey<EntityType<?>> CURSE_IMMUNE = TagKey.create(Registries.ENTITY_TYPE, Blightcaller.id("curse_immune"));
+
     public static final DeferredRegister<MobEffect> EFFECTS = DeferredRegister.create(Registries.MOB_EFFECT, Blightcaller.MODID);
 
     /** Soulburn / Seelenbrand: the short curse of Hex Bolt and Blight Burst. */

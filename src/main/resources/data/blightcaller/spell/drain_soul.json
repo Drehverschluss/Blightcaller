@@ -64,25 +64,14 @@
     "type": "BEAM",
     "cap": 1,
     "beam": {
-      "color_rgba": 1339613405,
-      "inner_color_rgba": 3371499519,
-      "width": 0.09,
-      "flow": -1.4,
-      "luminance": "MEDIUM",
+      "texture_id": "blightcaller:textures/entity/beam_none.png",
+      "color_rgba": 0,
+      "inner_color_rgba": 0,
+      "width": 0.0,
+      "flow": 0.0,
+      "luminance": "LOW",
       "block_hit": {
-        "particles": [
-          {
-            "id": "minecraft:soul",
-            "appearance": {},
-            "batch": {
-              "count": 1.0,
-              "shape": "SPHERE",
-              "anchor": "ENTITY",
-              "min_speed": 0.02,
-              "max_speed": 0.05
-            }
-          }
-        ]
+        "particles": []
       }
     }
   },

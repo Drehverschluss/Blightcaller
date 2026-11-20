@@ -110,8 +110,7 @@ public final class Pestilence {
     public static CurseApplication startChain(CurseApplication app, int maxCarriers) {
         UUID id = UUID.randomUUID();
         CHAINS.put(id, new Chain(maxCarriers));
-        return new CurseApplication(app.curse(), app.caster(), app.power(), app.critical(), app.criticalDamage(), app.factor(),
-                app.durationTicks(), app.extend(), app.jumps(), id, app.transferred());
+        return app.withChain(id);
     }
 
     /** After a cast: first spreading attempt one interval from now; a failed cast drops its chain again. */
@@ -171,7 +170,7 @@ public final class Pestilence {
                     continue;
                 }
                 CurseApplication copy = new CurseApplication(curse, entry.caster, entry.power, entry.critical, entry.criticalDamage,
-                        entry.factor, remaining, false, entry.jumps, entry.chain, true);
+                        entry.factor, remaining, false, entry.jumps, entry.chain, true, Curses.amplifier(carrier, curse));
                 CurseEntry placed = Curses.apply(target, copy);
                 if (placed == null) {
                     continue;
@@ -216,7 +215,7 @@ public final class Pestilence {
         if (e instanceof OwnableEntity owned && owned.getOwnerUUID() != null) {
             return false;
         }
-        if (e.hasEffect(CurseEffects.PESTILENCE)) {
+        if (Curses.hasCurse(e, CurseEffects.PESTILENCE) || Curses.isImmune(e)) {
             return false;
         }
         if (caster != null) {

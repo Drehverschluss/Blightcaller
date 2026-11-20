@@ -88,13 +88,13 @@ public final class LastRites {
         if (data.isEmpty()) {
             return new SpellHandlers.ImpactResult(false, false);
         }
-        for (Map.Entry<ResourceLocation, List<CurseEntry>> e : data.get().all().entrySet()) {
+        for (Map.Entry<ResourceLocation, List<CurseEntry>> e : List.copyOf(data.get().all().entrySet())) {
             Optional<Holder.Reference<MobEffect>> curse = BuiltInRegistries.MOB_EFFECT.getHolder(e.getKey());
-            if (curse.isEmpty() || !Curses.dealsDamage(curse.get().value()) || !living.hasEffect(curse.get())) {
+            if (curse.isEmpty() || !Curses.dealsDamage(curse.get().value()) || e.getValue().isEmpty()) {
                 continue;
             }
             boolean own = false;
-            for (CurseEntry entry : e.getValue()) {
+            for (CurseEntry entry : List.copyOf(e.getValue())) {
                 if (entry.sameCaster(casterId)) {
                     sum += Curses.damagePerSecond(living, curse.get(), entry) * values.seconds() * values.factor();
                     own = true;

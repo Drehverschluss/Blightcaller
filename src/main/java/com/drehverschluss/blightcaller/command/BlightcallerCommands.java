@@ -166,7 +166,8 @@ public final class BlightcallerCommands {
             found++;
             int entries = data == null ? 0 : data.size();
             source.sendSuccess(() -> Component.translatable("commands.blightcaller.curse.info.header", living.getDisplayName(),
-                    Curses.curseLevel(living), curses, entries), false);
+                    Curses.curseLevel(living), count("commands.blightcaller.curse.count.curses", curses),
+                    count("commands.blightcaller.curse.count.entries", entries)), false);
             if (data == null) {
                 continue;
             }
@@ -183,7 +184,8 @@ public final class BlightcallerCommands {
                     }
                     source.sendSuccess(() -> Component.translatable("commands.blightcaller.curse.info.entry", curseName,
                             casterName(living, entry), number(CurseDamage.amount(living, entry)), critical(entry),
-                            seconds(entry.end - now), seconds(Math.max(0, entry.nextTick - now)), entry.ticks), false);
+                            seconds(entry.end - now), seconds(Math.max(0, entry.nextTick - now)),
+                            count("commands.blightcaller.curse.count.ticks", entry.ticks)), false);
                 }
             }
         }
@@ -200,8 +202,8 @@ public final class BlightcallerCommands {
             if (entity instanceof LivingEntity living) {
                 int removed = Curses.clear(living, only);
                 total += removed;
-                source.sendSuccess(() -> Component.translatable("commands.blightcaller.curse.clear.done", removed,
-                        living.getDisplayName()), true);
+                source.sendSuccess(() -> Component.translatable("commands.blightcaller.curse.clear.done",
+                        count("commands.blightcaller.curse.count.curses", removed), living.getDisplayName()), true);
             }
         }
         return total;
@@ -232,11 +234,24 @@ public final class BlightcallerCommands {
                 : Component.empty();
     }
 
-    private static String seconds(double ticks) {
-        return String.format(Locale.ROOT, "%.2f", ticks / 20.0);
+    /** Seconds with two decimals, the decimal separator from the reader's language ("30.00" / "30,00"). */
+    private static Component seconds(double ticks) {
+        return number(ticks / 20.0);
     }
 
-    private static String number(double value) {
-        return String.format(Locale.ROOT, "%.2f", value);
+    /**
+     * A number with two decimals. The command runs on the server, which does not know the reader's language, so the
+     * decimal separator comes from the language file ({@code commands.blightcaller.number}: "%s.%s" / "%s,%s").
+     */
+    private static Component number(double value) {
+        String text = String.format(Locale.ROOT, "%.2f", value);
+        int dot = text.indexOf('.');
+        return dot < 0 ? Component.literal(text)
+                : Component.translatable("commands.blightcaller.number", text.substring(0, dot), text.substring(dot + 1));
+    }
+
+    /** "1 curse" / "2 curses": keys {@code <key>.one} and {@code <key>.many}. */
+    private static Component count(String key, int n) {
+        return Component.translatable(key + (n == 1 ? ".one" : ".many"), n);
     }
 }
