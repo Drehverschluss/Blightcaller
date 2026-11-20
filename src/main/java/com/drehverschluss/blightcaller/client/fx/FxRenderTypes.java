@@ -3,20 +3,30 @@ package com.drehverschluss.blightcaller.client.fx;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.resources.ResourceLocation;
 
 /**
- * Untextured glow of the Drain Soul band: the vanilla lightning shader (position + colour, full bright), additive blending,
- * no depth write (glow layers add up) and no backface culling. Same set-up as the lightning arcs of Stormcaller (own code).
+ * Own render types of the visuals. Everything else uses vanilla types: the chain links {@code entityCutoutNoCull} on the
+ * block atlas, their sheen and the soul smoke core {@code eyes} (additive, full bright), the dark haze of the soul smoke
+ * {@code entityTranslucentEmissive}.
  */
 public final class FxRenderTypes extends RenderType {
-    public static final RenderType GLOW = create("blightcaller_glow", DefaultVertexFormat.POSITION_COLOR,
-            VertexFormat.Mode.QUADS, 8192, false, true,
+    /** A plain white texture (vanilla, by reference). */
+    public static final ResourceLocation WHITE = ResourceLocation.withDefaultNamespace("textures/misc/white.png");
+
+    /**
+     * Silhouette of a ghost ({@link EntityGhost}): the entity's model in one colour, white texture tinted by the vertex
+     * colour, translucent, full bright (emissive shader), no depth write, back faces culled (no doubled inner faces).
+     */
+    public static final RenderType GHOST = create("blightcaller_ghost", DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS,
+            1536, true, true,
             CompositeState.builder()
-                    .setShaderState(RENDERTYPE_LIGHTNING_SHADER)
-                    .setTransparencyState(LIGHTNING_TRANSPARENCY)
+                    .setShaderState(RENDERTYPE_ENTITY_TRANSLUCENT_EMISSIVE_SHADER)
+                    .setTextureState(new TextureStateShard(WHITE, false, false))
+                    .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
+                    .setCullState(CULL)
                     .setWriteMaskState(COLOR_WRITE)
-                    .setCullState(NO_CULL)
-                    .setOutputState(WEATHER_TARGET)
+                    .setOverlayState(OVERLAY)
                     .createCompositeState(false));
 
     private FxRenderTypes(String name, VertexFormat format, VertexFormat.Mode mode, int bufferSize, boolean affectsCrumbling,

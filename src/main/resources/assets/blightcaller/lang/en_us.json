@@ -115,5 +115,10 @@
   "jade.blightcaller.curse_level": "Curse level %s",
   "jade.blightcaller.decimal": ".",
   "jade.blightcaller.seconds": "%ss",
-  "jade.blightcaller.curse_line": "%s %s"
+  "jade.blightcaller.curse_line": "%s %s",
+
+  "blightcaller.configuration.drain_soul_preview": "Drain Soul (temporary comparison)",
+  "blightcaller.configuration.drain_soul_preview.tooltip": "Drain Soul with and without the torn soul, to compare in game. This option will be removed once decided.",
+  "blightcaller.configuration.drain_soul_ghost": "Torn soul",
+  "blightcaller.configuration.drain_soul_ghost.tooltip": "A see-through copy of the target is torn out of its body at every pulse."
 }

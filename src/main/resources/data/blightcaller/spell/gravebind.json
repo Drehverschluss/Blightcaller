@@ -66,14 +66,12 @@
           }
         },
         {
-          "id": "blightcaller:grave_chain",
+          "id": "blightcaller:grave_wave",
           "appearance": {},
           "batch": {
-            "count": 14.0,
-            "shape": "CIRCLE",
-            "anchor": "GROUND",
-            "min_speed": 0.22,
-            "max_speed": 0.45
+            "count": 1.0,
+            "shape": "NONE",
+            "anchor": "GROUND"
           }
         },
         {

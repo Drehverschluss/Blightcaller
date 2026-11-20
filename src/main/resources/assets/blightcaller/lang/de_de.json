@@ -115,5 +115,10 @@
   "jade.blightcaller.curse_level": "Fluchstufe %s",
   "jade.blightcaller.decimal": ",",
   "jade.blightcaller.seconds": "%ss",
-  "jade.blightcaller.curse_line": "%s %s"
+  "jade.blightcaller.curse_line": "%s %s",
+
+  "blightcaller.configuration.drain_soul_preview": "Seelenentzug (vorläufiger Vergleich)",
+  "blightcaller.configuration.drain_soul_preview.tooltip": "Seelenentzug mit und ohne herausgerissene Seele, zum Vergleichen im Spiel. Diese Option fällt weg, sobald entschieden ist.",
+  "blightcaller.configuration.drain_soul_ghost": "Herausgerissene Seele",
+  "blightcaller.configuration.drain_soul_ghost.tooltip": "Ein durchscheinendes Abbild des Ziels wird bei jedem Puls aus seinem Körper gerissen."
 }

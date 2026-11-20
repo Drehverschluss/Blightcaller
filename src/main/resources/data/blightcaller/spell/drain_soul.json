@@ -22,36 +22,7 @@
       "sound": {
         "id": "spell_engine:generic_soul_casting",
         "randomness": 0.0
-      },
-      "particles": [
-        {
-          "id": "spell_engine:magic_stripe",
-          "appearance": {
-            "color": 768924415,
-            "motion": "ASCEND",
-            "scale": 0.5,
-            "glow": true
-          },
-          "batch": {
-            "count": 0.6,
-            "shape": "PIPE",
-            "anchor": "LAUNCH_POINT",
-            "min_speed": 0.05,
-            "max_speed": 0.1
-          }
-        },
-        {
-          "id": "minecraft:soul",
-          "appearance": {},
-          "batch": {
-            "count": 0.3,
-            "shape": "SPHERE",
-            "anchor": "LAUNCH_POINT",
-            "min_speed": 0.01,
-            "max_speed": 0.03
-          }
-        }
-      ]
+      }
     }
   },
   "release": {
@@ -131,23 +102,6 @@
               "vertical_origin": 0.7,
               "min_speed": 0.02,
               "max_speed": 0.05
-            }
-          },
-          {
-            "id": "spell_engine:magic_stripe",
-            "appearance": {
-              "color": 768924415,
-              "motion": "ASCEND",
-              "scale": 0.8,
-              "glow": true
-            },
-            "batch": {
-              "count": 3.0,
-              "shape": "PIPE",
-              "anchor": "ENTITY",
-              "vertical_origin": 0.6,
-              "min_speed": 0.08,
-              "max_speed": 0.15
             }
           }
         ]

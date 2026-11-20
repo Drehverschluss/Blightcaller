@@ -14,6 +14,8 @@ public final class BlightcallerClientConfig {
 
     public static final ModConfigSpec.BooleanValue CURSE_TICK_FLASH;
     public static final ModConfigSpec.BooleanValue CURSE_TICK_SOUND;
+    public static final ModConfigSpec.BooleanValue DRAIN_SOUL_GHOST;
+
 
     static {
         ModConfigSpec.Builder builder = new ModConfigSpec.Builder();
@@ -29,6 +31,14 @@ public final class BlightcallerClientConfig {
                 .translation("blightcaller.configuration.curse_tick_sound")
                 .define("hurt_sound", true);
         builder.pop();
+        builder.comment("Temporary: Drain Soul with and without the torn soul, to compare in game. Will be removed once decided.")
+                .translation("blightcaller.configuration.drain_soul_preview")
+                .push("drain_soul_preview");
+        DRAIN_SOUL_GHOST = builder
+                .comment("A see-through copy of the target is torn out of its body at every pulse.")
+                .translation("blightcaller.configuration.drain_soul_ghost")
+                .define("ghost", true);
+        builder.pop();
         SPEC = builder.build();
     }
 
@@ -37,6 +47,11 @@ public final class BlightcallerClientConfig {
     /** Red flash on curse ticks (default on, also while the config is not loaded). */
     public static boolean curseTickFlash() {
         return !SPEC.isLoaded() || CURSE_TICK_FLASH.get();
+    }
+
+    /** Ghost of the drained target (temporary comparison, default on). */
+    public static boolean drainSoulGhost() {
+        return !SPEC.isLoaded() || DRAIN_SOUL_GHOST.get();
     }
 
     /** Hurt sound on curse ticks (default on, also while the config is not loaded). */

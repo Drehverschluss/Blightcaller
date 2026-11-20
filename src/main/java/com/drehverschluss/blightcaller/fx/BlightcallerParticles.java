@@ -13,11 +13,11 @@ public final class BlightcallerParticles {
     public static final DeferredRegister<ParticleType<?>> PARTICLES = DeferredRegister.create(Registries.PARTICLE_TYPE, Blightcaller.MODID);
 
     /**
-     * A ghostly chain that bursts out of the ground and sinks back (cast of Gravebind). Used by the spell's release
-     * particles ({@code shape CIRCLE}): the horizontal speed sets how far from the caster it comes up, 10 blocks per 1.0.
+     * Cast of Gravebind: starts a wave of chain that runs over the ground away from the caster (drawn by the client, the
+     * particle itself is invisible). Used once by the spell's release particles ({@code shape NONE}, {@code anchor GROUND}).
      */
-    public static final DeferredHolder<ParticleType<?>, SimpleParticleType> GRAVE_CHAIN =
-            PARTICLES.register("grave_chain", () -> new SimpleParticleType(true));
+    public static final DeferredHolder<ParticleType<?>, SimpleParticleType> GRAVE_WAVE =
+            PARTICLES.register("grave_wave", () -> new SimpleParticleType(true));
 
     private BlightcallerParticles() {}
 
