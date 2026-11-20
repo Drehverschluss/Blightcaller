@@ -81,6 +81,20 @@ public final class GravebindChains {
     /** Dark iron (the vanilla chain is dark blue grey already) and the faint soul turquoise sheen. */
     private static final float[] METAL = {0.70F, 0.69F, 0.64F};
     private static final float[] SHEEN = {0.025F, 0.07F, 0.075F};
+    /**
+     * Thickness of the links across (width and bars) relative to the model, length unchanged (Phase 6.2: the links still
+     * looked thick; compared at 1.0, 0.75 and 0.6: 0.6 still reads clearly as a chain up close and from afar).
+     */
+    static float slimness = 0.6F;
+    /** Ghostly veil of the chains: strength by day and at night (by the light where the entity stands). */
+    private static final float VEIL_DAY = 0.07F;
+    private static final float VEIL_NIGHT = 0.85F;
+    /** The visible model of an entity near the ground, measured now and then (Phase 6.2): entity id -> {tick, radius, height}. */
+    private static final Map<Integer, float[]> MODEL = new HashMap<>();
+    private static final int MODEL_REFRESH = 40;
+    /** From this size step on (about a ravager) the visible model is measured; the foot radius counts up to this many hitbox halves. */
+    private static final float BIG = 1.5F;
+    private static final float MAX_FOOT = 2.2F;
 
     private record Wave(Vec3 origin, long start) {}
 
@@ -116,17 +130,19 @@ public final class GravebindChains {
     // ------------------------------------------------------------------------------------------------ shape of one entity
 
     /** Where and how big the chains of one entity are (world coordinates, feet height). */
-    private record Body(double x, double feet, double z, float half, float height, float scale, float linkScale) {}
+    /** {@code foot}: radius of the visible model at the feet of big mobs, -1 for the others (hitbox only). */
+    private record Body(double x, double feet, double z, float half, float foot, float height, float scale, float linkScale) {}
 
     /** Ground under an entity: whether it stands in reach of the ground, and the ground height at every anchor. */
     private record Ground(long tick, boolean grounded, double[] anchorY) {}
 
     private static Body body(LivingEntity living, float partialTick) {
         AABB box = living.getBoundingBox();
-        if (living.isMultipartEntity() && living.getParts() != null) {
-            // the Ender Dragon and other entities with parts: their own box spans all parts (16 blocks for the dragon); the
-            // biggest part is the body. Its size counts; parts that are not placed on this client (no AI) keep the entity's
-            // own position.
+        boolean dragon = living instanceof net.minecraft.world.entity.boss.enderdragon.EnderDragon;
+        if (dragon && living.getParts() != null) {
+            // the Ender Dragon: its own box spans all parts (16 blocks); the biggest part is the body. Its size counts; parts
+            // that are not placed on this client (no AI) keep the entity's own position. Other entities with parts (Netherite
+            // Monstrosity) keep their own box and are measured like every big mob (Phase 6.2).
             AABB part = null;
             double best = -1.0;
             for (PartEntity<?> p : living.getParts()) {
@@ -150,9 +166,34 @@ public final class GravebindChains {
         float half = (float) Math.min(Math.max(box.getXsize(), box.getZsize()) * 0.5, 5.0);
         float height = (float) Math.min(box.getYsize(), 12.0);
         float scale = Mth.clamp(Mth.sqrt(2.0F * half * height / (0.6F * 1.95F)), 0.5F, 3.2F);
+        float foot = -1.0F;
+        if ((scale >= BIG || living.isMultipartEntity()) && !dragon) {
+            // big mobs: the ring lies around the feet of the visible model, not only around the hitbox (Phase 6.2: the Netherite
+            // Monstrosity is drawn much bigger than its hitbox and its chains vanished under its feet). Only for big mobs and at
+            // most a little over twice the hitbox: small and long mobs (silverfish, tails) keep the ring of their hitbox.
+            float[] model = model(living, partialTick);
+            if (model != null) {
+                foot = Math.min(model[1], half * MAX_FOOT);
+                height = Math.min(Math.max(height, model[2]), 12.0F);
+                scale = Mth.clamp(Mth.sqrt(2.0F * Math.max(half, foot * 0.8F) * height / (0.6F * 1.95F)), 0.5F, 3.2F);
+            }
+        }
         // a third smaller than first built (wish 20.11.: the links looked very thick)
         float linkScale = 0.4F * (float) Math.pow(scale, 0.85);
-        return new Body((box.minX + box.maxX) * 0.5, box.minY, (box.minZ + box.maxZ) * 0.5, half, height, scale, linkScale);
+        return new Body((box.minX + box.maxX) * 0.5, box.minY, (box.minZ + box.maxZ) * 0.5, half, foot, height, scale, linkScale);
+    }
+
+    /** Foot radius and height of the visible model (cached), or null if it cannot be measured. */
+    @org.jetbrains.annotations.Nullable
+    private static float[] model(LivingEntity living, float partialTick) {
+        long now = living.level().getGameTime();
+        float[] cached = MODEL.get(living.getId());
+        if (cached == null || now - (long) cached[0] > MODEL_REFRESH || now < (long) cached[0]) {
+            float[] measured = EntityGhost.measure(living, partialTick, 0.1F);
+            cached = new float[]{now, measured[0], measured[1]};
+            MODEL.put(living.getId(), cached);
+        }
+        return cached[1] > 0.0F ? cached : null;
     }
 
     private static int anchorCount(Body body) {
@@ -166,11 +207,23 @@ public final class GravebindChains {
     }
 
     private static float ringRadius(Body body) {
-        return body.half() * 1.3F + ChainLinks.width() * body.linkScale() * 0.6F;
+        return Math.max(body.half() * 1.3F, body.foot() * 1.08F) + ChainLinks.width() * body.linkScale() * 0.6F;
     }
 
+    /**
+     * Anchors on the ground close outside the ring: short, steep chains that hold the ring down (Phase 6.2: far anchors read
+     * like a spider of chains from afar and hid the ring).
+     */
     private static double anchorDistance(Body body) {
-        return ringRadius(body) * 1.4 + 0.4 * body.scale() + 0.2;
+        return ringRadius(body) + 0.12 + 0.14 * body.scale();
+    }
+
+    /**
+     * Flyers close above the ground: the chains run together to the ground under the flyer, so they tie it down like a stake
+     * instead of carrying it on legs (Phase 6.2: the low Wither looked like it stood on stilts).
+     */
+    private static double flyerAnchorDistance(Body body) {
+        return ringRadius(body) * 0.25;
     }
 
     private static Ground ground(ClientLevel level, LivingEntity living, Body body) {
@@ -185,7 +238,7 @@ public final class GravebindChains {
         double center = living.onGround() ? body.feet() : groundBelow(level, body.x(), body.z(), body.feet() + 0.25, reach);
         boolean grounded = !Double.isNaN(center);
         double[] ys = new double[count];
-        double distance = anchorDistance(body);
+        double distance = living.onGround() ? anchorDistance(body) : flyerAnchorDistance(body);
         for (int i = 0; i < count; i++) {
             float a = anchorAngle(living, i, count);
             double y = groundBelow(level, body.x() + Mth.cos(a) * distance, body.z() + Mth.sin(a) * distance,
@@ -229,6 +282,7 @@ public final class GravebindChains {
         WAVES.removeIf(w -> now - w.start() > 100);
         if (now % 40 == 0) {
             GROUND.entrySet().removeIf(e -> now - e.getValue().tick() > 40);
+            MODEL.entrySet().removeIf(e -> now - (long) e.getValue()[0] > 2L * MODEL_REFRESH);
         }
         List<LivingEntity> bound = new ArrayList<>();
         for (Entity entity : level.entitiesForRendering()) {
@@ -260,6 +314,7 @@ public final class GravebindChains {
             return;
         }
         ChainLinks.Drawer drawer = new ChainLinks.Drawer(base, buffers.getBuffer(metalType()), buffers.getBuffer(sheenType()));
+        ChainVeil veil = new ChainVeil();
         List<float[]> cracks = new ArrayList<>();
         // many bound entities at once: only the nearest get the full links and the sheen
         bound.sort(java.util.Comparator.comparingDouble(e -> e.position().distanceToSqr(cam)));
@@ -267,7 +322,7 @@ public final class GravebindChains {
             LivingEntity living = bound.get(rank);
             CurseView.Line line = living.getExistingData(CurseView.type()).map(v -> v.line(CurseEffects.GRAVEBIND)).orElse(null);
             if (line != null) {
-                drawEntity(level, drawer, cracks, cam, living, line, now, partialTick, rank >= FULL_DETAIL);
+                drawEntity(level, drawer, veil, cracks, cam, living, line, now, partialTick, rank >= FULL_DETAIL);
             }
         }
         for (Wave w : WAVES) {
@@ -275,6 +330,9 @@ public final class GravebindChains {
         }
         buffers.endBatch(metalType());
         buffers.endBatch(sheenType());
+        if (!veil.isEmpty()) {
+            veil.flush(base, buffers);
+        }
         if (!cracks.isEmpty()) {
             VertexConsumer vc = buffers.getBuffer(crackType());
             for (float[] c : cracks) {
@@ -285,7 +343,7 @@ public final class GravebindChains {
         lastLinks = drawer.links;
     }
 
-    private static void drawEntity(ClientLevel level, ChainLinks.Drawer drawer, List<float[]> cracks, Vec3 cam,
+    private static void drawEntity(ClientLevel level, ChainLinks.Drawer drawer, ChainVeil veil, List<float[]> cracks, Vec3 cam,
                                    LivingEntity living, CurseView.Line line, long now, float partialTick, boolean crowded) {
         float age = (now - line.start()) + partialTick - arrivalDelay(living, line.start());
         float left = (line.end() - now) - partialTick;
@@ -307,6 +365,11 @@ public final class GravebindChains {
         float want = Mth.clamp(living.walkAnimation.speed(partialTick) * 2.0F
                 + (float) living.getDeltaMovement().horizontalDistance() * 8.0F, 0.0F, 1.0F);
 
+        // the ghostly veil: faint by day, strong at night (by the light at the entity); no shreds far away or in crowds
+        float veilStrength = distance >= MID_LOD ? 0.0F : veilStrength(level, body, partialTick) * fade * (crowded ? 0.6F : 1.0F);
+        boolean shreds = !far && veilStrength > 0.0F;
+        float veilWidth = ChainLinks.width() * size * slimness * 1.6F;
+
         // ---- the wave ring at the feet (rises out of the ground with the chains)
         float rise = easeOut(Mth.clamp(age / SHOOT_TICKS, 0.0F, 1.0F));
         Ring ring = ring(body, size, rise, sink, time);
@@ -319,12 +382,22 @@ public final class GravebindChains {
             ChainLinks.Drawer.Style style = style(size * (far ? 1.2F : 1.0F), far, light(level, body.x(), body.feet() + 0.3, body.z()),
                     sheenLod, time);
             drawer.chain(points, true, new Vec3(0.0, 1.0, 0.0), style);
+            veil.seam(points, true, veilWidth, veilStrength * rise, time);
+            if (shreds) {
+                for (int k = 0; k < 3; k++) {
+                    float u = ((time * 0.006F + k / 3.0F + living.getId() * 0.13F) % 1.0F + 1.0F) % 1.0F;
+                    float start = u * samples;
+                    int i0 = (int) start % samples;
+                    veil.shred(new Vec3[]{points[i0], points[(i0 + 1) % samples]}, start - (int) start,
+                            0.32F * body.scale(), 0.16F * body.scale(), veilStrength * 0.8F);
+                }
+            }
         }
 
         // ---- anchors: from the ground to the ring (decided 20.11.: the chains hold the ring, the ring holds the entity). High in
         // the air (Ender Dragon, Ghast, flying Wither) there are no chains from the ground, only the ring (decided 20.11.).
         int count = ground.grounded() ? anchorCount(body) : 0;
-        double dist = anchorDistance(body);
+        double dist = living.onGround() ? anchorDistance(body) : flyerAnchorDistance(body);
         int light = light(level, body.x(), body.feet() + 0.5, body.z());
         for (int i = 0; i < count; i++) {
             float angle = anchorAngle(living, i, count);
@@ -344,12 +417,27 @@ public final class GravebindChains {
             style.shown = Math.min(grow, fade);
             if (distance < 32.0) {
                 cracks.add(new float[]{(float) (anchor.x - cam.x), (float) (ground.anchorY()[i] + 0.015 - cam.y),
-                        (float) (anchor.z - cam.z), (0.45F + 0.22F * body.scale()) * grow, angle, 0.85F * fade,
+                        (float) (anchor.z - cam.z), (0.35F + 0.18F * body.scale()) * grow, angle, 0.85F * fade,
                         light(level, anchor.x, ground.anchorY()[i] + 0.2, anchor.z)});
             }
             relative(points, cam);
             drawer.chain(points, false, side, style);
+            float shown = Math.min(grow, fade);
+            veil.seam(points, false, veilWidth, veilStrength * shown, time + i * 7.0F);
+            if (shreds && grow >= 1.0F) {
+                // a shred drifting up along the chain, from the anchor to the ring
+                float u = ((time * 0.025F + i * 0.37F + living.getId() * 0.21F) % 1.0F + 1.0F) % 1.0F;
+                veil.shred(points, u, 0.26F * body.scale(), 0.13F * body.scale(), veilStrength * 0.9F);
+            }
         }
+    }
+
+    /** Strength of the ghostly veil: weak in full daylight, strong in the dark (light where the entity stands). */
+    private static float veilStrength(ClientLevel level, Body body, float partialTick) {
+        int packed = LevelRenderer.getLightColor(level, BlockPos.containing(body.x(), body.feet() + 0.5, body.z()));
+        float sky = LightTexture.sky(packed) / 15.0F * level.getSkyDarken(partialTick);
+        float light = Math.max(LightTexture.block(packed) / 15.0F, sky);
+        return Mth.lerp(Mth.clamp(light, 0.0F, 1.0F), VEIL_NIGHT, VEIL_DAY);
     }
 
     /** The wave ring at the feet: radius, height and wave (the wave runs once around the entity in 3 s). */
@@ -362,7 +450,7 @@ public final class GravebindChains {
 
     private static Ring ring(Body body, float size, float rise, float sink, float time) {
         float amplitude = 0.07F + 0.07F * body.scale();
-        float lift = ChainLinks.width() * size * 0.55F + amplitude + 0.02F + Math.min(0.08F * body.height(), 0.5F);
+        float lift = ChainLinks.width() * size * 0.55F + amplitude + 0.02F + Math.min(0.1F * body.height(), 0.6F);
         double baseY = body.feet() + lift - (1.0F - rise) * (lift + 0.25F * body.scale()) - sink;
         return new Ring(ringRadius(body), baseY, amplitude, body.scale() < 0.75F ? 2 : 3, time);
     }
@@ -385,6 +473,7 @@ public final class GravebindChains {
     private static ChainLinks.Drawer.Style style(float scale, boolean far, int light, float sheen, float time) {
         ChainLinks.Drawer.Style style = new ChainLinks.Drawer.Style();
         style.scale = scale;
+        style.slim = slimness;
         style.far = far;
         style.light = light;
         style.metalR = METAL[0];
@@ -481,7 +570,7 @@ public final class GravebindChains {
         Ground ground = ground(level, living, body);
         RandomSource random = living.getRandom();
         int count = anchorCount(body);
-        double dist = anchorDistance(body);
+        double dist = living.onGround() ? anchorDistance(body) : flyerAnchorDistance(body);
         Ring ring = ring(body, body.linkScale(), 1.0F, 0.0F, now);
         DustParticleOptions dust = new DustParticleOptions(new Vector3f(0.20F, 0.21F, 0.26F), 0.9F + 0.4F * body.scale());
         int particles = ground.grounded() ? 2 + count / 2 : 0;

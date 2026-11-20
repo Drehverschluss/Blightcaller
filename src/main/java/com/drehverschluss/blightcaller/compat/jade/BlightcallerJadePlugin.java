@@ -1,6 +1,7 @@
 package com.drehverschluss.blightcaller.compat.jade;
 
 import com.drehverschluss.blightcaller.Blightcaller;
+import com.drehverschluss.blightcaller.compat.Couplings;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import snownee.jade.api.IWailaClientRegistration;
@@ -32,6 +33,7 @@ public class BlightcallerJadePlugin implements IWailaPlugin {
     @Override
     public void register(IWailaCommonRegistration registration) {
         registration.registerEntityDataProvider(CurseJadeProvider.INSTANCE, LivingEntity.class);
+        Couplings.found("Jade", "curse tooltip registered");
     }
 
     @Override

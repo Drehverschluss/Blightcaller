@@ -23,8 +23,10 @@ import net.minecraft.world.phys.Vec3;
 
 /**
  * Draws an entity's own model a second time as a ghost: the same renderer, the same pose and animation, but every model
- * layer goes into ghost render types instead of its own (Phase 6.1: the soul torn out by Drain Soul; meant to be reused
- * for the curse veil of Phase 6.2).
+ * layer goes into ghost render types instead of its own (Phase 6.1: the soul torn out by Drain Soul; Phase 6.2: the curse
+ * veil, and {@link #measure} measures the model for the ring of Gravebind). While a copy is drawn, the name tag part of
+ * the renderer is skipped ({@code mixin.client.EntityRendererMixin}), so no name tag or health bar of other mods comes
+ * along.
  * <p>
  * How: {@link #render} calls the entity's renderer ({@link EntityRenderer#render}) with a wrapping {@link MultiBufferSource}.
  * Every render type the renderer asks for is checked: model layers (vertex format {@code NEW_ENTITY} with a texture,
@@ -120,6 +122,121 @@ public final class EntityGhost {
             buffers.endBatch(type);
         }
         return ghost.vertices[0];
+    }
+
+    /**
+     * Size of the visible model near the ground (Phase 6.2: the ring of Gravebind lies around the legs of the model, not only
+     * around the hitbox; the Netherite Monstrosity's legs stand far outside its hitbox). Runs the entity's renderer once
+     * without drawing and reads the model's vertices: the horizontal distance from the feet's centre that 97 % of the
+     * vertices in the lowest {@code share} of the model's height stay within, and the model's height above the feet: {radius, height},
+     * -1 where nothing could be measured.
+     */
+    public static float[] measure(Entity entity, float partialTick, float share) {
+        if (drawing || !supported(entity.getType())) {
+            return new float[]{-1.0F, -1.0F};
+        }
+        Minecraft mc = Minecraft.getInstance();
+        EntityRenderer<? super Entity> renderer = mc.getEntityRenderDispatcher().getRenderer(entity);
+        Measure measure = new Measure();
+        drawing = true;
+        PoseStack poseStack = new PoseStack();
+        try {
+            Vec3 offset = renderer.getRenderOffset(entity, partialTick);
+            poseStack.translate(offset.x, offset.y, offset.z);
+            float yaw = Mth.lerp(partialTick, entity.yRotO, entity.getYRot());
+            renderer.render(entity, yaw, partialTick, poseStack, measure, LightTexture.FULL_BRIGHT);
+        } catch (Throwable t) {
+            return new float[]{-1.0F, -1.0F};
+        } finally {
+            drawing = false;
+        }
+        return new float[]{measure.footRadius(share), measure.size == 0 ? -1.0F : measure.maxY - Math.min(measure.minY, 0.0F)};
+    }
+
+    /** Collects the model's vertex positions (relative to the feet) instead of drawing. */
+    private static final class Measure implements MultiBufferSource {
+        private float[] points = new float[3 * 1024];
+        private int size;
+        private float minY = Float.MAX_VALUE;
+        private float maxY = -Float.MAX_VALUE;
+
+        @Override
+        public VertexConsumer getBuffer(RenderType type) {
+            return modelTexture(type).isPresent() ? new Collector() : Sink.INSTANCE;
+        }
+
+        float footRadius(float share) {
+            if (size == 0 || maxY <= minY) {
+                return -1.0F;
+            }
+            float limit = minY + (maxY - minY) * share;
+            float[] distances = new float[size / 3];
+            int n = 0;
+            for (int i = 0; i < size; i += 3) {
+                if (points[i + 1] <= limit) {
+                    distances[n++] = points[i] * points[i] + points[i + 2] * points[i + 2];
+                }
+            }
+            if (n == 0) {
+                return -1.0F;
+            }
+            // nearly the farthest, but not a single stray vertex (the Netherite Monstrosity has one 6.9 blocks out)
+            java.util.Arrays.sort(distances, 0, n);
+            return Mth.sqrt(distances[Math.min(n - 1, (int) (n * 0.97F))]);
+        }
+
+        private void add(float x, float y, float z) {
+            if (size + 3 > points.length) {
+                if (points.length >= 3 * 65536) {
+                    return;
+                }
+                points = java.util.Arrays.copyOf(points, points.length * 2);
+            }
+            points[size++] = x;
+            points[size++] = y;
+            points[size++] = z;
+            minY = Math.min(minY, y);
+            maxY = Math.max(maxY, y);
+        }
+
+        private final class Collector implements VertexConsumer {
+            @Override
+            public VertexConsumer addVertex(float x, float y, float z) {
+                add(x, y, z);
+                return this;
+            }
+
+            @Override
+            public void addVertex(float x, float y, float z, int color, float u, float v, int overlay, int light,
+                                  float nx, float ny, float nz) {
+                add(x, y, z);
+            }
+
+            @Override
+            public VertexConsumer setColor(int r, int g, int b, int a) {
+                return this;
+            }
+
+            @Override
+            public VertexConsumer setUv(float u, float v) {
+                return this;
+            }
+
+            @Override
+            public VertexConsumer setUv1(int u, int v) {
+                return this;
+            }
+
+            @Override
+            public VertexConsumer setUv2(int u, int v) {
+                return this;
+            }
+
+            @Override
+            public VertexConsumer setNormal(float x, float y, float z) {
+                return this;
+            }
+        }
     }
 
     /** The texture of a model layer, or empty for everything that is not a textured entity model layer. */

@@ -2,6 +2,7 @@ package com.drehverschluss.blightcaller;
 
 import com.drehverschluss.blightcaller.client.CurseParticles;
 import com.drehverschluss.blightcaller.client.CurseTooltips;
+import com.drehverschluss.blightcaller.client.display.CurseDisplay;
 import com.drehverschluss.blightcaller.client.fx.FxClient;
 import com.drehverschluss.blightcaller.config.BlightcallerClientConfig;
 import net.neoforged.api.distmarker.Dist;
@@ -23,5 +24,6 @@ public class BlightcallerClient {
         modEventBus.addListener(FMLClientSetupEvent.class, event -> event.enqueueWork(CurseParticles::register));
         CurseTooltips.register();
         FxClient.register(modEventBus);
+        CurseDisplay.register(modEventBus);
     }
 }

@@ -54,18 +54,6 @@
     "visuals": {
       "particles": [
         {
-          "id": "spell_engine:area_effect_293",
-          "appearance": {
-            "color": 1783405772,
-            "scale_with": "RANGE"
-          },
-          "batch": {
-            "count": 1.0,
-            "shape": "NONE",
-            "anchor": "GROUND"
-          }
-        },
-        {
           "id": "blightcaller:grave_wave",
           "appearance": {},
           "batch": {

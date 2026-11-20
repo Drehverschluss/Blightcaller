@@ -164,6 +164,8 @@ public final class ChainLinks {
         /** Styling of one chain: size, light, colours and how links fade, shrink or appear along it. */
         static final class Style {
             float scale = 1.0F;
+            /** Thickness across the link (its width and bar thickness) relative to the model, length unchanged (Phase 6.2). */
+            float slim = 1.0F;
             boolean far;
             int light;
             float metalR = 1.0F, metalG = 1.0F, metalB = 1.0F;
@@ -250,7 +252,7 @@ public final class ChainLinks {
             m.set(base.pose())
                     .translate((float) center.x, (float) center.y, (float) center.z)
                     .mul(rotation.set(basis))
-                    .scale(size)
+                    .scale(size * style.slim, size, size * style.slim)
                     .translate(-0.5F, -0.5F, -0.5F);
             pose.last().normal().set(base.normal()).mul(basis);
             float[] mesh = mesh(style.far);

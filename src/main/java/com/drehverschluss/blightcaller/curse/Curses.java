@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import net.minecraft.core.Holder;
@@ -459,6 +460,7 @@ public final class Curses {
             return;
         }
         List<CurseView.Line> lines = new ArrayList<>();
+        CurseView old = entity.getExistingData(CurseView.type()).orElse(null);
         if (data != null) {
             long now = entity.level().getGameTime();
             Map<ResourceLocation, Long> starts = STARTS.get(entity.getUUID());
@@ -471,11 +473,25 @@ public final class Curses {
                     continue;
                 }
                 long end = now;
+                CurseView.Line oldLine = old == null ? null : old.line(holder.get());
+                List<CurseView.Caster> casters = new ArrayList<>();
                 for (CurseEntry entry : e.getValue()) {
                     end = Math.max(end, entry.expires());
+                    // when this caster's entry was put on: kept from the last view while its end stays the same (the ring of
+                    // the curse icons runs from there to the end), now for new and refreshed entries
+                    long since = now;
+                    if (oldLine != null) {
+                        for (CurseView.Caster c : oldLine.casters()) {
+                            if (c.end() == entry.expires() && Objects.equals(c.caster().orElse(null), entry.caster)) {
+                                since = c.since();
+                                break;
+                            }
+                        }
+                    }
+                    casters.add(new CurseView.Caster(Optional.ofNullable(entry.caster), since, entry.expires()));
                 }
                 long start = starts == null ? now : starts.getOrDefault(e.getKey(), now);
-                lines.add(new CurseView.Line(holder.get(), data.amplifier(e.getKey()), start, end));
+                lines.add(new CurseView.Line(holder.get(), data.amplifier(e.getKey()), start, end, List.copyOf(casters)));
             }
         }
         if (lines.isEmpty()) {

@@ -29,6 +29,31 @@ public final class FxRenderTypes extends RenderType {
                     .setOverlayState(OVERLAY)
                     .createCompositeState(false));
 
+    /** Mob effect icons (the curse icons above the head and at the Health Bars box): the vanilla effect atlas, by reference. */
+    public static final ResourceLocation MOB_EFFECT_ATLAS = ResourceLocation.withDefaultNamespace("textures/atlas/mob_effects.png");
+
+    /**
+     * Flat coloured shapes of the curse display (rings, backgrounds): the shader of the name tag background (so shader packs
+     * treat them like name tags), translucent, both sides, no depth write, so they work the same in the world (camera facing)
+     * and in the GUI. Not sorted by distance: the ring must lie over its dark track in the order it is drawn.
+     */
+    public static final RenderType FLAT = create("blightcaller_flat", DefaultVertexFormat.POSITION_COLOR_LIGHTMAP, VertexFormat.Mode.QUADS,
+            1536, false, false,
+            CompositeState.builder()
+                    .setShaderState(RENDERTYPE_TEXT_BACKGROUND_SHADER)
+                    .setTextureState(NO_TEXTURE)
+                    .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
+                    .setLightmapState(LIGHTMAP)
+                    .setCullState(NO_CULL)
+                    .setWriteMaskState(COLOR_WRITE)
+                    .createCompositeState(false));
+
+    /**
+     * The curse icons: vanilla text on the mob effect atlas, the same render type as the letters of a name tag (shader
+     * packs draw it like name tags; Phase 6.2: an own type with the text shader went dark at night with Complementary).
+     */
+    public static final RenderType ICON = RenderType.text(MOB_EFFECT_ATLAS);
+
     private FxRenderTypes(String name, VertexFormat format, VertexFormat.Mode mode, int bufferSize, boolean affectsCrumbling,
                           boolean sortOnUpload, Runnable setupState, Runnable clearState) {
         super(name, format, mode, bufferSize, affectsCrumbling, sortOnUpload, setupState, clearState);

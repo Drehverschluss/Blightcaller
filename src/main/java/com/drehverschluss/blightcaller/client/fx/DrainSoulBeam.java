@@ -66,6 +66,11 @@ public final class DrainSoulBeam {
     private static final float[] GHOST = {0.36F, 0.95F, 1.0F};
     /** How much the way of the strands rises (over the caster's shoulder): a tenth of the length, at most 0.8 blocks. */
     private static final float LIFT = 1.0F;
+    /**
+     * Share of the arcs in the own first person view: Phase 6.1 had 0.4 (the strands hid behind the wand), 0.8 rings the
+     * target; 0.5 shows them beside the wand (compared in Phase 6.2).
+     */
+    static float firstPersonArc = 0.5F;
 
     /** One channelling caster, in world coordinates, as last drawn. */
     record Beam(Player caster, @Nullable LivingEntity target, Path path, float channelTicks, int interval, long startedAt,
@@ -281,7 +286,7 @@ public final class DrainSoulBeam {
     private static boolean ghost(PoseStack.Pose base, Vec3 cam, MultiBufferSource.BufferSource buffers, float partialTick, Beam b,
                                  float time) {
         LivingEntity target = b.target();
-        if (!BlightcallerClientConfig.drainSoulGhost() || !EntityGhost.supported(target.getType())) {
+        if (!BlightcallerClientConfig.drainSoulTornSoul() || !EntityGhost.supported(target.getType())) {
             return false;
         }
         Path path = b.path();
@@ -292,8 +297,9 @@ public final class DrainSoulBeam {
         }
         float height = target.getBbHeight() * 0.6F;
         float[] c = cycle(b.channelTicks(), b.interval());
-        // the soul left in the body: faint, wavering a little towards the caster
-        float idle = 0.16F * Mth.clamp(b.channelTicks() / (b.interval() * 0.5F), 0.0F, 1.0F);
+        // the soul left in the body: faint, wavering a little towards the caster; fainter on big mobs, which keep their own
+        // colours (Phase 6.2: the Netherite Monstrosity turned all turquoise)
+        float idle = 0.16F * sizeFade(target) * Mth.clamp(b.channelTicks() / (b.interval() * 0.5F), 0.0F, 1.0F);
         Vec3 sway = toCaster.normalize().scale(0.05F + 0.03F * Mth.sin(time * 0.3F));
         boolean drawn = drawGhost(base, cam, buffers, partialTick, target, chest.add(sway), toCaster, height, 1.0F, 1.0F, idle);
         // the soul torn out at the last pulse, on its way to the wand
@@ -313,6 +319,15 @@ public final class DrainSoulBeam {
             drawn |= drawGhost(base, cam, buffers, partialTick, target, at, path.tangent(u).scale(-1.0), height, size, stretch, alpha);
         }
         return drawn;
+    }
+
+    /**
+     * 1 for mobs up to the size of a ravager, less for bigger ones (about a third for the Netherite Monstrosity): a faint
+     * copy over a big model covers a lot of screen and would tint it all.
+     */
+    public static float sizeFade(LivingEntity target) {
+        float size = Mth.sqrt(Math.min(target.getBbWidth(), 6.0F) * Math.min(target.getBbHeight(), 8.0F) / (0.6F * 1.95F));
+        return Mth.clamp((float) Math.pow(2.0F / Math.max(size, 2.0F), 1.6), 0.3F, 1.0F);
     }
 
     /** One ghost of the target with its chest at {@code chest}, scaled and stretched along {@code towards}. */
@@ -363,7 +378,7 @@ public final class DrainSoulBeam {
         float arc = target ? (float) Mth.clamp(0.3 + 0.1 * length, 0.3, 1.4) : 0.0F;
         // in the own first person view the arcs are seen along the way and would ring the target: flatter there
         if (b.firstPerson()) {
-            arc *= 0.4F;
+            arc *= firstPersonArc;
         }
         float width = target ? (float) Mth.clamp(0.035 + 0.004 * length, 0.035, 0.08) : 0.02F;
         float[] c = cycle(b.channelTicks(), b.interval());
@@ -510,7 +525,7 @@ public final class DrainSoulBeam {
             int casterId = b.caster().getId();
             int pulse = (int) cycle(tick - b.startedAt(), b.interval())[0];
             RandomSource random = level.getRandom();
-            boolean fallback = BlightcallerClientConfig.drainSoulGhost() && !EntityGhost.supported(target.getType());
+            boolean fallback = BlightcallerClientConfig.drainSoulTornSoul() && !EntityGhost.supported(target.getType());
             Integer seen = PULSE_SEEN.get(casterId);
             if (pulse >= 1 && (seen == null || seen != pulse)) {
                 PULSE_SEEN.put(casterId, pulse);

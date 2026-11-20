@@ -1,6 +1,7 @@
 package com.drehverschluss.blightcaller.client.fx;
 
 import com.drehverschluss.blightcaller.Blightcaller;
+import com.drehverschluss.blightcaller.client.display.CurseDisplay;
 import com.drehverschluss.blightcaller.curse.CurseEffects;
 import com.drehverschluss.blightcaller.curse.CurseView;
 import com.drehverschluss.blightcaller.fx.BlightcallerParticles;
@@ -111,8 +112,11 @@ public final class FxClient {
             Vec3 cam = camera.getPosition();
             PoseStack.Pose base = event.getPoseStack().last();
             MultiBufferSource.BufferSource buffers = mc.renderBuffers().bufferSource();
+            // the curse veil first (translucent, no depth write), then the chains and Drain Soul, the curse icons last
+            CurseDisplay.renderLevel(base, cam, event.getFrustum(), buffers, partialTick, false);
             GravebindChains.render(base, cam, event.getFrustum(), buffers, partialTick);
             DrainSoulBeam.render(base, cam, camera, event.getProjectionMatrix(), buffers, partialTick);
+            CurseDisplay.renderLevel(base, cam, event.getFrustum(), buffers, partialTick, true);
         } catch (Exception e) {
             warn(e);
         }
