@@ -71,13 +71,14 @@
           "light_level": 12,
           "travel_particles": [
             {
-              "id": "spell_engine:smoke_medium",
+              "id": "spell_engine:magic_spark",
               "appearance": {
-                "color": 2321277081,
-                "scale": 0.55
+                "color": 2321277183,
+                "scale": 0.7,
+                "glow": true
               },
               "batch": {
-                "count": 0.6,
+                "count": 2.5,
                 "shape": "SPHERE",
                 "anchor": "ENTITY",
                 "min_speed": 0.0,
@@ -89,11 +90,11 @@
               "appearance": {
                 "color": 2321277183,
                 "motion": "DECELERATE",
-                "scale": 0.7,
+                "scale": 0.25,
                 "glow": true
               },
               "batch": {
-                "count": 0.7,
+                "count": 0.5,
                 "shape": "SPHERE",
                 "anchor": "ENTITY",
                 "min_speed": 0.0,
@@ -104,7 +105,7 @@
               "id": "spell_engine:dripping_blood",
               "appearance": {
                 "color": 2142391039,
-                "scale": 0.9
+                "scale": 0.8
               },
               "batch": {
                 "count": 0.6,

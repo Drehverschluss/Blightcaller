@@ -126,6 +126,7 @@ public final class Curses {
             // refresh: new snapshot and roll, the later end, same rhythm, tick count kept
             entry = new CurseEntry(app.caster(), app.power(), app.factor(), app.critical(), app.criticalDamage(),
                     old.nextTick, Math.max(old.end, end), app.jumps(), app.chain(), old.ticks, app.transferred());
+            entry.nextSpread = old.nextSpread;
             entries.set(entries.indexOf(old), entry);
         } else {
             entry = new CurseEntry(app.caster(), app.power(), app.factor(), app.critical(), app.criticalDamage(),
@@ -236,6 +237,53 @@ public final class Curses {
             cleanUp(entity, data);
             return false;
         }
+    }
+
+    // ------------------------------------------------------------------------------------------------ remove entries
+
+    /**
+     * Removes the entries of one caster from one curse on the target (Last Rites). Entries of other casters stay; the
+     * effect goes only when no entry is left, otherwise it is shortened to the longest remaining entry. Returns the
+     * removed entries.
+     */
+    public static List<CurseEntry> removeEntries(LivingEntity target, Holder<MobEffect> curse, @Nullable java.util.UUID caster) {
+        Optional<CurseData> optional = data(target);
+        if (optional.isEmpty() || !(target.level() instanceof ServerLevel level)) {
+            return List.of();
+        }
+        CurseData data = optional.get();
+        ResourceLocation id = id(curse);
+        List<CurseEntry> entries = data.entries(id);
+        List<CurseEntry> removed = new ArrayList<>();
+        for (CurseEntry entry : List.copyOf(entries)) {
+            if (entry.sameCaster(caster)) {
+                entries.remove(entry);
+                removed.add(entry);
+            }
+        }
+        if (removed.isEmpty()) {
+            return removed;
+        }
+        if (entries.isEmpty()) {
+            data.remove(id);
+            cleanUp(target, data);
+            target.removeEffect(curse);
+        } else {
+            syncEffect(target, curse, entries, level.getGameTime(), null);
+        }
+        return removed;
+    }
+
+    /**
+     * Damage per second one entry deals to the target right now (power x factor x critical x soul vulnerability, per tick
+     * interval). Curses without damage give 0.
+     */
+    public static double damagePerSecond(LivingEntity target, Holder<MobEffect> curse, CurseEntry entry) {
+        if (!dealsDamage(curse.value())) {
+            return 0.0;
+        }
+        int interval = BlightcallerConfig.get(BlightcallerConfig.CURSE_TICK_INTERVAL);
+        return CurseDamage.amount(target, entry) * 20.0 / interval;
     }
 
     // ------------------------------------------------------------------------------------------------ clean-up

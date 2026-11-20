@@ -5,6 +5,10 @@
       "id": "#c:bosses",
       "required": false
     },
+    {
+      "id": "#spell_engine:bosses",
+      "required": false
+    },
     "minecraft:warden",
     "minecraft:elder_guardian"
   ]

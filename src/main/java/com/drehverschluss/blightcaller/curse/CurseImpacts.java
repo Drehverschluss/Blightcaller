@@ -44,6 +44,7 @@ import org.jetbrains.annotations.Nullable;
  *     effect instance on the target: with several casters that is the longest duration of someone else.</li>
  *     <li><b>Power:</b> the power Spell Engine hands to the marker (spell power with all modifiers of the impact) times
  *     the channel/distance/charge multiplier of the cast, as for damage impacts. Critical is rolled once here.</li>
+ *     <li><b>Pestilence:</b> every cast starts a new chain (carrier budget, {@link Pestilence}).</li>
  * </ul>
  */
 public final class CurseImpacts {
@@ -93,7 +94,12 @@ public final class CurseImpacts {
         SpellPower.Result snapshot = new SpellPower.Result(power.school(), power.baseValue() * context.total(spell),
                 power.criticalChance(), power.criticalDamage());
         CurseApplication app = CurseApplication.cast(source.curse(), caster, snapshot, factor, ticks, caster.getRandom());
+        if (Pestilence.isPestilence(source.curse())) {
+            // every cast starts its own chain with its own carrier budget
+            app = Pestilence.startChain(app, Pestilence.maxCarriers(caster, spell, source.impact(), context.chargeModifier()));
+        }
         CurseEntry entry = Curses.apply(living, app);
+        Pestilence.afterCast(living, app, entry);
         // never reported as critical: a critical flag here would trigger "on spell crit" passives a second time
         return new SpellHandlers.ImpactResult(entry != null, false);
     }

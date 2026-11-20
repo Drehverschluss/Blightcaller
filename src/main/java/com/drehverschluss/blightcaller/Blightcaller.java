@@ -8,6 +8,8 @@ import com.drehverschluss.blightcaller.curse.CurseEffects;
 import com.drehverschluss.blightcaller.curse.CurseEvents;
 import com.drehverschluss.blightcaller.curse.CurseImpacts;
 import com.drehverschluss.blightcaller.curse.CursePredicates;
+import com.drehverschluss.blightcaller.curse.LastRites;
+import com.drehverschluss.blightcaller.curse.Pestilence;
 import com.drehverschluss.blightcaller.item.BlightcallerItems;
 import com.mojang.logging.LogUtils;
 import net.minecraft.resources.ResourceLocation;
@@ -35,6 +37,8 @@ public class Blightcaller {
         CurseEvents.register();
         CurseImpacts.register();
         CursePredicates.register();
+        Pestilence.register();
+        LastRites.register();
         NeoForge.EVENT_BUS.addListener(RegisterCommandsEvent.class, BlightcallerCommands::onRegisterCommands);
         LOGGER.info("Blightcaller {} loaded", modContainer.getModInfo().getVersion());
     }

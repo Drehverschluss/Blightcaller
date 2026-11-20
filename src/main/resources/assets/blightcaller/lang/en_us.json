@@ -42,6 +42,8 @@
   "item.blightcaller.spell_book/blightcaller.spell_binding.description": "Spell Book of Blightcallers, cursing foes with soul magic that rots them over time\n- Strengths: Damage over time, weakening, strong against tough enemies and bosses\n- Weaknesses: Slow start, little burst damage, very low defense\n- Equipment: Lightly armored",
   "item.blightcaller.spell_scroll/blightcaller": "Blight Spell Scroll",
 
+
+
   "effect.blightcaller.soul_rot": "Soul Rot",
   "effect.blightcaller.soul_rot.description": "Takes soul damage every second for a long time.",
   "effect.blightcaller.enfeeble": "Enfeeble",
@@ -58,5 +60,24 @@
   "spell.tooltip.blightcaller.curse_weaken": "%1$s for %2$s s: the target takes %3$s more damage from all sources (bosses %4$s).",
   "spell.tooltip.blightcaller.curse_level_bonus": "+%1$s damage per curse on the target, up to %2$s curses.",
   "commands.blightcaller.curse.apply.done_no_damage": "Cursed %s with %s for %s s (no damage)",
-  "commands.blightcaller.curse.info.entry_no_damage": " - %s from %s: no damage, %s s left"
+  "commands.blightcaller.curse.info.entry_no_damage": " - %s from %s: no damage, %s s left",
+
+  "effect.blightcaller.gravebind": "Gravebind",
+  "effect.blightcaller.gravebind.description": "Ghostly hands hold the target: it moves much slower. A curse without damage of its own.",
+  "effect.blightcaller.soul_rend": "Soul Rend",
+  "effect.blightcaller.soul_rend.description": "The soul is torn open by Drain Soul. A curse without damage of its own.",
+  "effect.blightcaller.pestilence": "Pestilence",
+  "effect.blightcaller.pestilence.description": "Takes soul damage every second and spreads the plague to enemies nearby.",
+  "spell.blightcaller.gravebind.name": "Gravebind",
+  "spell.blightcaller.gravebind.description": "Ghostly hands burst from the ground around you, causing {damage} soul spell damage to all enemies nearby and binding them with Gravebind.",
+  "spell.blightcaller.drain_soul.name": "Drain Soul",
+  "spell.blightcaller.drain_soul.description": "Channels a beam that drains the target's soul, dealing {damage} soul spell damage and healing you by {heal} every second. Tears the soul open with Soul Rend.",
+  "spell.blightcaller.pestilence.name": "Pestilence",
+  "spell.blightcaller.pestilence.description": "Curses the target with Pestilence, a plague that rots its soul and spreads to enemies nearby.",
+  "spell.blightcaller.last_rites.name": "Last Rites",
+  "spell.blightcaller.last_rites.description": "Speaks the last rites over all enemies around you, detonating your curses on them.",
+  "spell.tooltip.blightcaller.curse_slow": "%1$s for %2$s s: the target moves %3$s slower (bosses %4$s).",
+  "spell.tooltip.blightcaller.curse_mark": "%1$s: lasts %2$s s after the last hit, no damage of its own, counts as a curse.",
+  "spell.tooltip.blightcaller.curse_spread": "Every %1$s s each carrier infects an enemy within %2$s blocks that has no Pestilence, up to %3$s carriers per cast (the target included). Copies keep the remaining time.",
+  "spell.tooltip.blightcaller.last_rites": "Detonates your own curses with damage: the damage of their next %1$s s × %2$s at once, then they are gone. Curses of other players and curses without damage stay."
 }

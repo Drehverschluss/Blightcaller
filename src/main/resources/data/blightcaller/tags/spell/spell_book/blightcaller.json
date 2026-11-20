@@ -1,6 +1,10 @@
 {
   "values": [
     "blightcaller:soul_rot",
-    "blightcaller:enfeeble"
+    "blightcaller:enfeeble",
+    "blightcaller:gravebind",
+    "blightcaller:drain_soul",
+    "blightcaller:pestilence",
+    "blightcaller:last_rites"
   ]
 }

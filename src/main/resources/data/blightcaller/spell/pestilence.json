@@ -1,0 +1,148 @@
+{
+  "school": "spell_power:soul",
+  "range": 24.0,
+  "tier": 4,
+  "group": "blightcaller_plague",
+  "learn": {},
+  "active": {
+    "cast": {
+      "duration": 0.8,
+      "animation": {
+        "id": "spell_engine:one_handed_projectile_charge"
+      },
+      "sound": {
+        "id": "spell_engine:generic_soul_casting",
+        "randomness": 0.0
+      },
+      "particles": [
+        {
+          "id": "spell_engine:magic_skull",
+          "appearance": {
+            "color": 2830449407,
+            "motion": "FLOAT",
+            "scale": 0.5
+          },
+          "batch": {
+            "count": 0.6,
+            "shape": "SPHERE",
+            "anchor": "LAUNCH_POINT",
+            "min_speed": 0.02,
+            "max_speed": 0.06
+          }
+        },
+        {
+          "id": "spell_engine:magic_spark",
+          "appearance": {
+            "color": 2583652095,
+            "scale": 0.5
+          },
+          "batch": {
+            "count": 0.8,
+            "shape": "SPHERE",
+            "anchor": "LAUNCH_POINT",
+            "min_speed": 0.02,
+            "max_speed": 0.08
+          }
+        }
+      ]
+    }
+  },
+  "release": {
+    "animation": {
+      "id": "spell_engine:one_handed_projectile_release"
+    },
+    "sound": {
+      "id": "spell_engine:generic_soul_release",
+      "pitch": 0.9
+    }
+  },
+  "target": {
+    "type": "AIM",
+    "aim": {
+      "required": true,
+      "sticky": true
+    }
+  },
+  "impacts": [
+    {
+      "action": {
+        "type": "STATUS_EFFECT",
+        "status_effect": {
+          "effect_id": "blightcaller:pestilence",
+          "duration": 10.0
+        }
+      },
+      "visuals": {
+        "particles": [
+          {
+            "id": "spell_engine:smoke_medium",
+            "appearance": {
+              "color": 2325359257,
+              "motion": "BURST",
+              "scale": 1.3
+            },
+            "batch": {
+              "count": 14.0,
+              "shape": "SPHERE",
+              "anchor": "ENTITY",
+              "vertical_origin": 0.6,
+              "min_speed": 0.08,
+              "max_speed": 0.2
+            }
+          },
+          {
+            "id": "spell_engine:magic_spark",
+            "appearance": {
+              "color": 2830449407,
+              "motion": "BURST",
+              "scale": 0.7,
+              "glow": true
+            },
+            "batch": {
+              "count": 16.0,
+              "shape": "SPHERE",
+              "anchor": "ENTITY",
+              "vertical_origin": 0.6,
+              "min_speed": 0.1,
+              "max_speed": 0.3
+            }
+          },
+          {
+            "id": "minecraft:sneeze",
+            "appearance": {},
+            "batch": {
+              "count": 8.0,
+              "shape": "SPHERE",
+              "anchor": "ENTITY",
+              "vertical_origin": 0.8,
+              "min_speed": 0.02,
+              "max_speed": 0.06
+            }
+          }
+        ]
+      },
+      "sound": {
+        "id": "minecraft:block.sculk_catalyst.bloom",
+        "volume": 1.2,
+        "pitch": 0.7
+      }
+    },
+    {
+      "action": {
+        "type": "CUSTOM",
+        "custom": {
+          "intent": "HARMFUL",
+          "handler": "blightcaller:curse/0.2"
+        }
+      }
+    }
+  ],
+  "cost": {
+    "cooldown": {
+      "duration": 8.0
+    },
+    "item": {
+      "id": "runes:soul_stone"
+    }
+  }
+}

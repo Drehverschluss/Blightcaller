@@ -26,10 +26,14 @@ public final class CurseEntry {
             Codec.INT.optionalFieldOf("jumps", 0).forGetter(e -> e.jumps),
             UUIDUtil.CODEC.optionalFieldOf("chain").forGetter(e -> Optional.ofNullable(e.chain)),
             Codec.INT.optionalFieldOf("ticks", 0).forGetter(e -> e.ticks),
-            Codec.BOOL.optionalFieldOf("transferred", false).forGetter(e -> e.transferred)
-    ).apply(i, (caster, power, factor, critical, criticalDamage, nextTick, end, jumps, chain, ticks, transferred) ->
-            new CurseEntry(caster.orElse(null), power, factor, critical, criticalDamage, nextTick, end, jumps,
-                    chain.orElse(null), ticks, transferred)));
+            Codec.BOOL.optionalFieldOf("transferred", false).forGetter(e -> e.transferred),
+            Codec.LONG.optionalFieldOf("next_spread", 0L).forGetter(e -> e.nextSpread)
+    ).apply(i, (caster, power, factor, critical, criticalDamage, nextTick, end, jumps, chain, ticks, transferred, nextSpread) -> {
+        CurseEntry entry = new CurseEntry(caster.orElse(null), power, factor, critical, criticalDamage, nextTick, end, jumps,
+                chain.orElse(null), ticks, transferred);
+        entry.nextSpread = nextSpread;
+        return entry;
+    }));
 
     /** UUID of the caster, {@code null} for curses without a caster (e.g. from a command block). */
     @Nullable
@@ -52,13 +56,15 @@ public final class CurseEntry {
     public final double end;
     /** Times this curse has jumped to a new target (Soul Migration, later phase). */
     public final int jumps;
-    /** Shared id of all copies made by one cast of Pestilence (later phase). */
+    /** Shared id of all copies made by one cast of Pestilence ({@link Pestilence}): their common carrier budget. */
     @Nullable
     public final UUID chain;
     /** Damage ticks this entry has dealt so far (Deepening Rot, later phase). Kept when the same caster refreshes. */
     public int ticks;
     /** Moved here from another target: keeps its remaining duration and is never extended by Curse Duration again. */
     public final boolean transferred;
+    /** Game time of the next spreading attempt (Pestilence), 0 for curses that do not spread. */
+    public long nextSpread;
 
     public CurseEntry(@Nullable UUID caster, double power, double factor, boolean critical, double criticalDamage,
                       long nextTick, double end, int jumps, @Nullable UUID chain, int ticks, boolean transferred) {
@@ -94,6 +100,6 @@ public final class CurseEntry {
     public String toString() {
         return "CurseEntry{caster=" + caster + ", power=" + power + ", factor=" + factor + ", critical=" + critical
                 + ", criticalDamage=" + criticalDamage + ", nextTick=" + nextTick + ", end=" + end + ", jumps=" + jumps
-                + ", chain=" + chain + ", ticks=" + ticks + ", transferred=" + transferred + "}";
+                + ", chain=" + chain + ", ticks=" + ticks + ", transferred=" + transferred + ", nextSpread=" + nextSpread + "}";
     }
 }

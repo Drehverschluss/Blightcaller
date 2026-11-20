@@ -1,0 +1,207 @@
+{
+  "school": "spell_power:soul",
+  "range": 8.0,
+  "tier": 4,
+  "group": "blightcaller_rites",
+  "learn": {},
+  "active": {
+    "cast": {
+      "duration": 0.5,
+      "animation": {
+        "id": "spell_engine:one_handed_sky_charge"
+      },
+      "sound": {
+        "id": "spell_engine:generic_soul_casting",
+        "randomness": 0.0
+      },
+      "particles": [
+        {
+          "id": "spell_engine:magic_skull",
+          "appearance": {
+            "color": 2321277183,
+            "motion": "FLOAT",
+            "scale": 0.5
+          },
+          "batch": {
+            "count": 0.6,
+            "shape": "SPHERE",
+            "anchor": "LAUNCH_POINT",
+            "min_speed": 0.02,
+            "max_speed": 0.06
+          }
+        },
+        {
+          "id": "spell_engine:magic_spark",
+          "appearance": {
+            "color": 2583652095,
+            "scale": 0.5
+          },
+          "batch": {
+            "count": 0.8,
+            "shape": "SPHERE",
+            "anchor": "LAUNCH_POINT",
+            "min_speed": 0.02,
+            "max_speed": 0.08
+          }
+        }
+      ]
+    }
+  },
+  "release": {
+    "animation": {
+      "id": "spell_engine:one_handed_area_release"
+    },
+    "visuals": {
+      "particles": [
+        {
+          "id": "spell_engine:area_effect_293",
+          "appearance": {
+            "color": 2321277081,
+            "scale_with": "RANGE"
+          },
+          "batch": {
+            "count": 1.0,
+            "shape": "NONE",
+            "anchor": "GROUND"
+          }
+        },
+        {
+          "id": "spell_engine:magic_skull",
+          "appearance": {
+            "color": 2321277183,
+            "motion": "BURST",
+            "scale": 0.8,
+            "glow": true
+          },
+          "batch": {
+            "count": 30.0,
+            "shape": "CIRCLE",
+            "anchor": "GROUND",
+            "min_speed": 0.4,
+            "max_speed": 0.6
+          }
+        }
+      ]
+    },
+    "sound": {
+      "id": "minecraft:block.bell.use",
+      "volume": 1.0,
+      "pitch": 0.5
+    }
+  },
+  "target": {
+    "type": "AREA",
+    "area": {
+      "vertical_range_multiplier": 0.5
+    }
+  },
+  "impacts": [
+    {
+      "action": {
+        "type": "CUSTOM",
+        "custom": {
+          "intent": "HARMFUL",
+          "handler": "blightcaller:last_rites/4/1.5"
+        }
+      },
+      "target_modifiers": [
+        {
+          "conditions": [
+            {
+              "entity_predicate_id": "blightcaller:curse_level",
+              "entity_predicate_param": "1"
+            }
+          ],
+          "modifier": {
+            "power_multiplier": 0.15
+          }
+        },
+        {
+          "conditions": [
+            {
+              "entity_predicate_id": "blightcaller:curse_level",
+              "entity_predicate_param": "2"
+            }
+          ],
+          "modifier": {
+            "power_multiplier": 0.15
+          }
+        },
+        {
+          "conditions": [
+            {
+              "entity_predicate_id": "blightcaller:curse_level",
+              "entity_predicate_param": "3"
+            }
+          ],
+          "modifier": {
+            "power_multiplier": 0.15
+          }
+        }
+      ],
+      "visuals": {
+        "particles": [
+          {
+            "id": "spell_engine:magic_skull",
+            "appearance": {
+              "color": 2321277183,
+              "motion": "BURST",
+              "scale": 1.0,
+              "glow": true
+            },
+            "batch": {
+              "count": 14.0,
+              "shape": "SPHERE",
+              "anchor": "ENTITY",
+              "vertical_origin": 0.6,
+              "min_speed": 0.15,
+              "max_speed": 0.4
+            }
+          },
+          {
+            "id": "spell_engine:magic_spark",
+            "appearance": {
+              "color": 2583652095,
+              "motion": "BURST",
+              "scale": 0.7
+            },
+            "batch": {
+              "count": 18.0,
+              "shape": "SPHERE",
+              "anchor": "ENTITY",
+              "vertical_origin": 0.6,
+              "min_speed": 0.2,
+              "max_speed": 0.5
+            }
+          },
+          {
+            "id": "minecraft:soul_fire_flame",
+            "appearance": {},
+            "batch": {
+              "count": 10.0,
+              "shape": "SPHERE",
+              "anchor": "ENTITY",
+              "vertical_origin": 0.5,
+              "min_speed": 0.05,
+              "max_speed": 0.15
+            }
+          }
+        ]
+      },
+      "sound": {
+        "id": "minecraft:entity.vex.death",
+        "volume": 1.0,
+        "pitch": 0.6,
+        "randomness": 0.1
+      }
+    }
+  ],
+  "cost": {
+    "cooldown": {
+      "duration": 20.0
+    },
+    "item": {
+      "id": "runes:soul_stone"
+    }
+  }
+}

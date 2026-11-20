@@ -17,14 +17,20 @@ public final class CurseEffects {
     public static final int ROT_GREEN = 0x7FB24A;
     /** Grey violet: Enfeeble. */
     public static final int ASH_VIOLET = 0x7D7088;
+    /** Pale bone violet: Gravebind. */
+    public static final int GRAVE_PALE = 0xB8A9D9;
+    /** Soul cyan of the soul school: Soul Rend. */
+    public static final int SOUL_CYAN = 0x2DD4DA;
+    /** Sickly olive yellow: Pestilence. */
+    public static final int PLAGUE_OLIVE = 0xA8B53A;
 
     /** All curses. The curse level of a target counts the different effects of this tag on it. */
     public static final TagKey<MobEffect> CURSES = TagKey.create(Registries.MOB_EFFECT, Blightcaller.id("curses"));
 
     /**
-     * Entities that resist the weakening part of curses (Enfeeble only gives half its bonus, later also the slow of
-     * Gravebind). Damage over time is never reduced. Contains {@code #c:bosses} (optional), the Warden and the Elder
-     * Guardian.
+     * Entities that resist the weakening part of curses (Enfeeble gives half its bonus, Gravebind half its slow). Damage
+     * over time is never reduced. Contains {@code #c:bosses} and {@code #spell_engine:bosses} (both optional), the Warden
+     * and the Elder Guardian.
      */
     public static final TagKey<EntityType<?>> CURSE_RESISTANT = TagKey.create(Registries.ENTITY_TYPE, Blightcaller.id("curse_resistant"));
 
@@ -36,6 +42,12 @@ public final class CurseEffects {
     public static final DeferredHolder<MobEffect, MobEffect> SOUL_ROT = EFFECTS.register("soul_rot", () -> new CurseEffect(ROT_GREEN));
     /** Enfeeble / Entkräftung: curse without damage, the target takes more damage from all sources. */
     public static final DeferredHolder<MobEffect, MobEffect> ENFEEBLE = EFFECTS.register("enfeeble", () -> new EnfeebleEffect(ASH_VIOLET));
+    /** Gravebind / Grabesfessel: curse without damage, the target is much slower (bosses half). Tier 3, side A. */
+    public static final DeferredHolder<MobEffect, MobEffect> GRAVEBIND = EFFECTS.register("gravebind", () -> new GravebindEffect(GRAVE_PALE));
+    /** Soul Rend / Seelenriss: curse without damage and without any other effect, laid by Drain Soul. Tier 3, side B. */
+    public static final DeferredHolder<MobEffect, MobEffect> SOUL_REND = EFFECTS.register("soul_rend", () -> new CurseEffect(SOUL_CYAN, false));
+    /** Pestilence / Seuche: damage over time that spreads to enemies nearby. Tier 4, side A. */
+    public static final DeferredHolder<MobEffect, MobEffect> PESTILENCE = EFFECTS.register("pestilence", () -> new PestilenceEffect(PLAGUE_OLIVE));
 
     private CurseEffects() {}
 

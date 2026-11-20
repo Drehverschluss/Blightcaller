@@ -6,6 +6,7 @@ import com.drehverschluss.blightcaller.curse.CurseData;
 import com.drehverschluss.blightcaller.curse.CurseEffects;
 import com.drehverschluss.blightcaller.curse.CurseEntry;
 import com.drehverschluss.blightcaller.curse.Curses;
+import com.drehverschluss.blightcaller.curse.Pestilence;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
 import com.mojang.brigadier.context.CommandContext;
@@ -123,7 +124,12 @@ public final class BlightcallerCommands {
                 continue;
             }
             CurseApplication app = CurseApplication.cast(curse, caster, spellPower, factor, ticks, living.getRandom());
+            if (Pestilence.isPestilence(curse)) {
+                // like a cast: a chain of its own with the carrier budget from the config
+                app = Pestilence.startChain(app, Pestilence.maxCarriers(caster, null, null, null));
+            }
             CurseEntry entry = Curses.apply(living, app);
+            Pestilence.afterCast(living, app, entry);
             if (entry == null) {
                 source.sendFailure(Component.translatable("commands.blightcaller.curse.apply.failed", living.getDisplayName(), name(curse)));
                 continue;

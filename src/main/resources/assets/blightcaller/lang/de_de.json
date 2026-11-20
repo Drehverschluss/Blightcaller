@@ -42,6 +42,8 @@
   "item.blightcaller.spell_book/blightcaller.spell_binding.description": "Zauberbuch der Blightcaller, verflucht Feinde mit Seelenmagie, die sie mit der Zeit verfaulen lässt\n- Stärken: Schaden über Zeit, Schwächung, stark gegen zähe Gegner und Bosse\n- Schwächen: Langsamer Start, wenig Sofortschaden, sehr geringe Verteidigung\n- Ausrüstung: Leicht gepanzert",
   "item.blightcaller.spell_scroll/blightcaller": "Fäulnis Zauberrolle",
 
+
+
   "effect.blightcaller.soul_rot": "Seelenfäule",
   "effect.blightcaller.soul_rot.description": "Erleidet lange Zeit jede Sekunde Seelenschaden.",
   "effect.blightcaller.enfeeble": "Entkräftung",
@@ -58,5 +60,24 @@
   "spell.tooltip.blightcaller.curse_weaken": "%1$s für %2$s s: Das Ziel nimmt %3$s mehr Schaden aus allen Quellen (Bosse %4$s).",
   "spell.tooltip.blightcaller.curse_level_bonus": "+%1$s Schaden je Fluch auf dem Ziel, bis zu %2$s Flüche.",
   "commands.blightcaller.curse.apply.done_no_damage": "%s mit %s für %s s verflucht (ohne Schaden)",
-  "commands.blightcaller.curse.info.entry_no_damage": " - %s von %s: ohne Schaden, noch %s s"
+  "commands.blightcaller.curse.info.entry_no_damage": " - %s von %s: ohne Schaden, noch %s s",
+
+  "effect.blightcaller.gravebind": "Grabesfessel",
+  "effect.blightcaller.gravebind.description": "Geisterhände halten das Ziel fest: Es bewegt sich viel langsamer. Ein Fluch ohne eigenen Schaden.",
+  "effect.blightcaller.soul_rend": "Seelenriss",
+  "effect.blightcaller.soul_rend.description": "Seelenentzug hat die Seele aufgerissen. Ein Fluch ohne eigenen Schaden.",
+  "effect.blightcaller.pestilence": "Seuche",
+  "effect.blightcaller.pestilence.description": "Erleidet jede Sekunde Seelenschaden und steckt Gegner in der Nähe an.",
+  "spell.blightcaller.gravebind.name": "Grabesfessel",
+  "spell.blightcaller.gravebind.description": "Geisterhände brechen um dich herum aus dem Boden, fügen allen Gegnern in der Nähe {damage} Seelenzauber-Schaden zu und belegen sie mit Grabesfessel.",
+  "spell.blightcaller.drain_soul.name": "Seelenentzug",
+  "spell.blightcaller.drain_soul.description": "Kanalisiert einen Strahl, der dem Ziel die Seele entzieht: jede Sekunde {damage} Seelenzauber-Schaden, und du wirst um {heal} geheilt. Reißt die Seele mit Seelenriss auf.",
+  "spell.blightcaller.pestilence.name": "Seuche",
+  "spell.blightcaller.pestilence.description": "Verflucht das Ziel mit der Seuche, die seine Seele verrotten lässt und Gegner in der Nähe ansteckt.",
+  "spell.blightcaller.last_rites.name": "Letzte Riten",
+  "spell.blightcaller.last_rites.description": "Spricht allen Gegnern um dich herum die letzten Riten und lässt deine Flüche auf ihnen ausbrechen.",
+  "spell.tooltip.blightcaller.curse_slow": "%1$s für %2$s s: Das Ziel bewegt sich %3$s langsamer (Bosse %4$s).",
+  "spell.tooltip.blightcaller.curse_mark": "%1$s: hält %2$s s nach dem letzten Treffer, ohne eigenen Schaden, zählt als Fluch.",
+  "spell.tooltip.blightcaller.curse_spread": "Alle %1$s s steckt jeder Träger einen Gegner in %2$s Blöcken an, der noch keine Seuche hat, bis zu %3$s Träger je Wirken (mit dem Ziel). Kopien behalten die Restzeit.",
+  "spell.tooltip.blightcaller.last_rites": "Lässt deine eigenen Flüche mit Schaden ausbrechen: Schaden ihrer nächsten %1$s s × %2$s auf einmal, danach sind sie weg. Flüche anderer Spieler und Flüche ohne Schaden bleiben."
 }

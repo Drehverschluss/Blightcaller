@@ -6,6 +6,9 @@ import com.drehverschluss.blightcaller.config.BlightcallerConfig;
 import com.drehverschluss.blightcaller.curse.CurseImpacts;
 import com.drehverschluss.blightcaller.curse.Curses;
 import com.drehverschluss.blightcaller.curse.EnfeebleEffect;
+import com.drehverschluss.blightcaller.curse.GravebindEffect;
+import com.drehverschluss.blightcaller.curse.LastRites;
+import com.drehverschluss.blightcaller.curse.Pestilence;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -35,9 +38,12 @@ import org.jetbrains.annotations.Nullable;
  * <ul>
  *     <li>curse with damage: soul damage per second with the player's current soul spell power, the duration with the
  *     player's Curse Duration (and {@code effect_duration_add} of their modifiers), and the total;</li>
- *     <li>curse without damage (Enfeeble): the extra damage taken on normal targets and on bosses (amplifiers of the
- *     curse's status effect impacts, server config {@code enfeeble_bonus_per_level}) and the duration;</li>
- *     <li>damage impacts with target modifiers on {@code blightcaller:curse_level} (Hex Bolt): bonus per curse level.</li>
+ *     <li>curse without damage: Enfeeble the extra damage taken, Gravebind the slow (normal targets and bosses, from the
+ *     amplifiers of the curse's status effect impacts and the server config), others (Soul Rend) only how long they last
+ *     after the last hit;</li>
+ *     <li>Pestilence: also how it spreads (interval, radius, carriers per cast);</li>
+ *     <li>damage and Last Rites impacts with target modifiers on {@code blightcaller:curse_level}: bonus per curse level;</li>
+ *     <li>Last Rites ({@link LastRites}): the rule (own curses with damage, damage of the next seconds x factor).</li>
  * </ul>
  * Uses Spell Engine's custom tooltip tokens (one resolver per spell id), registered after joining a world (spells come
  * from the server). Spells that already have a resolver from another mod are left alone.
@@ -50,6 +56,10 @@ public final class CurseTooltips {
     private static final String DAMAGE_KEY = "spell.tooltip.blightcaller.curse_damage";
     private static final String WEAKEN_KEY = "spell.tooltip.blightcaller.curse_weaken";
     private static final String LEVEL_KEY = "spell.tooltip.blightcaller.curse_level_bonus";
+    private static final String SLOW_KEY = "spell.tooltip.blightcaller.curse_slow";
+    private static final String MARK_KEY = "spell.tooltip.blightcaller.curse_mark";
+    private static final String SPREAD_KEY = "spell.tooltip.blightcaller.curse_spread";
+    private static final String LAST_RITES_KEY = "spell.tooltip.blightcaller.last_rites";
     private static final String CURSE_LEVEL_PREDICATE = Blightcaller.id("curse_level").toString();
     private static final Set<ResourceLocation> OWN = new HashSet<>();
 
@@ -85,7 +95,7 @@ public final class CurseTooltips {
 
     private static boolean hasCurseParts(Spell spell) {
         for (Spell.Impact impact : impactsOf(spell)) {
-            if (handlerOf(impact) != null || levelBonus(impact) > 0.0) {
+            if (handlerOf(impact) != null || lastRitesOf(impact) != null || levelBonus(impact) > 0.0) {
                 return true;
             }
         }
@@ -101,7 +111,7 @@ public final class CurseTooltips {
         double perLevel = 0.0;
         int levels = 0;
         for (Spell.Impact impact : impactsOf(spell)) {
-            if (impact.action != null && impact.action.type == Spell.Impact.Action.Type.DAMAGE) {
+            if (impact.action != null && (impact.action.type == Spell.Impact.Action.Type.DAMAGE || lastRitesOf(impact) != null)) {
                 Set<String> params = new HashSet<>();
                 double sum = 0.0;
                 for (Spell.Impact.TargetModifier modifier : impact.target_modifiers) {
@@ -119,6 +129,15 @@ public final class CurseTooltips {
         }
         if (perLevel > 0.0) {
             lines.add(I18n.get(LEVEL_KEY, percent(perLevel), Math.min(levels, Curses.MAX_CURSE_LEVEL)));
+        }
+
+        // Last Rites: the rule
+        for (Spell.Impact impact : impactsOf(spell)) {
+            LastRites.Values values = lastRitesOf(impact);
+            if (values != null) {
+                lines.add(I18n.get(LAST_RITES_KEY, number(values.seconds()), number(values.factor())));
+                break;
+            }
         }
 
         // one line per curse marker
@@ -180,6 +199,9 @@ public final class CurseTooltips {
         String name = curse.value().getDisplayName().getString();
 
         if (!Curses.dealsDamage(curse.value())) {
+            if (!(curse.value() instanceof EnfeebleEffect) && !(curse.value() instanceof GravebindEffect)) {
+                return I18n.get(MARK_KEY, name, number(extended));
+            }
             int normal = Integer.MIN_VALUE;
             int resistant = Integer.MAX_VALUE;
             for (Spell.Impact impact : impactsOf(spell)) {
@@ -191,6 +213,10 @@ public final class CurseTooltips {
             if (normal == Integer.MIN_VALUE) {
                 normal = resistant = 0;
             }
+            if (curse.value() instanceof GravebindEffect) {
+                return I18n.get(SLOW_KEY, name, number(extended), percent(GravebindEffect.slow(normal)),
+                        percent(GravebindEffect.slow(resistant)));
+            }
             return I18n.get(WEAKEN_KEY, name, number(extended), percent(EnfeebleEffect.bonus(normal)),
                     percent(EnfeebleEffect.bonus(resistant)));
         }
@@ -200,7 +226,14 @@ public final class CurseTooltips {
         double perTick = power * factor.getAsDouble();
         double perSecond = perTick * 20.0 / interval;
         double total = perTick * extended * 20.0 / interval;
-        return I18n.get(DAMAGE_KEY, name, number(perSecond), number(extended), number(total));
+        String line = I18n.get(DAMAGE_KEY, name, number(perSecond), number(extended), number(total));
+        if (Pestilence.isPestilence(curse)) {
+            int carriers = Pestilence.maxCarriers(player, entry, statusImpact, null);
+            double every = BlightcallerConfig.get(BlightcallerConfig.PESTILENCE_SPREAD_INTERVAL) / 20.0;
+            line += " " + I18n.get(SPREAD_KEY, number(every), number(BlightcallerConfig.get(BlightcallerConfig.PESTILENCE_SPREAD_RADIUS)),
+                    carriers);
+        }
+        return line;
     }
 
     // ------------------------------------------------------------------------------------------------ helpers
@@ -238,6 +271,15 @@ public final class CurseTooltips {
         }
         ResourceLocation id = ResourceLocation.tryParse(impact.action.status_effect.effect_id);
         return id == null ? null : BuiltInRegistries.MOB_EFFECT.getHolder(id).filter(Curses::isCurse).orElse(null);
+    }
+
+    @Nullable
+    private static LastRites.Values lastRitesOf(Spell.Impact impact) {
+        if (impact == null || impact.action == null || impact.action.type != Spell.Impact.Action.Type.CUSTOM
+                || impact.action.custom == null) {
+            return null;
+        }
+        return LastRites.valuesOf(impact.action.custom.handler).orElse(null);
     }
 
     private static double levelBonus(Spell.Impact impact) {

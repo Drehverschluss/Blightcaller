@@ -16,6 +16,10 @@ public final class BlightcallerConfig {
     public static final ModConfigSpec.DoubleValue MAX_CURSE_DURATION_BONUS;
     public static final ModConfigSpec.IntValue CURSE_TICK_INTERVAL;
     public static final ModConfigSpec.DoubleValue ENFEEBLE_BONUS_PER_LEVEL;
+    public static final ModConfigSpec.DoubleValue GRAVEBIND_SLOW_PER_LEVEL;
+    public static final ModConfigSpec.IntValue PESTILENCE_SPREAD_INTERVAL;
+    public static final ModConfigSpec.DoubleValue PESTILENCE_SPREAD_RADIUS;
+    public static final ModConfigSpec.IntValue PESTILENCE_MAX_CARRIERS;
 
     static {
         ModConfigSpec.Builder builder = new ModConfigSpec.Builder();
@@ -39,6 +43,31 @@ public final class BlightcallerConfig {
                         "entity tag #blightcaller:curse_resistant (bosses). 0.05 = +10% on normal targets, +5% on bosses.",
                         "Only one Enfeeble effect is on a target, so several casters do not stack it.")
                 .defineInRange("enfeeble_bonus_per_level", 0.05, 0.0, 1.0);
+        GRAVEBIND_SLOW_PER_LEVEL = builder
+                .comment("Gravebind: movement speed the target loses per effect level, as a fraction of its total speed.",
+                        "The spell gives level 2 (amplifier 1) to normal targets and level 1 (amplifier 0) to targets in the",
+                        "entity tag #blightcaller:curse_resistant (bosses). 0.3 = 60% slower, bosses 30% slower (at most 95%).",
+                        "Spell Engine skips movement impairing effects on #spell_engine:bosses; Gravebind does not count as one",
+                        "for that check, so bosses get the half slow instead of none.")
+                .defineInRange("gravebind_slow_per_level", 0.3, 0.0, 0.95);
+        builder.pop();
+
+        builder.comment("Pestilence: a curse with damage over time that spreads. Every carrier passes a copy to one enemy",
+                        "nearby that has no Pestilence yet. The copy keeps the snapshot and the remaining time of its source",
+                        "and is never extended by Curse Duration again. Damage always counts for the original caster.",
+                        "Only enemies: never players, never tamed pets, never the caster.")
+                .push("pestilence");
+        PESTILENCE_SPREAD_INTERVAL = builder
+                .comment("Game ticks between two spreading attempts of one carrier (40 = every 2 seconds).")
+                .defineInRange("spread_interval", 40, 1, 1200);
+        PESTILENCE_SPREAD_RADIUS = builder
+                .comment("Blocks around a carrier in which Pestilence looks for a new carrier (needs a line of sight).")
+                .defineInRange("spread_radius", 5.0, 0.0, 32.0);
+        PESTILENCE_MAX_CARRIERS = builder
+                .comment("Carriers per cast, the first target included (4 = the target and three more).",
+                        "The amplifier of the Pestilence status effect in the spell adds to it, so skill tree modifiers with",
+                        "effect_amplifier_add raise it per player without changing this value.")
+                .defineInRange("max_carriers", 4, 1, 64);
         builder.pop();
 
         SPEC = builder.build();

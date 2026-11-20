@@ -3,6 +3,9 @@
   "values": [
     "blightcaller:soulburn",
     "blightcaller:soul_rot",
-    "blightcaller:enfeeble"
+    "blightcaller:enfeeble",
+    "blightcaller:gravebind",
+    "blightcaller:soul_rend",
+    "blightcaller:pestilence"
   ]
 }
