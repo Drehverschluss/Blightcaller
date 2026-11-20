@@ -50,7 +50,7 @@ import org.joml.Vector3f;
  *     body, not by the 16 block wide box around all parts.</li>
  *     <li><b>Flyers:</b> close above the ground (up to 2.5 blocks plus half a block per size step) the chains still come from the
  *     ground; higher up (Wither, Ghast, Ender Dragon in the air) only the ring at the bottom of the body is left.</li>
- *     <li><b>Cast:</b> a wave of chain runs over the ground away from the caster, from 1.5 to 5 blocks ({@link #addWave},
+ *     <li><b>Cast:</b> a wave of chain runs over the ground away from the caster, from 1.5 blocks to the radius of the cast ({@link #addWave},
  *     started by the particle {@code blightcaller:grave_wave}); the chains of a target shoot out of the ground when the
  *     wave reaches it. Nothing at the caster.</li>
  *     <li><b>End:</b> in the last half second the chains crumble to dust and sink into the ground.</li>
@@ -73,9 +73,8 @@ public final class GravebindChains {
     static final int FULL_DETAIL = 12;
     private static final float SHOOT_TICKS = 6.0F;
     private static final float FADE_TICKS = 10.0F;
-    /** Cast wave: from 1.5 to 5 blocks around the caster (the spell's range) in 9 ticks, then it sinks in 5 ticks. */
+    /** Cast wave: from 1.5 blocks out to the radius of the cast (the spell's range for the caster) in 9 ticks, then it sinks in 5. */
     private static final float WAVE_FROM = 1.5F;
-    private static final float WAVE_TO = 5.0F;
     private static final float WAVE_TICKS = 9.0F;
     private static final float WAVE_SINK = 5.0F;
     /** Dark iron (the vanilla chain is dark blue grey already) and the faint soul turquoise sheen. */
@@ -96,7 +95,7 @@ public final class GravebindChains {
     private static final float BIG = 1.5F;
     private static final float MAX_FOOT = 2.2F;
 
-    private record Wave(Vec3 origin, long start) {}
+    private record Wave(Vec3 origin, long start, float radius) {}
 
     private static final List<Wave> WAVES = new ArrayList<>();
     private static final Map<Integer, Ground> GROUND = new HashMap<>();
@@ -119,11 +118,11 @@ public final class GravebindChains {
         return RenderType.entityTranslucent(CRACK);
     }
 
-    /** A cast wave starting now at a caster's feet (called by the particle {@code blightcaller:grave_wave}). */
-    static void addWave(double x, double y, double z) {
+    /** A cast wave starting now at a caster's feet, out to the radius of the cast (sent by the server, {@code fx.GraveWave}). */
+    public static void addWave(double x, double y, double z, float radius) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.level != null) {
-            WAVES.add(new Wave(new Vec3(x, y, z), mc.level.getGameTime()));
+            WAVES.add(new Wave(new Vec3(x, y, z), mc.level.getGameTime(), Math.max(WAVE_FROM + 0.5F, radius)));
         }
     }
 
@@ -495,7 +494,7 @@ public final class GravebindChains {
         if (a < 0.0F || a > WAVE_TICKS + WAVE_SINK) {
             return;
         }
-        float radius = WAVE_FROM + (WAVE_TO - WAVE_FROM) * easeOut(Math.min(a / WAVE_TICKS, 1.0F));
+        float radius = WAVE_FROM + (wave.radius() - WAVE_FROM) * easeOut(Math.min(a / WAVE_TICKS, 1.0F));
         float sink = a > WAVE_TICKS ? (a - WAVE_TICKS) / WAVE_SINK : 0.0F;
         float size = 0.4F * (1.0F - 0.3F * sink);
         float lift = ChainLinks.width() * size * 0.5F;
@@ -522,7 +521,7 @@ public final class GravebindChains {
                 double dx = living.getX() - w.origin().x;
                 double dz = living.getZ() - w.origin().z;
                 double d = Math.sqrt(dx * dx + dz * dz);
-                float x = Mth.clamp((float) (d - WAVE_FROM) / (WAVE_TO - WAVE_FROM), 0.0F, 1.0F);
+                float x = Mth.clamp((float) (d - WAVE_FROM) / (w.radius() - WAVE_FROM), 0.0F, 1.0F);
                 float t = WAVE_TICKS * (1.0F - (float) Math.cbrt(1.0F - x));
                 return Math.max(0.0F, t + (w.start() - start));
             }

@@ -25,6 +25,8 @@ import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import net.neoforged.neoforge.event.server.ServerAboutToStartEvent;
 import net.spell_engine.api.spell.Spell;
+import net.spell_engine.internals.SpellExecution;
+import net.spell_power.api.SpellPower;
 import net.spell_engine.api.spell.event.SpellHandlers;
 import net.spell_engine.api.spell.registry.SpellRegistry;
 import net.spell_engine.internals.container.SpellContainerSource;
@@ -53,6 +55,22 @@ public final class SkillMarkers {
     public static final String DEEPENING_ROT = Blightcaller.MODID + ":deepening_rot/";
     public static final String SPREADING_ROT = Blightcaller.MODID + ":spreading_rot/";
     public static final String ENERVATION = Blightcaller.MODID + ":enervation/";
+    /** Passive: {@code blightbloom/<radius>/<seconds>/<factor>} ({@link Blightbloom}). */
+    public static final String BLIGHTBLOOM = Blightcaller.MODID + ":blightbloom/";
+    /** Passive: {@code infectious_curses/<chance>/<radius>} ({@link InfectiousCurses}). */
+    public static final String INFECTIOUS_CURSES = Blightcaller.MODID + ":infectious_curses/";
+    /** Passive: {@code coup_de_grace/<health below>/<bonus>} ({@link #coupDeGrace}). */
+    public static final String COUP_DE_GRACE = Blightcaller.MODID + ":coup_de_grace/";
+    /** Impact of the passive Vengeful Hex: a plain Enfeeble that keeps the caster's Enervation on the target. */
+    public static final String VENGEFUL_HEX = Blightcaller.MODID + ":vengeful_hex";
+    /** Appended to Last Rites (Soul Echo): {@code soul_echo/<seconds>/<factor>}, a fresh Soulburn on every detonated target. */
+    public static final String SOUL_ECHO = Blightcaller.MODID + ":soul_echo/";
+    /** Appended to Pestilence (Rapid Contagion): {@code rapid_contagion/<seconds between spreads>}. */
+    public static final String RAPID_CONTAGION = Blightcaller.MODID + ":rapid_contagion/";
+    /** Appended to Pestilence (Wide Contagion): {@code wide_contagion/<extra blocks>}. */
+    public static final String WIDE_CONTAGION = Blightcaller.MODID + ":wide_contagion/";
+    /** Passive markers that never run, they only mark the node. */
+    private static final List<String> PASSIVE_MARKERS = List.of(DEEPENING_ROT, BLIGHTBLOOM, INFECTIOUS_CURSES, COUP_DE_GRACE);
     private static final SpellHandlers.ImpactResult NONE = new SpellHandlers.ImpactResult(false, false);
     private static final Vector3f ROT_COLOR = new Vector3f(0.55F, 0.8F, 0.3F);
 
@@ -62,6 +80,14 @@ public final class SkillMarkers {
         NeoForge.EVENT_BUS.addListener(ServerAboutToStartEvent.class, SkillMarkers::onServerAboutToStart);
         NeoForge.EVENT_BUS.addListener(LivingIncomingDamageEvent.class, SkillMarkers::onIncomingDamage);
         SpellHandlers.registerCustomImpact(ResourceLocation.parse(SOUL_MIGRATION), (spell, power, caster, target, context) -> NONE);
+        SpellHandlers.registerCustomImpact(ResourceLocation.parse(VENGEFUL_HEX), (spell, power, caster, target, context) -> {
+            try {
+                return vengefulHex(spell, power, caster, target, context);
+            } catch (Exception e) {
+                Blightcaller.LOGGER.error("Blightcaller: Vengeful Hex failed", e);
+                return NONE;
+            }
+        });
     }
 
     // ------------------------------------------------------------------------------------------------ reading markers
@@ -165,9 +191,49 @@ public final class SkillMarkers {
         if (id == null) {
             return false;
         }
-        if (handler.startsWith(DEEPENING_ROT)) {
-            // only marks the passive, never runs
-            SpellHandlers.registerCustomImpact(id, (spell, power, caster, target, context) -> NONE);
+        for (String passive : PASSIVE_MARKERS) {
+            if (handler.startsWith(passive)) {
+                // only marks the passive, never runs
+                SpellHandlers.registerCustomImpact(id, (spell, power, caster, target, context) -> NONE);
+                return true;
+            }
+        }
+        if (handler.startsWith(SOUL_ECHO)) {
+            double[] v = values(handler, SOUL_ECHO);
+            if (v == null || v.length < 2) {
+                Blightcaller.LOGGER.warn("Blightcaller: invalid marker '{}', expected {}<seconds>/<factor>", handler, SOUL_ECHO);
+                return false;
+            }
+            SpellHandlers.registerCustomImpact(id, (spell, power, caster, target, context) -> {
+                try {
+                    return soulEcho(spell, power, caster, target, context, v[0], v[1]);
+                } catch (Exception e) {
+                    Blightcaller.LOGGER.error("Blightcaller: Soul Echo failed", e);
+                    return NONE;
+                }
+            });
+            return true;
+        }
+        if (handler.startsWith(RAPID_CONTAGION) || handler.startsWith(WIDE_CONTAGION)) {
+            boolean rapid = handler.startsWith(RAPID_CONTAGION);
+            String prefix = rapid ? RAPID_CONTAGION : WIDE_CONTAGION;
+            double[] v = values(handler, prefix);
+            if (v == null || v.length < 1 || (rapid && v[0] <= 0.0)) {
+                Blightcaller.LOGGER.warn("Blightcaller: invalid marker '{}', expected {}<number>", handler, prefix);
+                return false;
+            }
+            int interval = rapid ? Math.max(1, (int) Math.round(v[0] * 20.0)) : 0;
+            double radius = rapid ? 0.0 : v[0];
+            SpellHandlers.registerCustomImpact(id, (spell, power, caster, target, context) -> {
+                try {
+                    boolean ok = target instanceof LivingEntity living && !living.level().isClientSide()
+                            && Pestilence.tune(living, caster.getUUID(), interval, radius);
+                    return new SpellHandlers.ImpactResult(ok, false);
+                } catch (Exception e) {
+                    Blightcaller.LOGGER.error("Blightcaller: {} failed", handler, e);
+                    return NONE;
+                }
+            });
             return true;
         }
         if (handler.startsWith(SPREADING_ROT)) {
@@ -205,6 +271,62 @@ public final class SkillMarkers {
         return false;
     }
 
+    /**
+     * Vengeful Hex (passive 2 of side B): the plain Enfeeble of the passive spell on the attacker, through the normal curse marker.
+     * The modifiers of the Enfeeble spell do not apply (they match only {@code blightcaller:enfeeble}). If the caster's own Enfeeble
+     * with Enervation is on the attacker already, the refresh keeps its Enervation (a refresh would clear it otherwise).
+     */
+    private static SpellHandlers.ImpactResult vengefulHex(Holder<Spell> spell, SpellPower.Result power, LivingEntity caster,
+                                                          @Nullable Entity target, SpellExecution.ImpactContext context) {
+        if (!(target instanceof LivingEntity living) || living.level().isClientSide()) {
+            return NONE;
+        }
+        CurseEntry before = own(living, CurseEffects.ENFEEBLE, caster.getUUID());
+        double enervation = before != null && before.end > living.level().getGameTime() ? before.enervation : 0.0;
+        SpellHandlers.ImpactResult result = CurseImpacts.curse(VENGEFUL_HEX, 1.0, spell, power, caster, target, context);
+        CurseEntry after = own(living, CurseEffects.ENFEEBLE, caster.getUUID());
+        if (after != null && enervation > 0.0) {
+            after.enervation = Math.max(after.enervation, enervation);
+        }
+        return result;
+    }
+
+    /** Soul Echo (Last Rites): a fresh Soulburn on a target that Last Rites detonated just now. */
+    private static SpellHandlers.ImpactResult soulEcho(Holder<Spell> spell, SpellPower.Result power, LivingEntity caster,
+                                                       @Nullable Entity target, SpellExecution.ImpactContext context,
+                                                       double seconds, double factor) {
+        if (!(target instanceof LivingEntity living) || living.level().isClientSide() || living.isDeadOrDying()
+                || !LastRites.detonatedNow(caster, living)) {
+            return NONE;
+        }
+        SpellPower.Result snapshot = new SpellPower.Result(power.school(), power.baseValue() * context.total(spell),
+                power.criticalChance(), power.criticalDamage());
+        CurseApplication app = CurseApplication.cast(CurseEffects.SOULBURN, caster, snapshot, factor, Math.round(seconds * 20.0),
+                caster.getRandom());
+        return new SpellHandlers.ImpactResult(Curses.apply(living, app) != null, false);
+    }
+
+    /**
+     * Coup de Grace (passive 3 of side B): extra damage of the caster's curses on a target below the health threshold, as a
+     * fraction (0.2 = +20 %), bosses included; 0 without the passive. Checked on every tick and at Last Rites.
+     */
+    public static double coupDeGrace(@Nullable LivingEntity caster, LivingEntity target) {
+        if (!(caster instanceof Player player) || target.getMaxHealth() <= 0.0F) {
+            return 0.0;
+        }
+        double[] v = passiveValues(player, COUP_DE_GRACE);
+        if (v == null || v.length < 2) {
+            return 0.0;
+        }
+        return target.getHealth() / target.getMaxHealth() < v[0] ? v[1] : 0.0;
+    }
+
+    /** Whether a copy of the caster's curse with this end brings the target something: the curse is missing there or ends sooner. */
+    static boolean benefits(LivingEntity target, Holder<net.minecraft.world.effect.MobEffect> curse, @Nullable UUID caster, double end) {
+        CurseEntry existing = own(target, curse, caster);
+        return existing == null || existing.end < end;
+    }
+
     /** Spreading Rot: copies the caster's Soul Rot entry on the target to the nearest other enemy in the radius. */
     private static SpellHandlers.ImpactResult spreadingRot(LivingEntity caster, @Nullable Entity target, double radius) {
         if (!(target instanceof LivingEntity living) || !(living.level() instanceof ServerLevel level)) {
@@ -220,7 +342,7 @@ public final class SkillMarkers {
         if (remaining < 1.0) {
             return NONE;
         }
-        LivingEntity next = nearest(level, living, radius, caster, caster.getUUID(), e -> own(e, curse, caster.getUUID()) == null);
+        LivingEntity next = nearest(level, living, radius, caster, caster.getUUID(), e -> benefits(e, curse, caster.getUUID(), source.end));
         if (next == null) {
             return NONE;
         }
@@ -307,7 +429,7 @@ public final class SkillMarkers {
     }
 
     /** A short arc of rot from one target to the next (placeholder until the graphics phase). */
-    private static void arc(ServerLevel level, LivingEntity from, LivingEntity to) {
+    static void arc(ServerLevel level, LivingEntity from, LivingEntity to) {
         Vec3 a = from.position().add(0.0, from.getBbHeight() * 0.6, 0.0);
         Vec3 b = to.position().add(0.0, to.getBbHeight() * 0.6, 0.0);
         DustParticleOptions dust = new DustParticleOptions(ROT_COLOR, 1.2F);

@@ -1,0 +1,64 @@
+{
+  "school": "spell_power:soul",
+  "range": 0.0,
+  "tier": 3,
+  "type": "PASSIVE",
+  "passive": {
+    "triggers": [
+      {
+        "type": "DAMAGE_TAKEN"
+      }
+    ]
+  },
+  "target": {
+    "type": "FROM_TRIGGER"
+  },
+  "impacts": [
+    {
+      "action": {
+        "type": "STATUS_EFFECT",
+        "status_effect": {
+          "effect_id": "blightcaller:enfeeble",
+          "duration": 4.0,
+          "amplifier": 1
+        }
+      },
+      "visuals": {
+        "particles": [
+          {
+            "id": "spell_engine:smoke_medium",
+            "appearance": {
+              "color": 2104527069,
+              "motion": "DECELERATE",
+              "scale": 1.2
+            },
+            "batch": {
+              "count": 10.0,
+              "shape": "SPHERE",
+              "anchor": "ENTITY",
+              "vertical_origin": 1.0,
+              "min_speed": 0.05,
+              "max_speed": 0.12
+            }
+          }
+        ]
+      }
+    },
+    {
+      "action": {
+        "type": "CUSTOM",
+        "custom": {
+          "intent": "HARMFUL",
+          "handler": "blightcaller:vengeful_hex"
+        }
+      }
+    }
+  ],
+  "cost": {
+    "exhaust": 0.0,
+    "durability": 0,
+    "cooldown": {
+      "duration": 8.0
+    }
+  }
+}

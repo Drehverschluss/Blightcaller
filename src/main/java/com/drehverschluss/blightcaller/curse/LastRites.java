@@ -54,10 +54,22 @@ public final class LastRites {
     /** Seconds and factor of a handler id. */
     public record Values(double seconds, double factor) {}
 
+    /** Last detonation per target entity id (Soul Echo asks right after, in the same tick). */
+    private record Detonation(UUID caster, long tick) {}
+
+    private static final java.util.Map<Integer, Detonation> DETONATED = new java.util.HashMap<>();
+
+    /** Whether Last Rites of this caster detonated curses on the target in this game tick (Soul Echo). */
+    public static boolean detonatedNow(LivingEntity caster, LivingEntity target) {
+        Detonation d = DETONATED.get(target.getId());
+        return d != null && d.caster().equals(caster.getUUID()) && d.tick() == target.level().getGameTime();
+    }
+
     private LastRites() {}
 
     public static void register() {
         register(PLAIN.toString(), new Values(DEFAULT_SECONDS, DEFAULT_FACTOR));
+        NeoForge.EVENT_BUS.addListener(net.neoforged.neoforge.event.tick.ServerTickEvent.Post.class, event -> DETONATED.clear());
         NeoForge.EVENT_BUS.addListener(ServerAboutToStartEvent.class, LastRites::onServerAboutToStart);
     }
 
@@ -96,8 +108,16 @@ public final class LastRites {
             boolean own = false;
             for (CurseEntry entry : List.copyOf(e.getValue())) {
                 if (entry.sameCaster(casterId)) {
-                    sum += Curses.damagePerSecond(living, curse.get(), entry) * values.seconds() * values.factor();
+                    // Deepening Rot: the bonus the entry has reached, without growing further (decided 20.11.)
+                    double deepening = DeepeningRot.currentBonus(caster, entry);
+                    double part = Curses.damagePerSecond(living, curse.get(), entry) * values.seconds() * values.factor() * (1.0 + deepening);
+                    sum += part;
                     own = true;
+                    if (Blightcaller.LOGGER.isDebugEnabled()) {
+                        Blightcaller.LOGGER.debug("[Blightcaller] Last Rites on {}: {} {}/s x {} s x {} x (1 + Deepening Rot {}) = {}",
+                                living.getName().getString(), curse.get().getRegisteredName(),
+                                Curses.damagePerSecond(living, curse.get(), entry), values.seconds(), values.factor(), deepening, part);
+                    }
                 }
             }
             if (own) {
@@ -107,7 +127,15 @@ public final class LastRites {
         if (detonate.isEmpty()) {
             return new SpellHandlers.ImpactResult(false, false);
         }
-        double amount = sum * levelMultiplier(power, caster, context) * context.total(spell);
+        // Coup de Grace on top (target below the health threshold before the hit)
+        double coup = SkillMarkers.coupDeGrace(caster, living);
+        double level = levelMultiplier(power, caster, context);
+        double amount = sum * level * context.total(spell) * (1.0 + coup);
+        if (Blightcaller.LOGGER.isDebugEnabled()) {
+            Blightcaller.LOGGER.debug("[Blightcaller] Last Rites on {}: sum {} x curse level {} x area {} x (1 + Coup de Grace {}) = {}",
+                    living.getName().getString(), sum, level, context.total(spell), coup, amount);
+        }
+        DETONATED.put(living.getId(), new Detonation(casterId, living.level().getGameTime()));
         // remove first: the hit may kill the target, and death handlers must not see the detonated entries
         for (Holder<MobEffect> curse : detonate) {
             Curses.removeEntries(living, curse, casterId);

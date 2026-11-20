@@ -16,6 +16,8 @@ public final class SkillTab {
     public static final ResourceLocation BLIGHTCALLER_CATEGORY = Blightcaller.id("blightcaller");
     /** Class tab of Skill Tree (RPG Series); More RPG Classes - Skill Tree puts its classes there too. */
     public static final ResourceLocation CLASS_CATEGORY = ResourceLocation.fromNamespaceAndPath(SKILL_TREE_MOD, "class_skills");
+    /** Weapon tab of Skill Tree (RPG Series); More RPG Classes - Skill Tree replaces its files. */
+    public static final ResourceLocation WEAPON_CATEGORY = ResourceLocation.fromNamespaceAndPath(SKILL_TREE_MOD, "weapon_skills");
 
     private SkillTab() {}
 

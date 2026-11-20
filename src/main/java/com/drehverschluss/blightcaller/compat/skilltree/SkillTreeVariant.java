@@ -30,6 +30,23 @@ public final class SkillTreeVariant {
         return ModList.get().isLoaded(MORE_RPG_CLASSES);
     }
 
+    /**
+     * @param on     put the Hex Bolt and Blight Burst nodes into the Weapon Skills tab
+     * @param reason for the log
+     */
+    public record WeaponChoice(boolean on, String reason) {}
+
+    /** Weapon nodes: {@code weapon_skills} and (no More RPG Classes or mode class_tree), the same rule as Stormcaller. */
+    public static WeaponChoice weapon() {
+        if (!BlightcallerConfig.get(BlightcallerConfig.SKILL_TREE_WEAPON_SKILLS)) {
+            return new WeaponChoice(false, "weapon_skills = false");
+        }
+        if (moreRpgClasses() && !"class_tree".equals(BlightcallerConfig.get(BlightcallerConfig.SKILL_TREE_MODE))) {
+            return new WeaponChoice(false, "More RPG Classes - Skill Tree is installed and mode is not class_tree");
+        }
+        return new WeaponChoice(true, moreRpgClasses() ? "Weapon Skills tab of More RPG Classes - Skill Tree" : "Weapon Skills tab of Skill Tree");
+    }
+
     public static Choice choose() {
         String mode = BlightcallerConfig.get(BlightcallerConfig.SKILL_TREE_MODE);
         boolean respace = !"gap".equals(BlightcallerConfig.get(BlightcallerConfig.SKILL_TREE_CLASS_TREE_LAYOUT));

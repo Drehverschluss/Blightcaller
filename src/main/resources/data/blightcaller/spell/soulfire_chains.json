@@ -1,0 +1,65 @@
+{
+  "school": "spell_power:soul",
+  "range": 0.0,
+  "tier": 3,
+  "type": "MODIFIER",
+  "modifiers": [
+    {
+      "spell_pattern": "blightcaller:gravebind",
+      "mutate_impacts": "APPEND",
+      "impacts": [
+        {
+          "action": {
+            "type": "STATUS_EFFECT",
+            "status_effect": {
+              "effect_id": "blightcaller:soulburn",
+              "duration": 4.0
+            }
+          },
+          "visuals": {
+            "particles": [
+              {
+                "id": "minecraft:soul_fire_flame",
+                "appearance": {},
+                "batch": {
+                  "count": 8.0,
+                  "shape": "SPHERE",
+                  "anchor": "ENTITY",
+                  "vertical_origin": 0.5,
+                  "min_speed": 0.03,
+                  "max_speed": 0.1
+                }
+              },
+              {
+                "id": "spell_engine:magic_skull",
+                "appearance": {
+                  "color": 2321277183,
+                  "motion": "BURST",
+                  "scale": 0.6,
+                  "glow": true
+                },
+                "batch": {
+                  "count": 4.0,
+                  "shape": "SPHERE",
+                  "anchor": "ENTITY",
+                  "vertical_origin": 0.6,
+                  "min_speed": 0.08,
+                  "max_speed": 0.2
+                }
+              }
+            ]
+          }
+        },
+        {
+          "action": {
+            "type": "CUSTOM",
+            "custom": {
+              "intent": "HARMFUL",
+              "handler": "blightcaller:curse/0.1"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

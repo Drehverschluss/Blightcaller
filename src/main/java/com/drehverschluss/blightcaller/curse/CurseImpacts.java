@@ -68,7 +68,7 @@ public final class CurseImpacts {
         }
         SpellHandlers.registerCustomImpact(id, (spell, power, caster, target, context) -> {
             try {
-                return onImpact(handler, factor, spell, power, caster, target, context);
+                return curse(handler, factor, spell, power, caster, target, context);
             } catch (Exception e) {
                 Blightcaller.LOGGER.error("Blightcaller: curse impact {} of {} failed", handler, spell.getRegisteredName(), e);
                 return new SpellHandlers.ImpactResult(false, false);
@@ -77,9 +77,13 @@ public final class CurseImpacts {
         return true;
     }
 
-    private static SpellHandlers.ImpactResult onImpact(String handler, double factor, Holder<Spell> spell, SpellPower.Result power,
-                                                       LivingEntity caster, @Nullable net.minecraft.world.entity.Entity target,
-                                                       SpellExecution.ImpactContext context) {
+    /**
+     * The work of a curse marker: puts the curse of the status effect impact before {@code handler} on the target. Also used by other
+     * markers that end in a curse (Vengeful Hex). Infectious Curses rolls here for active spells ({@link InfectiousCurses}).
+     */
+    public static SpellHandlers.ImpactResult curse(String handler, double factor, Holder<Spell> spell, SpellPower.Result power,
+                                                   LivingEntity caster, @Nullable net.minecraft.world.entity.Entity target,
+                                                   SpellExecution.ImpactContext context) {
         if (!(target instanceof LivingEntity living) || living.level().isClientSide() || living.isDeadOrDying()) {
             return new SpellHandlers.ImpactResult(false, false);
         }
@@ -102,6 +106,9 @@ public final class CurseImpacts {
         }
         CurseEntry entry = Curses.apply(living, app);
         Pestilence.afterCast(living, app, entry);
+        if (entry != null) {
+            InfectiousCurses.afterCurse(caster, spell, context, living, source.curse(), entry);
+        }
         // never reported as critical: a critical flag here would trigger "on spell crit" passives a second time
         return new SpellHandlers.ImpactResult(entry != null, false);
     }

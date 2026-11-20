@@ -1,0 +1,12 @@
+{
+  "school": "spell_power:soul",
+  "range": 0.0,
+  "tier": 4,
+  "type": "MODIFIER",
+  "modifiers": [
+    {
+      "spell_pattern": "blightcaller:pestilence",
+      "effect_amplifier_add": 2
+    }
+  ]
+}

@@ -8,15 +8,14 @@ import net.minecraft.core.particles.SimpleParticleType;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Cast of Gravebind ({@code blightcaller:grave_wave}): an invisible particle that only starts the wave of chain running over
- * the ground away from the caster ({@link GravebindChains#addWave}). The spell's release spawns one at the caster's feet;
- * Spell Engine sends the release visuals to every player in view, so everyone sees the wave.
+ * {@code blightcaller:grave_wave}: an invisible particle that only marks a spell whose cast starts the wave of chain over the ground
+ * (Gravebind). Since phase 7B the server sends the wave with the radius of the cast ({@code fx.GraveWave}), so the particle itself
+ * does nothing.
  */
 public class GraveWaveParticle extends NoRenderParticle {
     protected GraveWaveParticle(ClientLevel level, double x, double y, double z) {
         super(level, x, y, z);
         this.lifetime = 1;
-        GravebindChains.addWave(x, y, z);
     }
 
     public static class Provider implements ParticleProvider<SimpleParticleType> {

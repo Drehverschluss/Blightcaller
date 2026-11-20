@@ -1,0 +1,161 @@
+{
+  "_comment": [
+    "Hex Bolt and Blight Burst nodes in the Weapon Skills tab of Skill Tree (RPG Series): one fixed node and a choice of two, like the",
+    "staves of the other schools. Read on every load (/reload); data packs may replace this file.",
+    "definitions: the three skill definitions (ids must not exist in the tab). nodes: node key -> definition; the node ids in the",
+    "tab are blightcaller_weapon_blight_<key>. links: connections between the node keys.",
+    "place: a free group of three cells of the honeycomb, pointing the same way as the groups of the roots in 'near' (within",
+    "max_angle degrees), as close to them as possible; free = at least free_factor x the cell distance from every node.",
+    "align_rows: groups whose root lies in the same group rows as those roots come first.",
+    "near_peer: with Stormcaller, its Lightning Bolt group (placed after this one) counts as a reference group too; its cells are",
+    "kept free either way, so neither group pushes the other away.",
+    "mod_1 is placed left of the pointing direction, mod_2 right."
+  ],
+  "definitions": {
+    "blightcaller_weapon_blight_root": {
+      "title": {
+        "translate": "spell.blightcaller.weapon_blight_root.name"
+      },
+      "description": {
+        "skill_definition_id": "blightcaller_weapon_blight_root"
+      },
+      "icon": {
+        "type": "item",
+        "data": {
+          "item": "blightcaller:grimoire_blightcaller"
+        }
+      },
+      "required_mods": [
+        "skill_tree_rpgs"
+      ],
+      "rewards": [
+        {
+          "type": "skill_tree_rpgs:spell",
+          "data": {
+            "containers": [
+              {
+                "access": "NONE",
+                "access_param": "",
+                "extra_tier_binding": 0,
+                "max_spell_count": 0,
+                "pool": "",
+                "slot": "",
+                "spell_ids": [
+                  "blightcaller:weapon_blight_root"
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "blightcaller_weapon_blight_wand": {
+      "title": {
+        "translate": "spell.blightcaller.weapon_blight_wand.name"
+      },
+      "description": {
+        "skill_definition_id": "blightcaller_weapon_blight_wand"
+      },
+      "icon": {
+        "type": "texture",
+        "data": {
+          "texture": "blightcaller:textures/spell/hex_bolt.png"
+        }
+      },
+      "required_mods": [
+        "skill_tree_rpgs"
+      ],
+      "rewards": [
+        {
+          "type": "skill_tree_rpgs:spell",
+          "data": {
+            "containers": [
+              {
+                "access": "NONE",
+                "access_param": "",
+                "extra_tier_binding": 0,
+                "max_spell_count": 0,
+                "pool": "",
+                "slot": "",
+                "spell_ids": [
+                  "blightcaller:weapon_blight_wand"
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "blightcaller_weapon_blight_grimoire": {
+      "title": {
+        "translate": "spell.blightcaller.weapon_blight_grimoire.name"
+      },
+      "description": {
+        "skill_definition_id": "blightcaller_weapon_blight_grimoire"
+      },
+      "icon": {
+        "type": "texture",
+        "data": {
+          "texture": "blightcaller:textures/spell/blight_burst.png"
+        }
+      },
+      "required_mods": [
+        "skill_tree_rpgs"
+      ],
+      "rewards": [
+        {
+          "type": "skill_tree_rpgs:spell",
+          "data": {
+            "containers": [
+              {
+                "access": "NONE",
+                "access_param": "",
+                "extra_tier_binding": 0,
+                "max_spell_count": 0,
+                "pool": "",
+                "slot": "",
+                "spell_ids": [
+                  "blightcaller:weapon_blight_grimoire"
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "nodes": {
+    "root": "blightcaller_weapon_blight_root",
+    "mod_1": "blightcaller_weapon_blight_wand",
+    "mod_2": "blightcaller_weapon_blight_grimoire"
+  },
+  "links": {
+    "normal": [
+      [
+        "root",
+        "mod_1"
+      ],
+      [
+        "root",
+        "mod_2"
+      ]
+    ],
+    "exclusive": [
+      [
+        "mod_1",
+        "mod_2"
+      ]
+    ]
+  },
+  "place": {
+    "near": [
+      "weapon_arcane_root",
+      "weapon_fire_root",
+      "weapon_frost_root"
+    ],
+    "near_peer": true,
+    "align_rows": true,
+    "max_angle": 31,
+    "free_factor": 0.9
+  }
+}

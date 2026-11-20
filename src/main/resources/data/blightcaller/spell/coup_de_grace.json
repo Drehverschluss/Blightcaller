@@ -1,0 +1,24 @@
+{
+  "school": "spell_power:soul",
+  "range": 0.0,
+  "tier": 4,
+  "type": "PASSIVE",
+  "passive": {
+    "triggers": []
+  },
+  "impacts": [
+    {
+      "action": {
+        "type": "CUSTOM",
+        "custom": {
+          "intent": "HARMFUL",
+          "handler": "blightcaller:coup_de_grace/0.3/0.2"
+        }
+      }
+    }
+  ],
+  "cost": {
+    "exhaust": 0.0,
+    "durability": 0
+  }
+}

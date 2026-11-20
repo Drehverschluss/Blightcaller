@@ -1,0 +1,12 @@
+{
+  "school": "spell_power:soul",
+  "range": 0.0,
+  "tier": 3,
+  "type": "MODIFIER",
+  "modifiers": [
+    {
+      "spell_pattern": "blightcaller:gravebind",
+      "range_add": 1.0
+    }
+  ]
+}

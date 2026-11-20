@@ -61,10 +61,18 @@ public final class Pestilence {
         public final int max;
         public int carriers;
         double expires;
+        /** Ticks between two spreading attempts of this chain, 0 = {@code spread_interval} (Rapid Contagion sets it). */
+        public int interval;
+        /** Extra blocks of the spreading radius of this chain (Wide Contagion). */
+        public double radiusBonus;
 
         Chain(int max) {
             this.max = max;
             this.carriers = 1;
+        }
+
+        int interval() {
+            return interval > 0 ? interval : Pestilence.interval();
         }
     }
 
@@ -111,11 +119,45 @@ public final class Pestilence {
 
     /** A Pestilence entry moved to a new carrier (Soul Migration): no new place in its chain, it spreads on from there. */
     static void afterMigration(LivingEntity target, CurseEntry entry) {
-        entry.nextSpread = target.level().getGameTime() + interval();
         Chain chain = entry.chain == null ? null : CHAINS.get(entry.chain);
+        entry.nextSpread = target.level().getGameTime() + (chain != null ? chain.interval() : interval());
         if (chain != null) {
             chain.expires = Math.max(chain.expires, entry.end);
         }
+    }
+
+    /**
+     * A copy of a Pestilence entry put on one more carrier from outside the spreading (Infectious Curses): it takes a place in the
+     * chain of its source and spreads on from there like any carrier. Returns false if the chain is full or gone (no copy then).
+     */
+    static boolean hasRoom(@Nullable UUID chainId) {
+        Chain chain = chainId == null ? null : CHAINS.get(chainId);
+        return chain != null && chain.carriers < chain.max;
+    }
+
+    /** After {@link #hasRoom}: the copy is placed, count it in its chain. */
+    static void addCarrier(LivingEntity target, CurseEntry placed) {
+        Chain chain = placed.chain == null ? null : CHAINS.get(placed.chain);
+        if (chain == null) {
+            return;
+        }
+        chain.carriers++;
+        chain.expires = Math.max(chain.expires, placed.end);
+        placed.nextSpread = target.level().getGameTime() + chain.interval();
+    }
+
+    /** Rapid Contagion / Wide Contagion: the chain of the caster's fresh Pestilence on the target spreads faster or further. */
+    static boolean tune(LivingEntity target, @Nullable UUID caster, int interval, double radiusBonus) {
+        CurseEntry entry = SkillMarkers.own(target, CurseEffects.PESTILENCE, caster);
+        Chain chain = entry == null || entry.chain == null ? null : CHAINS.get(entry.chain);
+        if (chain == null) {
+            return false;
+        }
+        if (interval > 0) {
+            chain.interval = chain.interval > 0 ? Math.min(chain.interval, interval) : interval;
+        }
+        chain.radiusBonus = Math.max(chain.radiusBonus, radiusBonus);
+        return true;
     }
 
     /** After a cast: first spreading attempt after {@code first_spread} ticks; a failed cast drops its chain again. */
@@ -147,12 +189,13 @@ public final class Pestilence {
             return;
         }
         long now = level.getGameTime();
-        int interval = interval();
         for (CurseEntry entry : entries) {
             try {
                 if (entry.chain == null) {
                     continue;
                 }
+                Chain chain = CHAINS.get(entry.chain);
+                int interval = chain != null ? chain.interval() : interval();
                 if (entry.nextSpread <= 0) {
                     entry.nextSpread = now + interval;
                     continue;
@@ -161,7 +204,6 @@ public final class Pestilence {
                     continue;
                 }
                 entry.nextSpread = now + interval;
-                Chain chain = CHAINS.get(entry.chain);
                 if (chain == null || chain.carriers >= chain.max) {
                     continue;
                 }
@@ -170,7 +212,7 @@ public final class Pestilence {
                     continue;
                 }
                 LivingEntity caster = CurseDamage.resolveCaster(level, entry.caster);
-                LivingEntity target = findTarget(level, carrier, caster, entry.caster);
+                LivingEntity target = findTarget(level, carrier, caster, entry.caster, chain.radiusBonus);
                 if (target == null) {
                     continue;
                 }
@@ -192,8 +234,9 @@ public final class Pestilence {
 
     /** Nearest valid new carrier within the radius (monsters first, phase 7A), or {@code null}. */
     @Nullable
-    static LivingEntity findTarget(ServerLevel level, LivingEntity carrier, @Nullable LivingEntity caster, @Nullable UUID casterId) {
-        double radius = BlightcallerConfig.get(BlightcallerConfig.PESTILENCE_SPREAD_RADIUS);
+    static LivingEntity findTarget(ServerLevel level, LivingEntity carrier, @Nullable LivingEntity caster, @Nullable UUID casterId,
+                                   double radiusBonus) {
+        double radius = BlightcallerConfig.get(BlightcallerConfig.PESTILENCE_SPREAD_RADIUS) + radiusBonus;
         return SkillMarkers.nearest(level, carrier, radius, caster, casterId, e -> !Curses.hasCurse(e, CurseEffects.PESTILENCE));
     }
 
@@ -239,7 +282,7 @@ public final class Pestilence {
         level.playSound(null, b.x, b.y, b.z, SoundEvents.SCULK_BLOCK_SPREAD, SoundSource.PLAYERS, 1.0F, 0.6F);
     }
 
-    private static int interval() {
+    static int interval() {
         return BlightcallerConfig.get(BlightcallerConfig.PESTILENCE_SPREAD_INTERVAL);
     }
 

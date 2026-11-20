@@ -7,11 +7,13 @@ import com.drehverschluss.blightcaller.compat.skilltree.SkillTab;
 import com.drehverschluss.blightcaller.compat.skilltree.SkillTreeCompat;
 import com.drehverschluss.blightcaller.compat.skilltree.SkillTreePack;
 import com.drehverschluss.blightcaller.config.BlightcallerConfig;
+import com.drehverschluss.blightcaller.curse.Blightbloom;
 import com.drehverschluss.blightcaller.curse.CurseData;
 import com.drehverschluss.blightcaller.curse.CurseEffects;
 import com.drehverschluss.blightcaller.curse.CurseEvents;
 import com.drehverschluss.blightcaller.curse.CurseImpacts;
 import com.drehverschluss.blightcaller.curse.CursePredicates;
+import com.drehverschluss.blightcaller.curse.InfectiousCurses;
 import com.drehverschluss.blightcaller.curse.LastRites;
 import com.drehverschluss.blightcaller.curse.Pestilence;
 import com.drehverschluss.blightcaller.curse.SkillMarkers;
@@ -51,7 +53,11 @@ public class Blightcaller {
         LastRites.register();
         SkillMarkers.register();
         SoulMigration.register();
+        Blightbloom.register();
+        InfectiousCurses.register();
         modEventBus.addListener(RegisterPayloadHandlersEvent.class, ClassLockPayload::register);
+        modEventBus.addListener(RegisterPayloadHandlersEvent.class, com.drehverschluss.blightcaller.fx.GraveWave::register);
+        com.drehverschluss.blightcaller.fx.GraveWave.init();
         if (SkillTab.enabled()) {
             // Blightcaller skill tab and branch: built-in data pack, respec, class lock (Skill Tree classes only behind this check)
             modEventBus.addListener(AddPackFindersEvent.class, SkillTreePack::onAddPackFinders);

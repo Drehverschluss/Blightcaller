@@ -26,7 +26,8 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Soul Migration / Seelenwanderung (skill tree, passive 1 of side A; concept 3.1 and 7): when a target with curses of a caster
- * dies, all of that caster's curses on it move on to the nearest enemy within {@code range} blocks with a line of sight.
+ * dies, all of that caster's curses on it move on to enemies within {@code range} blocks with a line of sight: each curse to the
+ * nearest one for which it brings something (phase 7B).
  * <ul>
  *     <li>Unlocked by the marker {@code blightcaller:soul_migration} in one of the caster's passive spells (the node's spell
  *     {@code blightcaller:soul_migration}), or for everyone with {@code [soul_migration] always_on}.</li>
@@ -166,11 +167,18 @@ public final class SoulMigration {
                 }
             }
         }
+        // Blightbloom after the curses moved (decided 20.11.: first migrate, then bloom)
+        Blightbloom.process(event.getServer());
         if (!FLIGHTS.isEmpty()) {
             FLIGHTS.removeIf(SoulMigration::fly);
         }
     }
 
+    /**
+     * Moves the curses of one caster from a dead target (phase 7B): every curse on its own goes to the nearest valid enemy for which
+     * it brings something, i.e. the caster's same curse is missing there or runs out sooner. A curse that brings nothing anywhere
+     * stays behind. So the curses of one dead target may spread over several enemies; each of them gets its own arc of souls.
+     */
     private static void move(Death d) {
         ServerLevel level = d.level();
         LivingEntity caster = CurseDamage.resolveCaster(level, d.caster());
@@ -178,22 +186,20 @@ public final class SoulMigration {
             return; // went offline in between
         }
         double range = BlightcallerConfig.get(BlightcallerConfig.SOUL_MIGRATION_RANGE);
-        LivingEntity target = SkillMarkers.nearest(level, d.dead(), range, caster, d.caster(), e -> e.isAlive());
-        if (target == null) {
-            return;
-        }
         long now = level.getGameTime();
-        boolean moved = false;
+        List<LivingEntity> reached = new ArrayList<>();
         for (Moving m : d.curses()) {
             double remaining = m.entry().end - now;
             if (remaining < 1.0) {
                 continue;
             }
-            CurseEntry existing = SkillMarkers.own(target, m.curse(), d.caster());
-            if (existing != null && existing.end >= m.entry().end) {
-                continue; // the longer remaining time counts, nothing adds up
-            }
             CurseEntry e = m.entry();
+            LivingEntity target = SkillMarkers.nearest(level, d.dead(), range, caster, d.caster(),
+                    candidate -> candidate.isAlive() && SkillMarkers.benefits(candidate, m.curse(), d.caster(), e.end));
+            if (target == null) {
+                continue; // brings nothing anywhere: it ends with the dead target
+            }
+            CurseEntry existing = SkillMarkers.own(target, m.curse(), d.caster());
             CurseApplication app = new CurseApplication(m.curse(), e.caster, e.power, e.critical, e.criticalDamage, e.factor, remaining,
                     false, e.jumps + 1, e.chain, true, m.amplifier());
             CurseEntry placed = Curses.apply(target, app);
@@ -207,9 +213,11 @@ public final class SoulMigration {
             if (Pestilence.isPestilence(m.curse())) {
                 Pestilence.afterMigration(target, placed);
             }
-            moved = true;
+            if (!reached.contains(target)) {
+                reached.add(target);
+            }
         }
-        if (moved) {
+        for (LivingEntity target : reached) {
             Curses.data(target).ifPresent(data -> Curses.syncView(target, data));
             FLIGHTS.add(new Flight(level, d.from(), target, new int[]{0}));
         }

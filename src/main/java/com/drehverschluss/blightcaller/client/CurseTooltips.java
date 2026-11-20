@@ -4,6 +4,7 @@ import com.drehverschluss.blightcaller.Blightcaller;
 import com.drehverschluss.blightcaller.attribute.BlightcallerAttributes;
 import com.drehverschluss.blightcaller.config.BlightcallerConfig;
 import com.drehverschluss.blightcaller.curse.CurseImpacts;
+import com.drehverschluss.blightcaller.curse.CursePredicates;
 import com.drehverschluss.blightcaller.curse.Curses;
 import com.drehverschluss.blightcaller.curse.EnfeebleEffect;
 import com.drehverschluss.blightcaller.curse.GravebindEffect;
@@ -61,6 +62,7 @@ public final class CurseTooltips {
     private static final String SPREAD_KEY = "spell.tooltip.blightcaller.curse_spread";
     private static final String LAST_RITES_KEY = "spell.tooltip.blightcaller.last_rites";
     private static final String CURSE_LEVEL_PREDICATE = Blightcaller.id("curse_level").toString();
+    private static final String CASTER_SPELL_PREDICATE = Blightcaller.id("caster_has_spell").toString();
     private static final Set<ResourceLocation> OWN = new HashSet<>();
 
     private CurseTooltips() {}
@@ -115,10 +117,11 @@ public final class CurseTooltips {
                 Set<String> params = new HashSet<>();
                 double sum = 0.0;
                 for (Spell.Impact.TargetModifier modifier : impact.target_modifiers) {
-                    double bonus = levelBonus(modifier);
+                    double bonus = levelBonus(modifier, player);
                     if (bonus > 0.0) {
                         sum += bonus;
-                        modifier.conditions.forEach(c -> params.add(String.valueOf(c.entity_predicate_param)));
+                        modifier.conditions.stream().filter(c -> CURSE_LEVEL_PREDICATE.equals(c.entity_predicate_id))
+                                .forEach(c -> params.add(String.valueOf(c.entity_predicate_param)));
                     }
                 }
                 if (sum > 0.0) {
@@ -300,21 +303,32 @@ public final class CurseTooltips {
         }
         double sum = 0.0;
         for (Spell.Impact.TargetModifier modifier : impact.target_modifiers) {
-            sum += levelBonus(modifier);
+            sum += levelBonus(modifier, null);
         }
         return sum;
     }
 
-    private static double levelBonus(Spell.Impact.TargetModifier modifier) {
+    /**
+     * Power bonus of a target modifier on the curse level. A modifier that also needs a spell of the caster
+     * ({@code blightcaller:caster_has_spell}, e.g. a skill node that raises the bonus) counts only if the player has that spell.
+     */
+    private static double levelBonus(Spell.Impact.TargetModifier modifier, @Nullable Player player) {
         if (modifier == null || modifier.modifier == null || modifier.conditions == null) {
             return 0.0;
         }
+        boolean level = false;
         for (Spell.TargetCondition condition : modifier.conditions) {
-            if (condition != null && CURSE_LEVEL_PREDICATE.equals(condition.entity_predicate_id)) {
-                return Math.max(0.0, modifier.modifier.power_multiplier);
+            if (condition == null) {
+                continue;
+            }
+            if (CURSE_LEVEL_PREDICATE.equals(condition.entity_predicate_id)) {
+                level = true;
+            } else if (CASTER_SPELL_PREDICATE.equals(condition.entity_predicate_id)
+                    && !CursePredicates.hasSpell(player, condition.entity_predicate_param)) {
+                return 0.0;
             }
         }
-        return 0.0;
+        return level ? Math.max(0.0, modifier.modifier.power_multiplier) : 0.0;
     }
 
     private static String number(double value) {

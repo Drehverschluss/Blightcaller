@@ -357,7 +357,7 @@
       "translate": "spell.blightcaller.blightbloom.name"
     },
     "description": {
-      "translate": "skill.blightcaller.planned.description"
+      "skill_definition_id": "blightcaller_blightbloom"
     },
     "icon": {
       "type": "texture",
@@ -368,14 +368,33 @@
     "required_mods": [
       "skill_tree_rpgs"
     ],
-    "required_spent_points": 99
+    "rewards": [
+      {
+        "type": "skill_tree_rpgs:spell",
+        "data": {
+          "containers": [
+            {
+              "access": "NONE",
+              "access_param": "",
+              "extra_tier_binding": 0,
+              "max_spell_count": 0,
+              "pool": "",
+              "slot": "",
+              "spell_ids": [
+                "blightcaller:blightbloom"
+              ]
+            }
+          ]
+        }
+      }
+    ]
   },
   "blightcaller_vengeful_hex": {
     "title": {
       "translate": "spell.blightcaller.vengeful_hex.name"
     },
     "description": {
-      "translate": "skill.blightcaller.planned.description"
+      "skill_definition_id": "blightcaller_vengeful_hex"
     },
     "icon": {
       "type": "texture",
@@ -386,14 +405,33 @@
     "required_mods": [
       "skill_tree_rpgs"
     ],
-    "required_spent_points": 99
+    "rewards": [
+      {
+        "type": "skill_tree_rpgs:spell",
+        "data": {
+          "containers": [
+            {
+              "access": "NONE",
+              "access_param": "",
+              "extra_tier_binding": 0,
+              "max_spell_count": 0,
+              "pool": "",
+              "slot": "",
+              "spell_ids": [
+                "blightcaller:vengeful_hex"
+              ]
+            }
+          ]
+        }
+      }
+    ]
   },
   "blightcaller_improved_gravebind": {
     "title": {
       "translate": "spell.blightcaller.improved_gravebind.name"
     },
     "description": {
-      "translate": "skill.blightcaller.planned.description"
+      "skill_definition_id": "blightcaller_improved_gravebind"
     },
     "icon": {
       "type": "texture",
@@ -404,14 +442,33 @@
     "required_mods": [
       "skill_tree_rpgs"
     ],
-    "required_spent_points": 99
+    "rewards": [
+      {
+        "type": "skill_tree_rpgs:spell",
+        "data": {
+          "containers": [
+            {
+              "access": "NONE",
+              "access_param": "",
+              "extra_tier_binding": 0,
+              "max_spell_count": 0,
+              "pool": "",
+              "slot": "",
+              "spell_ids": [
+                "blightcaller:improved_gravebind"
+              ]
+            }
+          ]
+        }
+      }
+    ]
   },
   "blightcaller_enduring_chains": {
     "title": {
       "translate": "spell.blightcaller.enduring_chains.name"
     },
     "description": {
-      "translate": "skill.blightcaller.planned.description"
+      "skill_definition_id": "blightcaller_enduring_chains"
     },
     "icon": {
       "type": "texture",
@@ -422,14 +479,33 @@
     "required_mods": [
       "skill_tree_rpgs"
     ],
-    "required_spent_points": 99
+    "rewards": [
+      {
+        "type": "skill_tree_rpgs:spell",
+        "data": {
+          "containers": [
+            {
+              "access": "NONE",
+              "access_param": "",
+              "extra_tier_binding": 0,
+              "max_spell_count": 0,
+              "pool": "",
+              "slot": "",
+              "spell_ids": [
+                "blightcaller:enduring_chains"
+              ]
+            }
+          ]
+        }
+      }
+    ]
   },
   "blightcaller_soulfire_chains": {
     "title": {
       "translate": "spell.blightcaller.soulfire_chains.name"
     },
     "description": {
-      "translate": "skill.blightcaller.planned.description"
+      "skill_definition_id": "blightcaller_soulfire_chains"
     },
     "icon": {
       "type": "texture",
@@ -440,14 +516,33 @@
     "required_mods": [
       "skill_tree_rpgs"
     ],
-    "required_spent_points": 99
+    "rewards": [
+      {
+        "type": "skill_tree_rpgs:spell",
+        "data": {
+          "containers": [
+            {
+              "access": "NONE",
+              "access_param": "",
+              "extra_tier_binding": 0,
+              "max_spell_count": 0,
+              "pool": "",
+              "slot": "",
+              "spell_ids": [
+                "blightcaller:soulfire_chains"
+              ]
+            }
+          ]
+        }
+      }
+    ]
   },
   "blightcaller_improved_drain_soul": {
     "title": {
       "translate": "spell.blightcaller.improved_drain_soul.name"
     },
     "description": {
-      "translate": "skill.blightcaller.planned.description"
+      "skill_definition_id": "blightcaller_improved_drain_soul"
     },
     "icon": {
       "type": "texture",
@@ -458,14 +553,33 @@
     "required_mods": [
       "skill_tree_rpgs"
     ],
-    "required_spent_points": 99
+    "rewards": [
+      {
+        "type": "skill_tree_rpgs:spell",
+        "data": {
+          "containers": [
+            {
+              "access": "NONE",
+              "access_param": "",
+              "extra_tier_binding": 0,
+              "max_spell_count": 0,
+              "pool": "",
+              "slot": "",
+              "spell_ids": [
+                "blightcaller:improved_drain_soul"
+              ]
+            }
+          ]
+        }
+      }
+    ]
   },
   "blightcaller_deep_drain": {
     "title": {
       "translate": "spell.blightcaller.deep_drain.name"
     },
     "description": {
-      "translate": "skill.blightcaller.planned.description"
+      "skill_definition_id": "blightcaller_deep_drain"
     },
     "icon": {
       "type": "texture",
@@ -476,14 +590,33 @@
     "required_mods": [
       "skill_tree_rpgs"
     ],
-    "required_spent_points": 99
+    "rewards": [
+      {
+        "type": "skill_tree_rpgs:spell",
+        "data": {
+          "containers": [
+            {
+              "access": "NONE",
+              "access_param": "",
+              "extra_tier_binding": 0,
+              "max_spell_count": 0,
+              "pool": "",
+              "slot": "",
+              "spell_ids": [
+                "blightcaller:deep_drain"
+              ]
+            }
+          ]
+        }
+      }
+    ]
   },
   "blightcaller_lingering_rend": {
     "title": {
       "translate": "spell.blightcaller.lingering_rend.name"
     },
     "description": {
-      "translate": "skill.blightcaller.planned.description"
+      "skill_definition_id": "blightcaller_lingering_rend"
     },
     "icon": {
       "type": "texture",
@@ -494,14 +627,33 @@
     "required_mods": [
       "skill_tree_rpgs"
     ],
-    "required_spent_points": 99
+    "rewards": [
+      {
+        "type": "skill_tree_rpgs:spell",
+        "data": {
+          "containers": [
+            {
+              "access": "NONE",
+              "access_param": "",
+              "extra_tier_binding": 0,
+              "max_spell_count": 0,
+              "pool": "",
+              "slot": "",
+              "spell_ids": [
+                "blightcaller:lingering_rend"
+              ]
+            }
+          ]
+        }
+      }
+    ]
   },
   "blightcaller_infectious_curses": {
     "title": {
       "translate": "spell.blightcaller.infectious_curses.name"
     },
     "description": {
-      "translate": "skill.blightcaller.planned.description"
+      "skill_definition_id": "blightcaller_infectious_curses"
     },
     "icon": {
       "type": "texture",
@@ -512,14 +664,33 @@
     "required_mods": [
       "skill_tree_rpgs"
     ],
-    "required_spent_points": 99
+    "rewards": [
+      {
+        "type": "skill_tree_rpgs:spell",
+        "data": {
+          "containers": [
+            {
+              "access": "NONE",
+              "access_param": "",
+              "extra_tier_binding": 0,
+              "max_spell_count": 0,
+              "pool": "",
+              "slot": "",
+              "spell_ids": [
+                "blightcaller:infectious_curses"
+              ]
+            }
+          ]
+        }
+      }
+    ]
   },
   "blightcaller_coup_de_grace": {
     "title": {
       "translate": "spell.blightcaller.coup_de_grace.name"
     },
     "description": {
-      "translate": "skill.blightcaller.planned.description"
+      "skill_definition_id": "blightcaller_coup_de_grace"
     },
     "icon": {
       "type": "texture",
@@ -530,14 +701,33 @@
     "required_mods": [
       "skill_tree_rpgs"
     ],
-    "required_spent_points": 99
+    "rewards": [
+      {
+        "type": "skill_tree_rpgs:spell",
+        "data": {
+          "containers": [
+            {
+              "access": "NONE",
+              "access_param": "",
+              "extra_tier_binding": 0,
+              "max_spell_count": 0,
+              "pool": "",
+              "slot": "",
+              "spell_ids": [
+                "blightcaller:coup_de_grace"
+              ]
+            }
+          ]
+        }
+      }
+    ]
   },
   "blightcaller_improved_pestilence": {
     "title": {
       "translate": "spell.blightcaller.improved_pestilence.name"
     },
     "description": {
-      "translate": "skill.blightcaller.planned.description"
+      "skill_definition_id": "blightcaller_improved_pestilence"
     },
     "icon": {
       "type": "texture",
@@ -548,14 +738,33 @@
     "required_mods": [
       "skill_tree_rpgs"
     ],
-    "required_spent_points": 99
+    "rewards": [
+      {
+        "type": "skill_tree_rpgs:spell",
+        "data": {
+          "containers": [
+            {
+              "access": "NONE",
+              "access_param": "",
+              "extra_tier_binding": 0,
+              "max_spell_count": 0,
+              "pool": "",
+              "slot": "",
+              "spell_ids": [
+                "blightcaller:improved_pestilence"
+              ]
+            }
+          ]
+        }
+      }
+    ]
   },
   "blightcaller_rapid_contagion": {
     "title": {
       "translate": "spell.blightcaller.rapid_contagion.name"
     },
     "description": {
-      "translate": "skill.blightcaller.planned.description"
+      "skill_definition_id": "blightcaller_rapid_contagion"
     },
     "icon": {
       "type": "texture",
@@ -566,14 +775,33 @@
     "required_mods": [
       "skill_tree_rpgs"
     ],
-    "required_spent_points": 99
+    "rewards": [
+      {
+        "type": "skill_tree_rpgs:spell",
+        "data": {
+          "containers": [
+            {
+              "access": "NONE",
+              "access_param": "",
+              "extra_tier_binding": 0,
+              "max_spell_count": 0,
+              "pool": "",
+              "slot": "",
+              "spell_ids": [
+                "blightcaller:rapid_contagion"
+              ]
+            }
+          ]
+        }
+      }
+    ]
   },
   "blightcaller_wide_contagion": {
     "title": {
       "translate": "spell.blightcaller.wide_contagion.name"
     },
     "description": {
-      "translate": "skill.blightcaller.planned.description"
+      "skill_definition_id": "blightcaller_wide_contagion"
     },
     "icon": {
       "type": "texture",
@@ -584,14 +812,33 @@
     "required_mods": [
       "skill_tree_rpgs"
     ],
-    "required_spent_points": 99
+    "rewards": [
+      {
+        "type": "skill_tree_rpgs:spell",
+        "data": {
+          "containers": [
+            {
+              "access": "NONE",
+              "access_param": "",
+              "extra_tier_binding": 0,
+              "max_spell_count": 0,
+              "pool": "",
+              "slot": "",
+              "spell_ids": [
+                "blightcaller:wide_contagion"
+              ]
+            }
+          ]
+        }
+      }
+    ]
   },
   "blightcaller_improved_last_rites": {
     "title": {
       "translate": "spell.blightcaller.improved_last_rites.name"
     },
     "description": {
-      "translate": "skill.blightcaller.planned.description"
+      "skill_definition_id": "blightcaller_improved_last_rites"
     },
     "icon": {
       "type": "texture",
@@ -602,14 +849,33 @@
     "required_mods": [
       "skill_tree_rpgs"
     ],
-    "required_spent_points": 99
+    "rewards": [
+      {
+        "type": "skill_tree_rpgs:spell",
+        "data": {
+          "containers": [
+            {
+              "access": "NONE",
+              "access_param": "",
+              "extra_tier_binding": 0,
+              "max_spell_count": 0,
+              "pool": "",
+              "slot": "",
+              "spell_ids": [
+                "blightcaller:improved_last_rites"
+              ]
+            }
+          ]
+        }
+      }
+    ]
   },
   "blightcaller_swift_rites": {
     "title": {
       "translate": "spell.blightcaller.swift_rites.name"
     },
     "description": {
-      "translate": "skill.blightcaller.planned.description"
+      "skill_definition_id": "blightcaller_swift_rites"
     },
     "icon": {
       "type": "texture",
@@ -620,14 +886,33 @@
     "required_mods": [
       "skill_tree_rpgs"
     ],
-    "required_spent_points": 99
+    "rewards": [
+      {
+        "type": "skill_tree_rpgs:spell",
+        "data": {
+          "containers": [
+            {
+              "access": "NONE",
+              "access_param": "",
+              "extra_tier_binding": 0,
+              "max_spell_count": 0,
+              "pool": "",
+              "slot": "",
+              "spell_ids": [
+                "blightcaller:swift_rites"
+              ]
+            }
+          ]
+        }
+      }
+    ]
   },
   "blightcaller_soul_echo": {
     "title": {
       "translate": "spell.blightcaller.soul_echo.name"
     },
     "description": {
-      "translate": "skill.blightcaller.planned.description"
+      "skill_definition_id": "blightcaller_soul_echo"
     },
     "icon": {
       "type": "texture",
@@ -638,6 +923,25 @@
     "required_mods": [
       "skill_tree_rpgs"
     ],
-    "required_spent_points": 99
+    "rewards": [
+      {
+        "type": "skill_tree_rpgs:spell",
+        "data": {
+          "containers": [
+            {
+              "access": "NONE",
+              "access_param": "",
+              "extra_tier_binding": 0,
+              "max_spell_count": 0,
+              "pool": "",
+              "slot": "",
+              "spell_ids": [
+                "blightcaller:soul_echo"
+              ]
+            }
+          ]
+        }
+      }
+    ]
   }
 }

@@ -56,14 +56,17 @@ public final class CurseDamage {
 
     /**
      * Like {@link #tick(LivingEntity, CurseEntry, double)}, as the {@code number}-th tick of the entry on this target: with
-     * Deepening Rot (skill tree) the caster's ticks grow stronger with every tick ({@link DeepeningRot}).
+     * Deepening Rot (skill tree) the caster's ticks grow stronger with every tick ({@link DeepeningRot}), with Coup de Grace they hit
+     * harder on targets with low health ({@link SkillMarkers#coupDeGrace}).
      */
     public static boolean tick(LivingEntity target, CurseEntry entry, double share, int number) {
         if (!(target.level() instanceof ServerLevel level) || target.isDeadOrDying()) {
             return false;
         }
         LivingEntity caster = resolveCaster(level, entry.caster);
-        float amount = (float) (amount(target, entry) * share * (1.0 + DeepeningRot.bonus(caster, number)));
+        // Deepening Rot and Coup de Grace multiply (decided 20.11.)
+        float amount = (float) (amount(target, entry) * share * (1.0 + DeepeningRot.bonus(caster, number))
+                * (1.0 + SkillMarkers.coupDeGrace(caster, target)));
         if (amount <= 0.0F) {
             return false;
         }

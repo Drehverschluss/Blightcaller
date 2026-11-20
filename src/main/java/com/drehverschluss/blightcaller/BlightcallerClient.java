@@ -28,6 +28,8 @@ public class BlightcallerClient {
         modEventBus.addListener(FMLClientSetupEvent.class, event -> event.enqueueWork(CurseParticles::register));
         CurseTooltips.register();
         SkillNodeTooltips.register();
+        com.drehverschluss.blightcaller.fx.GraveWave.setClientHandler(p -> com.drehverschluss.blightcaller.client.fx.GravebindChains
+                .addWave(p.x(), p.y(), p.z(), p.radius()));
         ClassLockClient.init();
         if (SkillTab.enabled()) {
             SkillTreeClient.init();

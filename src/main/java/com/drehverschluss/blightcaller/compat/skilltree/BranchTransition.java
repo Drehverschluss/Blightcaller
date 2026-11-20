@@ -28,6 +28,9 @@ import net.puffish.skillsmod.api.SkillsAPI;
  *     <li>on the switch to the own tab, its experience is raised once to that of the Class Skills tab (the own tab collects no
  *     experience while it is not loaded). It only raises, two tabs never add up.</li>
  * </ul>
+ * Weapon Skills tab (phase 7B): our three nodes there are removed only if they are left out on purpose ({@code weapon_skills = false},
+ * More RPG Classes without {@code class_tree}); after a fallback they stay saved. A respec resets the Weapon Skills tab anyway.
+ * <p>
  * Nothing happens to a tab that is not loaded (e.g. a broken data pack of Pufferfish's Skills), so no data is lost then.
  */
 public final class BranchTransition {
@@ -78,6 +81,14 @@ public final class BranchTransition {
         int ownRemoved = 0;
         int classRemoved = 0;
         int conflictRemoved = 0;
+        int weaponRemoved = 0;
+        boolean weaponLoaded = SkillsAPI.getCategory(SkillTab.WEAPON_CATEGORY).isPresent();
+        boolean weaponActive = weaponLoaded && SkillsAPI.getCategory(SkillTab.WEAPON_CATEGORY)
+                .flatMap(category -> category.getSkill(ClassBranchHook.WEAPON_PREFIX + "root")).isPresent();
+        if (weaponLoaded && !weaponActive && !SkillTreeVariant.weapon().on()) {
+            // our weapon nodes left out on purpose (not a fallback): they go, their points are free again
+            weaponRemoved = strip(categories, SkillTab.WEAPON_CATEGORY.toString(), ClassBranchHook.WEAPON_PREFIX);
+        }
         if (classActive && !ownActive) {
             // branch in Class Skills: the own tab is not used any more
             ownRemoved = strip(categories, SkillTab.BLIGHTCALLER_CATEGORY.toString(), null);
@@ -89,13 +100,14 @@ public final class BranchTransition {
             // wanted switch to the own tab (not a fallback after an error): our nodes in Class Skills go
             classRemoved = strip(categories, SkillTab.CLASS_CATEGORY.toString(), ClassBranchHook.PREFIX);
         }
-        if (ownRemoved + classRemoved + conflictRemoved > 0) {
+        if (ownRemoved + classRemoved + conflictRemoved + weaponRemoved > 0) {
             SkillsAPI.importPlayerData(player, nbt);
             message(player, "moved.class", ownRemoved);
             message(player, "moved.own", classRemoved);
             message(player, "moved.conflict", conflictRemoved);
-            Blightcaller.LOGGER.debug("Blightcaller skills: nodes reset for {}: own tab {}, Class Skills {} (+{} conflict)",
-                    player.getGameProfile().getName(), ownRemoved, classRemoved, conflictRemoved);
+            message(player, "moved.weapon", weaponRemoved);
+            Blightcaller.LOGGER.debug("Blightcaller skills: nodes reset for {}: own tab {}, Class Skills {} (+{} conflict), Weapon Skills {}",
+                    player.getGameProfile().getName(), ownRemoved, classRemoved, conflictRemoved, weaponRemoved);
         }
         if (classActive == ownActive) {
             return; // nothing loaded: no experience, no marker

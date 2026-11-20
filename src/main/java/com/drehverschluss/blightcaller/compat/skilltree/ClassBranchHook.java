@@ -57,12 +57,19 @@ import org.jetbrains.annotations.Nullable;
 public final class ClassBranchHook {
     public static final String SKILL_TREE_NAMESPACE = "skill_tree_rpgs";
     public static final String CLASS_TAB = "class_skills";
+    public static final String WEAPON_TAB = "weapon_skills";
+    /** Prefix of our node ids in the Weapon Skills tab; the fixed node is {@code <prefix>root}. */
+    public static final String WEAPON_PREFIX = Blightcaller.MODID + "_weapon_blight_";
+    public static final String WEAPON_MOD_NAME = "Skill Tree (Weapon Skills)";
     /** Prefix of all our node and definition ids in foreign tabs. */
     public static final String PREFIX = Blightcaller.MODID + "_";
     public static final String MOD_NAME = "Skill Tree";
     private static final ResourceLocation LAYOUT = Blightcaller.id("blightcaller_skill_tree/class_branch.json");
     private static final ResourceLocation STORMCALLER_LAYOUT = ResourceLocation.fromNamespaceAndPath("stormcaller",
             "stormcaller_skill_tree/class_branch.json");
+    private static final ResourceLocation WEAPON_LAYOUT = Blightcaller.id("blightcaller_skill_tree/weapon_branch.json");
+    private static final ResourceLocation STORMCALLER_WEAPON_LAYOUT = ResourceLocation.fromNamespaceAndPath("stormcaller",
+            "stormcaller_skill_tree/weapon_branch.json");
     private static final List<String> REPLACED = List.of("definitions.json", "skills.json", "connections.json");
 
     private static boolean loading;
@@ -73,6 +80,11 @@ public final class ClassBranchHook {
     private static final Map<String, net.puffish.skillsmod.api.json.JsonElement> FILES = new HashMap<>();
     /** Short description of the last result, for the probe and the log. */
     private static String lastResult = "";
+    private static boolean weaponPrepared;
+    private static boolean weaponInjected;
+    /** The extended files of the Weapon Skills tab, by file name, while {@link #weaponInjected}. */
+    private static final Map<String, net.puffish.skillsmod.api.json.JsonElement> WEAPON_FILES = new HashMap<>();
+    private static String lastWeaponResult = "";
 
     private ClassBranchHook() {}
 
@@ -82,12 +94,25 @@ public final class ClassBranchHook {
         prepared = false;
         injected = false;
         FILES.clear();
+        weaponPrepared = false;
+        weaponInjected = false;
+        WEAPON_FILES.clear();
     }
 
     /** End of a load of Pufferfish's Skills: nothing is handed out any more. */
     public static void onLoadEnd() {
         loading = false;
         FILES.clear();
+        WEAPON_FILES.clear();
+    }
+
+    /** Our three nodes were put into the Weapon Skills tab in the last load. */
+    public static boolean weaponInjected() {
+        return weaponInjected;
+    }
+
+    public static String lastWeaponResult() {
+        return lastWeaponResult;
     }
 
     /** The branch was put into the Class Skills tab in the last load. */
@@ -117,12 +142,21 @@ public final class ClassBranchHook {
     public static Result<net.puffish.skillsmod.api.json.JsonElement, Problem> afterRead(
             ResourceManager resources, String namespace, Path path, Result<net.puffish.skillsmod.api.json.JsonElement, Problem> original) {
         if (!loading || computing || !SKILL_TREE_NAMESPACE.equals(namespace) || path.getNameCount() != 3
-                || !"categories".equals(path.getName(0).toString()) || !CLASS_TAB.equals(path.getName(1).toString())) {
+                || !"categories".equals(path.getName(0).toString())) {
             return original;
         }
-        prepare(resources);
-        net.puffish.skillsmod.api.json.JsonElement file = FILES.get(path.getName(2).toString());
-        return file != null ? Result.success(file) : original;
+        String tab = path.getName(1).toString();
+        if (CLASS_TAB.equals(tab)) {
+            prepare(resources);
+            net.puffish.skillsmod.api.json.JsonElement file = FILES.get(path.getName(2).toString());
+            return file != null ? Result.success(file) : original;
+        }
+        if (WEAPON_TAB.equals(tab)) {
+            prepareWeapon(resources);
+            net.puffish.skillsmod.api.json.JsonElement file = WEAPON_FILES.get(path.getName(2).toString());
+            return file != null ? Result.success(file) : original;
+        }
+        return original;
     }
 
     // ------------------------------------------------------------------------------------------------ preparing
@@ -316,11 +350,19 @@ public final class ClassBranchHook {
     }
 
     private static Path categoryPath(String file) {
-        return Path.of("categories", CLASS_TAB, file);
+        return categoryPath(CLASS_TAB, file);
+    }
+
+    private static Path categoryPath(String tab, String file) {
+        return Path.of("categories", tab, file);
     }
 
     private static JsonObject read(PackConfigReader reader, String file) {
-        return gson(reader.read(categoryPath(file))).getAsJsonObject();
+        return read(reader, CLASS_TAB, file);
+    }
+
+    private static JsonObject read(PackConfigReader reader, String tab, String file) {
+        return gson(reader.read(categoryPath(tab, file))).getAsJsonObject();
     }
 
     private static JsonElement gson(Result<net.puffish.skillsmod.api.json.JsonElement, Problem> result) {
@@ -330,7 +372,11 @@ public final class ClassBranchHook {
     }
 
     private static Optional<net.puffish.skillsmod.api.json.JsonElement> optional(PackConfigReader reader, String file) {
-        Path path = categoryPath(file);
+        return optional(reader, CLASS_TAB, file);
+    }
+
+    private static Optional<net.puffish.skillsmod.api.json.JsonElement> optional(PackConfigReader reader, String tab, String file) {
+        Path path = categoryPath(tab, file);
         return reader.exists(path) ? Optional.of(reader.read(path).getSuccess().orElseThrow()) : Optional.empty();
     }
 
@@ -342,12 +388,16 @@ public final class ClassBranchHook {
     }
 
     private static void addLinks(JsonObject connections, String group, List<String[]> pairs) {
+        addLinks(connections, group, pairs, PREFIX);
+    }
+
+    private static void addLinks(JsonObject connections, String group, List<String[]> pairs, String prefix) {
         JsonObject g = connections.has(group) ? connections.getAsJsonObject(group) : new JsonObject();
         JsonArray list = g.has("bidirectional") ? g.getAsJsonArray("bidirectional") : new JsonArray();
         for (String[] pair : pairs) {
             JsonArray a = new JsonArray();
-            a.add(PREFIX + pair[0]);
-            a.add(PREFIX + pair[1]);
+            a.add(prefix + pair[0]);
+            a.add(prefix + pair[1]);
             list.add(a);
         }
         g.add("bidirectional", list);
@@ -356,6 +406,135 @@ public final class ClassBranchHook {
 
     private static net.puffish.skillsmod.api.json.JsonElement wrap(JsonObject json, String name) {
         return net.puffish.skillsmod.api.json.JsonElement.parseString(json.toString(), JsonPath.create(name)).getSuccess().orElseThrow();
+    }
+
+    // ------------------------------------------------------------------------------------------------ Weapon Skills tab
+
+    /**
+     * Once per load, at the first read of a Weapon Skills file: the tab with our three nodes (Hex Bolt and Blight Burst), or nothing.
+     * Same steps as the class branch; on any problem only our three nodes are missing, the tab loads like before and the class
+     * branch is not touched. Stormcaller adds its Lightning Bolt group after us: its place is foreseen with its own rules and kept
+     * free, so neither mod pushes the other away.
+     */
+    private static void prepareWeapon(ResourceManager resources) {
+        if (!loading || weaponPrepared) {
+            return;
+        }
+        weaponPrepared = true;
+        SkillTreeVariant.WeaponChoice choice = SkillTreeVariant.weapon();
+        if (!choice.on()) {
+            lastWeaponResult = "no nodes (" + choice.reason() + ")";
+            Couplings.foundAgain(WEAPON_MOD_NAME, "no Hex Bolt and Blight Burst nodes in the Weapon Skills tab (" + choice.reason() + ")");
+            return;
+        }
+        if (!SkillsMixinPlugin.hooksReady()) {
+            weaponFallback("the loading hooks of Pufferfish's Skills could not be applied (other version?)");
+            return;
+        }
+        MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+        if (server == null) {
+            weaponFallback("no server");
+            return;
+        }
+        computing = true;
+        try {
+            long start = System.nanoTime();
+            Extended extended = extendWeapon(resources, server);
+            for (String file : REPLACED) {
+                WEAPON_FILES.put(file, extended.files().get(file));
+            }
+            weaponInjected = true;
+            lastWeaponResult = extended.summary();
+            Couplings.foundAgain(WEAPON_MOD_NAME, "Hex Bolt and Blight Burst nodes added to the " + choice.reason() + " ("
+                    + extended.summary() + ")");
+            Blightcaller.LOGGER.debug("[Blightcaller] Weapon Skills nodes: {} ({} ms)", extended.description(),
+                    (System.nanoTime() - start) / 1_000_000);
+        } catch (Exception e) {
+            weaponFallback(Couplings.reason(e));
+        } finally {
+            computing = false;
+        }
+    }
+
+    private static void weaponFallback(String reason) {
+        lastWeaponResult = "no nodes (fallback: " + reason + ")";
+        Couplings.forget(WEAPON_MOD_NAME);
+        Blightcaller.LOGGER.warn("[Blightcaller] Skill Tree found, but the Hex Bolt and Blight Burst nodes could not be added to the "
+                + "Weapon Skills tab ({}); it loads without them, taken nodes stay saved", reason);
+    }
+
+    private static Extended extendWeapon(ResourceManager resources, MinecraftServer server) throws Exception {
+        PackConfigReader reader = new PackConfigReader(resources, SKILL_TREE_NAMESPACE);
+        ConfigContext context = context(server, reader);
+        JsonObject general = read(reader, WEAPON_TAB, "category.json");
+        JsonObject definitions = read(reader, WEAPON_TAB, "definitions.json").deepCopy();
+        JsonObject skills = read(reader, WEAPON_TAB, "skills.json").deepCopy();
+        JsonElement connectionsElement = gson(reader.read(categoryPath(WEAPON_TAB, "connections.json")));
+        if (!connectionsElement.isJsonObject()) {
+            throw new IllegalStateException("connections.json of the Weapon Skills tab has the old list form");
+        }
+        JsonObject connections = connectionsElement.getAsJsonObject().deepCopy();
+        Optional<net.puffish.skillsmod.api.json.JsonElement> experience = optional(reader, WEAPON_TAB, "experience.json");
+        Optional<net.puffish.skillsmod.api.json.JsonElement> exchange = optional(reader, WEAPON_TAB, "exchange.json");
+        String base = SKILL_TREE_NAMESPACE + ":puffish_skills/categories/" + WEAPON_TAB + "/";
+        ResourceLocation id = ResourceLocation.fromNamespaceAndPath(SKILL_TREE_NAMESPACE, WEAPON_TAB);
+
+        check(CategoryConfig.parse(id, 0, wrap(general, base + "category.json"), wrap(definitions, base + "definitions.json"),
+                wrap(skills, base + "skills.json"), wrap(connections, base + "connections.json"), experience, exchange, context),
+                server, "the Weapon Skills tab fails to load on its own");
+
+        WeaponBranchLayout.Settings settings = WeaponBranchLayout.parseOwn(readJson(resources, WEAPON_LAYOUT));
+        // Stormcaller places its group after us: foresee where (its rules on the original tab) and keep those cells free
+        List<double[]> reserved = new ArrayList<>();
+        WeaponBranchLayout.Group peer = null;
+        String peerInfo = "";
+        WeaponBranchLayout.Placement stormcaller = StormcallerPeer.weaponPlace(resources, skills, connections);
+        if (stormcaller != null) {
+            Map<String, int[]> p = stormcaller.positions();
+            for (int[] cell : p.values()) {
+                reserved.add(new double[]{cell[0], cell[1]});
+            }
+            peer = new WeaponBranchLayout.Group(new double[]{p.get("root")[0], p.get("root")[1]},
+                    List.of(new double[]{p.get("mod_1")[0], p.get("mod_1")[1]}, new double[]{p.get("mod_2")[0], p.get("mod_2")[1]}));
+            peerInfo = ", Stormcaller group kept free at (" + p.get("root")[0] + ", " + p.get("root")[1] + ")";
+        }
+        WeaponBranchLayout.Placement placement = WeaponBranchLayout.place(skills, connections, settings, reserved, peer);
+
+        for (Map.Entry<String, JsonElement> e : settings.definitions().entrySet()) {
+            if (definitions.has(e.getKey())) {
+                throw new IllegalStateException("definition id " + e.getKey() + " is already used in the Weapon Skills tab");
+            }
+            definitions.add(e.getKey(), e.getValue().deepCopy());
+        }
+        for (Map.Entry<String, int[]> e : placement.positions().entrySet()) {
+            String skillId = WEAPON_PREFIX + e.getKey();
+            if (skills.has(skillId)) {
+                throw new IllegalStateException("node id " + skillId + " is already used in the Weapon Skills tab");
+            }
+            String definition = settings.nodes().get(e.getKey());
+            if (!definitions.has(definition)) {
+                throw new IllegalStateException("node " + e.getKey() + " uses the unknown definition " + definition);
+            }
+            JsonObject out = new JsonObject();
+            out.addProperty("definition", definition);
+            out.addProperty("x", e.getValue()[0]);
+            out.addProperty("y", e.getValue()[1]);
+            if ("root".equals(e.getKey())) {
+                out.addProperty("root", true);
+            }
+            skills.add(skillId, out);
+        }
+        addLinks(connections, "normal", settings.normal(), WEAPON_PREFIX);
+        addLinks(connections, "exclusive", settings.exclusive(), WEAPON_PREFIX);
+
+        Map<String, net.puffish.skillsmod.api.json.JsonElement> files = new HashMap<>();
+        files.put("definitions.json", wrap(definitions, base + "definitions.json (+blightcaller)"));
+        files.put("skills.json", wrap(skills, base + "skills.json (+blightcaller)"));
+        files.put("connections.json", wrap(connections, base + "connections.json (+blightcaller)"));
+        check(CategoryConfig.parse(id, 0, wrap(general, base + "category.json"), files.get("definitions.json"), files.get("skills.json"),
+                files.get("connections.json"), experience, exchange, context), server, "the extended Weapon Skills tab does not load");
+        int[] root = placement.positions().get("root");
+        return new Extended(files, "", "fixed node at (" + root[0] + ", " + root[1] + ")" + peerInfo, placement.description() + peerInfo);
     }
 
     // ------------------------------------------------------------------------------------------------ Stormcaller
@@ -377,6 +556,40 @@ public final class ClassBranchHook {
             } catch (Exception e) {
                 Blightcaller.LOGGER.debug("[Blightcaller] layout of the Stormcaller branch not readable: {}", e.toString());
                 return null;
+            }
+        }
+
+        /**
+         * Where Stormcaller will put its Lightning Bolt group in the Weapon Skills tab (its own rules on the tab without us), or
+         * {@code null} if it does not hook in there or its data cannot be read.
+         */
+        @Nullable
+        static WeaponBranchLayout.Placement weaponPlace(ResourceManager resources, JsonObject skills, JsonObject connections) {
+            if (!ModList.get().isLoaded("stormcaller") || !weaponHooksIn()) {
+                return null;
+            }
+            try {
+                WeaponBranchLayout.Settings settings = WeaponBranchLayout.parse(readJson(resources, STORMCALLER_WEAPON_LAYOUT));
+                // its own search: no row rule, no reserved cells
+                WeaponBranchLayout.Settings plain = new WeaponBranchLayout.Settings(settings.near(), false, false, settings.maxAngle(),
+                        settings.freeFactor(), settings.nodes(), settings.normal(), settings.exclusive(), settings.definitions());
+                return WeaponBranchLayout.place(skills, connections, plain);
+            } catch (Exception e) {
+                Blightcaller.LOGGER.debug("[Blightcaller] place of the Stormcaller weapon group not foreseen: {}", e.toString());
+                return null;
+            }
+        }
+
+        private static boolean weaponHooksIn() {
+            try {
+                Class<?> variant = Class.forName("com.drehverschluss.stormcaller.compat.skilltree.SkillTreeVariant");
+                Object choice = variant.getMethod("weapon").invoke(null);
+                boolean on = (Boolean) choice.getClass().getMethod("on").invoke(choice);
+                Method ready = Class.forName("com.drehverschluss.stormcaller.mixin.skills.SkillsMixinPlugin").getMethod("hooksReady");
+                return on && (Boolean) ready.invoke(null);
+            } catch (Throwable t) {
+                Blightcaller.LOGGER.debug("[Blightcaller] Stormcaller weapon state not readable, assuming it hooks in: {}", t.toString());
+                return true;
             }
         }
 

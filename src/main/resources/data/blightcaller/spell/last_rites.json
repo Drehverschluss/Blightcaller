@@ -137,6 +137,54 @@
           "modifier": {
             "power_multiplier": 0.15
           }
+        },
+        {
+          "all_required": true,
+          "conditions": [
+            {
+              "entity_predicate_id": "blightcaller:curse_level",
+              "entity_predicate_param": "1"
+            },
+            {
+              "entity_predicate_id": "blightcaller:caster_has_spell",
+              "entity_predicate_param": "blightcaller:improved_last_rites"
+            }
+          ],
+          "modifier": {
+            "power_multiplier": 0.05
+          }
+        },
+        {
+          "all_required": true,
+          "conditions": [
+            {
+              "entity_predicate_id": "blightcaller:curse_level",
+              "entity_predicate_param": "2"
+            },
+            {
+              "entity_predicate_id": "blightcaller:caster_has_spell",
+              "entity_predicate_param": "blightcaller:improved_last_rites"
+            }
+          ],
+          "modifier": {
+            "power_multiplier": 0.05
+          }
+        },
+        {
+          "all_required": true,
+          "conditions": [
+            {
+              "entity_predicate_id": "blightcaller:curse_level",
+              "entity_predicate_param": "3"
+            },
+            {
+              "entity_predicate_id": "blightcaller:caster_has_spell",
+              "entity_predicate_param": "blightcaller:improved_last_rites"
+            }
+          ],
+          "modifier": {
+            "power_multiplier": 0.05
+          }
         }
       ],
       "visuals": {

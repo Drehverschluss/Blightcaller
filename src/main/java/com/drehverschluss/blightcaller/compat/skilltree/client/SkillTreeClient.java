@@ -24,18 +24,25 @@ import net.spell_engine.mixin.client.ItemStackTooltipAccessor;
  *     in by Spell Engine, the own ones by {@code client.SkillNodeTooltips});</li>
  *     <li>root and boosts: the attribute bonus; the root also shows the class lock.</li>
  * </ul>
- * The nodes of phase 7B have plain translated texts and no resolver. Only loaded when Skill Tree is there.
+ * Also the three nodes in the Weapon Skills tab. Only loaded when Skill Tree is there.
  */
 public final class SkillTreeClient {
     /** Bonus of the root and every boost, same as in definitions.json ({@code gen_phase7a_data.py}). */
     private static final double BOOST_VALUE = 0.01;
     private static final ResourceLocation SOUL_POWER = ResourceLocation.fromNamespaceAndPath("spell_power", "soul");
 
-    /** Spells of the nodes with a function in phase 7A; the definition id is {@code blightcaller_<spell>}. */
+    /** Spells of the nodes; the definition id is {@code blightcaller_<spell>} (the weapon nodes: Weapon Skills tab). */
     public static final List<String> SPELL_NODES = List.of(
             "soul_migration", "deepening_rot",
             "improved_soul_rot", "spreading_rot", "tenacious_rot",
-            "improved_enfeeble", "deep_frailty", "enervation");
+            "improved_enfeeble", "deep_frailty", "enervation",
+            "blightbloom", "vengeful_hex",
+            "improved_gravebind", "enduring_chains", "soulfire_chains",
+            "improved_drain_soul", "deep_drain", "lingering_rend",
+            "infectious_curses", "coup_de_grace",
+            "improved_pestilence", "rapid_contagion", "wide_contagion",
+            "improved_last_rites", "swift_rites", "soul_echo",
+            "weapon_blight_root", "weapon_blight_wand", "weapon_blight_grimoire");
 
     private SkillTreeClient() {}
 

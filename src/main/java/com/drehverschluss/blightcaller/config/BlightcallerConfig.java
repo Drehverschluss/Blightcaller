@@ -26,7 +26,9 @@ public final class BlightcallerConfig {
     public static final ModConfigSpec.BooleanValue SOUL_MIGRATION_ALWAYS_ON;
     public static final ModConfigSpec.IntValue SOUL_MIGRATION_MAX_JUMPS;
     public static final ModConfigSpec.DoubleValue SOUL_MIGRATION_RANGE;
+    public static final ModConfigSpec.IntValue BLIGHTBLOOM_MAX_PER_TICK;
     public static final ModConfigSpec.ConfigValue<String> SKILL_TREE_MODE;
+    public static final ModConfigSpec.BooleanValue SKILL_TREE_WEAPON_SKILLS;
     public static final ModConfigSpec.ConfigValue<String> SKILL_TREE_CLASS_TREE_LAYOUT;
     public static final ModConfigSpec.BooleanValue SKILL_TREE_CLASS_LOCK;
     public static final ModConfigSpec.ConfigValue<List<? extends String>> SKILL_TREE_CLASS_LOCK_TABS;
@@ -103,6 +105,18 @@ public final class BlightcallerConfig {
                 .defineInRange("range", 6.0, 0.0, 32.0);
         builder.pop();
 
+        builder.comment("Blightbloom: when an enemy with curses of a caster dies, it bursts and puts Soulburn on the enemies around it",
+                        "(skill tree, second passive of side A, spell blightcaller:blightbloom; radius, duration and damage are in",
+                        "that spell). An enemy that dies with such a Soulburn bursts as well, so blooms can run through a horde.",
+                        "Blooms happen in the server tick after the death, after Soul Migration. Nothing happens while the caster",
+                        "is offline.")
+                .push("blightbloom");
+        BLIGHTBLOOM_MAX_PER_TICK = builder
+                .comment("Most blooms in one server tick, against lag spikes in big hordes. Further blooms wait for the next tick",
+                        "(none is lost). It only spreads the work over ticks, it is no limit on the chain itself.")
+                .defineInRange("max_per_tick", 3, 1, 1000);
+        builder.pop();
+
         builder.comment("Blightcaller skills (only with Skill Tree (RPG Series) installed).")
                 .push("skill_tree");
         SKILL_TREE_MODE = builder
@@ -117,6 +131,14 @@ public final class BlightcallerConfig {
                         "spent again. Takes effect on /reload or restart. Works together with the Stormcaller branch.")
                 // Arrays.asList: the check must accept null (List.of throws when a new config file is made)
                 .defineInList("mode", "class_tree", Arrays.asList("auto", "own_tab", "class_tree"));
+        SKILL_TREE_WEAPON_SKILLS = builder
+                .comment("true: three nodes for Hex Bolt and Blight Burst (the spells of the wand and the grimoire) in the Weapon Skills",
+                        "tab of Skill Tree, like the staves of the other schools: one fixed node and a choice of two. With More RPG",
+                        "Classes - Skill Tree installed only with mode class_tree (then in its Weapon Skills tab). If the nodes",
+                        "cannot be added, only they are missing (the log says why) and taken nodes stay saved. Turning this off",
+                        "resets taken nodes there; their points can be spent again. The place is data:",
+                        "data/blightcaller/blightcaller_skill_tree/weapon_branch.json")
+                .define("weapon_skills", true);
         SKILL_TREE_CLASS_TREE_LAYOUT = builder
                 .comment("How the branch gets its place in the Class Skills tab.",
                         "respace: all branches of the circle are spread out evenly again, the Blightcaller root sits on the same",
