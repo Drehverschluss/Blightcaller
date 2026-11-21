@@ -10,6 +10,8 @@ import net.minecraft.world.entity.player.Player;
 import net.spell_engine.api.entity.SpellEntityPredicates;
 import net.spell_engine.api.spell.Spell;
 import net.spell_engine.internals.container.SpellContainerSource;
+import net.spell_engine.internals.target.EntityRelations;
+import net.spell_engine.internals.target.SpellTarget;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -21,6 +23,9 @@ import org.jetbrains.annotations.Nullable;
  *     <li>{@code blightcaller:caster_has_spell} with {@code entity_predicate_param} a spell id: the caster (the other entity of the
  *     condition) has that spell as a passive or modifier, e.g. from a skill node. With {@code all_required} next to
  *     {@code curse_level}, a node raises the bonus per curse level (Hex Bolt, Last Rites) while the number stays in the spell.</li>
+ *     <li>{@code blightcaller:enemy}: the target is not the caster and Spell Engine allows a harmful spell of the caster on it
+ *     (its relation rules). In a trigger's {@code target_conditions} this keeps self buffs from counting as a hit (Grave
+ *     Candle relic).</li>
  * </ul>
  */
 public final class CursePredicates {
@@ -40,6 +45,16 @@ public final class CursePredicates {
                 return hasSpell(args.other(), args.param());
             } catch (Exception e) {
                 Blightcaller.LOGGER.error("Blightcaller: predicate caster_has_spell failed", e);
+                return false;
+            }
+        });
+        SpellEntityPredicates.register(Blightcaller.id("enemy"), args -> {
+            try {
+                return args.entity() instanceof LivingEntity target && args.other() instanceof LivingEntity caster
+                        && target != caster && target.isAlive()
+                        && EntityRelations.actionAllowed(SpellTarget.FocusMode.DIRECT, SpellTarget.Intent.HARMFUL, caster, target);
+            } catch (Exception e) {
+                Blightcaller.LOGGER.error("Blightcaller: predicate enemy failed", e);
                 return false;
             }
         });

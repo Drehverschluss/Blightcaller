@@ -84,6 +84,17 @@ public final class CurseImpacts {
     public static SpellHandlers.ImpactResult curse(String handler, double factor, Holder<Spell> spell, SpellPower.Result power,
                                                    LivingEntity caster, @Nullable net.minecraft.world.entity.Entity target,
                                                    SpellExecution.ImpactContext context) {
+        return curse(handler, factor, spell, power, caster, target, context, true);
+    }
+
+    /**
+     * Like {@link #curse(String, double, Holder, SpellPower.Result, LivingEntity, net.minecraft.world.entity.Entity,
+     * SpellExecution.ImpactContext)}; with {@code extend = false} the curse keeps the duration of its status effect impact
+     * (no Curse Duration bonus), e.g. the fixed Enfeeble of the Wailing Skull relic.
+     */
+    public static SpellHandlers.ImpactResult curse(String handler, double factor, Holder<Spell> spell, SpellPower.Result power,
+                                                   LivingEntity caster, @Nullable net.minecraft.world.entity.Entity target,
+                                                   SpellExecution.ImpactContext context, boolean extend) {
         if (!(target instanceof LivingEntity living) || living.level().isClientSide() || living.isDeadOrDying()) {
             return new SpellHandlers.ImpactResult(false, false);
         }
@@ -100,6 +111,9 @@ public final class CurseImpacts {
                 power.criticalChance(), power.criticalDamage());
         CurseApplication app = CurseApplication.cast(source.curse(), caster, snapshot, factor, ticks, caster.getRandom())
                 .withAmplifier(amplifier(caster, spell, source.impact(), context));
+        if (!extend) {
+            app = app.withoutExtension();
+        }
         if (Pestilence.isPestilence(source.curse())) {
             // every cast starts its own chain with its own carrier budget
             app = Pestilence.startChain(app, Pestilence.maxCarriers(caster, spell, source.impact(), context.chargeModifier()));

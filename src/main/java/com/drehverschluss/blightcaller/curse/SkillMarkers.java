@@ -278,12 +278,22 @@ public final class SkillMarkers {
      */
     private static SpellHandlers.ImpactResult vengefulHex(Holder<Spell> spell, SpellPower.Result power, LivingEntity caster,
                                                           @Nullable Entity target, SpellExecution.ImpactContext context) {
+        return plainEnfeeble(VENGEFUL_HEX, true, spell, power, caster, target, context);
+    }
+
+    /**
+     * A plain Enfeeble through the curse marker {@code handler} (the status effect impact before it), used by Vengeful Hex and the
+     * Wailing Skull relic. Keeps the caster's Enervation on the target (a refresh would clear it); never shortens a longer
+     * Enfeeble of the same caster ({@link Curses#apply} keeps the later end). {@code extend = false}: no Curse Duration bonus.
+     */
+    static SpellHandlers.ImpactResult plainEnfeeble(String handler, boolean extend, Holder<Spell> spell, SpellPower.Result power,
+                                                    LivingEntity caster, @Nullable Entity target, SpellExecution.ImpactContext context) {
         if (!(target instanceof LivingEntity living) || living.level().isClientSide()) {
             return NONE;
         }
         CurseEntry before = own(living, CurseEffects.ENFEEBLE, caster.getUUID());
         double enervation = before != null && before.end > living.level().getGameTime() ? before.enervation : 0.0;
-        SpellHandlers.ImpactResult result = CurseImpacts.curse(VENGEFUL_HEX, 1.0, spell, power, caster, target, context);
+        SpellHandlers.ImpactResult result = CurseImpacts.curse(handler, 1.0, spell, power, caster, target, context, extend);
         CurseEntry after = own(living, CurseEffects.ENFEEBLE, caster.getUUID());
         if (after != null && enervation > 0.0) {
             after.enervation = Math.max(after.enervation, enervation);

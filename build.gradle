@@ -150,6 +150,8 @@ dependencies {
     // Optional: Skill Tree (RPG Series) and Pufferfish's Skills for the Blightcaller skill tab and branch (compat/skilltree)
     compileOnly("maven.modrinth:skill-tree:${skill_tree_version}") { transitive = false }
     compileOnly("maven.modrinth:skills:${puffish_skills_version}") { transitive = false }
+    // Optional: Curios API for the rings, amulets and relics (compat/curios); without Curios these items do not exist
+    compileOnly("maven.modrinth:curios:${curios_version}") { transitive = false }
 
     // Local test mods, only present in the dev runs
     localRuntime fileTree(dir: 'libs/test', include: '*.jar')
@@ -176,6 +178,7 @@ var generateModMetadata = tasks.register("generateModMetadata", ProcessResources
             jade_version_range     : jade_version_range,
             skill_tree_version_range: skill_tree_version_range,
             puffish_skills_version_range: puffish_skills_version_range,
+            curios_version_range   : curios_version_range,
     ]
     inputs.properties replaceProperties
     expand replaceProperties

@@ -22,7 +22,7 @@ import net.spell_power.api.SpellSchools;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Own tooltip tokens of the skill node spells, so the texts show the numbers of the data pack and the server config instead of
+ * Own tooltip tokens of the skill node spells (and the passive relic spells), so the texts show the numbers of the data pack and the server config instead of
  * fixed ones. Registered after joining a world (spells come from the server) for every passive and modifier spell of Blightcaller:
  * <ul>
  *     <li>{@code {migration_range}}, {@code {migration_jumps}}: Soul Migration ({@code [soul_migration]} of the server config);</li>
@@ -31,7 +31,7 @@ import org.jetbrains.annotations.Nullable;
  *     <li>{@code {soulburn_damage}}, {@code {soulburn_duration}}: the Soulburn of Blightbloom, Soulfire Chains and Soul Echo (damage per
  *     second with the soul power of the player right now); {@code {bloom_range}};</li>
  *     <li>{@code {hex_duration}}, {@code {hex_cooldown}}: Vengeful Hex; {@code {infect_chance}}, {@code {infect_range}};
- *     {@code {coup_health}}, {@code {coup_bonus}};</li>
+ *     {@code {coup_health}}, {@code {coup_bonus}}; {@code {relic_range}}: the range of a passive relic spell (Wailing Scream);</li>
  *     <li>{@code {gravebind_range}}, {@code {gravebind_base}}; {@code {carriers}}, {@code {carriers_base}};
  *     {@code {contagion_interval}}, {@code {contagion_base}}, {@code {first_spread}}, {@code {contagion_range}},
  *     {@code {spread_range_new}}, {@code {spread_range_base}};</li>
@@ -170,8 +170,10 @@ public final class SkillNodeTooltips {
                     .replace("{frailty}", percent(EnfeebleEffect.bonus(1 + amplifierAdd, false)))
                     .replace("{frailty_boss}", percent(EnfeebleEffect.bonus(1 + amplifierAdd, true)));
         }
-        // Vengeful Hex: duration of its Enfeeble and cooldown
+        // Vengeful Hex: duration of its Enfeeble and cooldown; Wailing Scream (relic): its radius (Spell Engine fills {range} only for
+        // active spells)
         if (spell.type == Spell.Type.PASSIVE) {
+            text = text.replace("{relic_range}", number(spell.range));
             for (Spell.Impact impact : spell.impacts) {
                 if (impact.action != null && impact.action.type == Spell.Impact.Action.Type.STATUS_EFFECT && impact.action.status_effect != null) {
                     text = text.replace("{hex_duration}", number(impact.action.status_effect.duration));

@@ -1,0 +1,12 @@
+{
+  "replace": false,
+  "values": [
+    "blightcaller:hex_bolt",
+    "blightcaller:blight_burst",
+    "blightcaller:soul_rot",
+    "blightcaller:enfeeble",
+    "blightcaller:gravebind",
+    "blightcaller:drain_soul",
+    "blightcaller:pestilence"
+  ]
+}

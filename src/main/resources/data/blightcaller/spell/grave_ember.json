@@ -1,0 +1,90 @@
+{
+  "school": "spell_power:soul",
+  "range": 0.0,
+  "tier": 1,
+  "tooltip": {
+    "show_header": false,
+    "name": {
+      "show_in_compact": false,
+      "show_in_details": false
+    },
+    "description": {
+      "color": "dark_green"
+    }
+  },
+  "type": "PASSIVE",
+  "passive": {
+    "triggers": [
+      {
+        "type": "SPELL_IMPACT_ANY",
+        "chance": 0.05,
+        "spell": {
+          "school": "^spell_power:soul$",
+          "type": "ACTIVE"
+        },
+        "target_conditions": [
+          {
+            "entity_predicate_id": "blightcaller:enemy"
+          }
+        ]
+      }
+    ]
+  },
+  "release": {
+    "visuals": {
+      "particles": [
+        {
+          "id": "spell_engine:magic_spark",
+          "appearance": {
+            "color": 3113025535,
+            "motion": "DECELERATE",
+            "scale": 0.6
+          },
+          "batch": {
+            "count": 12.0,
+            "shape": "SPHERE",
+            "anchor": "ENTITY",
+            "vertical_origin": 1.0,
+            "min_speed": 0.08,
+            "max_speed": 0.16
+          }
+        },
+        {
+          "id": "minecraft:soul_fire_flame",
+          "batch": {
+            "count": 6.0,
+            "shape": "PILLAR",
+            "anchor": "ENTITY",
+            "vertical_origin": 0.2,
+            "min_speed": 0.01,
+            "max_speed": 0.04,
+            "extent": 0.8
+          }
+        }
+      ]
+    },
+    "sound": {
+      "id": "spell_engine:generic_soul_casting",
+      "volume": 0.6,
+      "pitch": 1.4
+    }
+  },
+  "impacts": [
+    {
+      "action": {
+        "type": "STATUS_EFFECT",
+        "status_effect": {
+          "effect_id": "blightcaller:grave_ember",
+          "duration": 6.0
+        }
+      }
+    }
+  ],
+  "cost": {
+    "exhaust": 0.0,
+    "durability": 0,
+    "cooldown": {
+      "duration": 45.0
+    }
+  }
+}

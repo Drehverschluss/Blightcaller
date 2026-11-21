@@ -2,6 +2,7 @@ package com.drehverschluss.blightcaller.item;
 
 import com.drehverschluss.blightcaller.Blightcaller;
 import com.drehverschluss.blightcaller.attribute.BlightcallerAttributes;
+import com.drehverschluss.blightcaller.trinket.BlightcallerTrinkets;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.core.Holder;
@@ -187,8 +188,10 @@ public final class BlightcallerItems {
         blightsporeRobe = robeBlightspore.armorSet();
         hexbinderRobe = robeHexbinder.armorSet();
 
-        // creative tab: robes, then template and crystals, then book and scrolls
+        // creative tab: robes, then template and crystals, then (with Curios) jewelry and relics, then book and scrolls
         registerSmithingItems();
+        // rings, amulets and relics, only with Curios (phase 8B)
+        BlightcallerTrinkets.registerItems();
         PlatformEvents.onItemGroupModify(TAB_KEY, BlightcallerItems::addBookAndScrolls);
 
         EQUIPMENT_CONFIG.save();

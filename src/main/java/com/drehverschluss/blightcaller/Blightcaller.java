@@ -18,8 +18,10 @@ import com.drehverschluss.blightcaller.curse.LastRites;
 import com.drehverschluss.blightcaller.curse.Pestilence;
 import com.drehverschluss.blightcaller.curse.SkillMarkers;
 import com.drehverschluss.blightcaller.curse.SoulMigration;
+import com.drehverschluss.blightcaller.curse.WailingScream;
 import com.drehverschluss.blightcaller.fx.BlightcallerParticles;
 import com.drehverschluss.blightcaller.item.BlightcallerItems;
+import com.drehverschluss.blightcaller.trinket.BlightcallerTrinkets;
 import com.mojang.logging.LogUtils;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.bus.api.IEventBus;
@@ -45,7 +47,9 @@ public class Blightcaller {
         CurseData.register(modEventBus);
         BlightcallerParticles.register(modEventBus);
         BlightcallerItems.init();
+        BlightcallerTrinkets.init();
         modEventBus.addListener(RegisterEvent.class, BlightcallerItems::onRegister);
+        modEventBus.addListener(RegisterEvent.class, BlightcallerTrinkets::onRegister);
         CurseEvents.register();
         CurseImpacts.register();
         CursePredicates.register();
@@ -55,6 +59,7 @@ public class Blightcaller {
         SoulMigration.register();
         Blightbloom.register();
         InfectiousCurses.register();
+        WailingScream.register();
         modEventBus.addListener(RegisterPayloadHandlersEvent.class, ClassLockPayload::register);
         modEventBus.addListener(RegisterPayloadHandlersEvent.class, com.drehverschluss.blightcaller.fx.GraveWave::register);
         com.drehverschluss.blightcaller.fx.GraveWave.init();

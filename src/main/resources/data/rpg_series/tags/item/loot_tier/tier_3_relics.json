@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "blightcaller:wailing_skull",
+      "required": false
+    }
+  ]
+}

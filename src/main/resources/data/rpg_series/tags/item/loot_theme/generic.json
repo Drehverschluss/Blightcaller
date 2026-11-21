@@ -1,0 +1,17 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "blightcaller:grave_candle",
+      "required": false
+    },
+    {
+      "id": "blightcaller:blight_orb",
+      "required": false
+    },
+    {
+      "id": "blightcaller:wailing_skull",
+      "required": false
+    }
+  ]
+}

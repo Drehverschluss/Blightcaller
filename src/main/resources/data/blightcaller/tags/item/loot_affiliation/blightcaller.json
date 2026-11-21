@@ -5,6 +5,34 @@
     "#blightcaller:armor_type/blight_robes",
     "blightcaller:gravemother_upgrade_smithing_template",
     "blightcaller:gravemothers_spore_crystal",
-    "blightcaller:gravemothers_bone_crystal"
+    "blightcaller:gravemothers_bone_crystal",
+    {
+      "id": "blightcaller:rotheart_ring",
+      "required": false
+    },
+    {
+      "id": "blightcaller:rotheart_necklace",
+      "required": false
+    },
+    {
+      "id": "blightcaller:witchbone_ring",
+      "required": false
+    },
+    {
+      "id": "blightcaller:witchbone_necklace",
+      "required": false
+    },
+    {
+      "id": "blightcaller:grave_candle",
+      "required": false
+    },
+    {
+      "id": "blightcaller:blight_orb",
+      "required": false
+    },
+    {
+      "id": "blightcaller:wailing_skull",
+      "required": false
+    }
   ]
 }

@@ -63,6 +63,12 @@ public record CurseApplication(Holder<MobEffect> curse, @Nullable UUID caster, d
                 transferred, value);
     }
 
+    /** The same curse without the caster's Curse Duration bonus (a fixed duration, e.g. the Wailing Skull relic). */
+    public CurseApplication withoutExtension() {
+        return new CurseApplication(curse, caster, power, critical, criticalDamage, factor, durationTicks, false, jumps, chain,
+                transferred, amplifier);
+    }
+
     public CurseApplication withChain(@Nullable UUID id) {
         return new CurseApplication(curse, caster, power, critical, criticalDamage, factor, durationTicks, extend, jumps, id,
                 transferred, amplifier);
