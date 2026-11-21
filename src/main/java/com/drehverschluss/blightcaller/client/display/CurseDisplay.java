@@ -36,7 +36,8 @@ import org.jetbrains.annotations.Nullable;
  *     <li>the veil over cursed mobs, stronger with the curse level ({@link CurseVeil});</li>
  *     <li>curse icons with a running ring above the head, placed on top of Health Bars' floating bar when it is there
  *     ({@link CurseIcons}), and a row of curses with seconds at Health Bars' mob box ({@link CurseHudRow});</li>
- *     <li>Jade's tooltip (own plugin, unchanged).</li>
+ *     <li>Jade's tooltip (own plugin): every curse, or only the curse level while the icons have priority (client option
+ *     {@code priority}, phase I.1).</li>
  * </ol>
  * Health Bars is optional and only read by reflection ({@link HealthBarsCompat}); without it the icons have their own place
  * above the head and there is no box row. Everything is client only and catches its own errors (a display must never break
@@ -67,10 +68,16 @@ public final class CurseDisplay {
         if (ModList.get().isLoaded("healthbars")) {
             healthBars = HealthBarsCompat.create();
         }
+        BlightcallerClientConfig.setHealthBarsCoupled(healthBars != null);
     }
 
     static boolean jade() {
         return jade;
+    }
+
+    /** Jade is installed and shows every curse (client option {@code priority}); then Jade's crosshair target gets no icons. */
+    static boolean jadeShowsAllCurses() {
+        return jade && BlightcallerClientConfig.jadeShowsAllCurses();
     }
 
     @Nullable

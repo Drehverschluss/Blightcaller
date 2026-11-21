@@ -1,5 +1,6 @@
 package com.drehverschluss.blightcaller.compat.jade;
 
+import com.drehverschluss.blightcaller.config.BlightcallerClientConfig;
 import com.drehverschluss.blightcaller.curse.CurseData;
 import com.drehverschluss.blightcaller.curse.CurseEntry;
 import com.drehverschluss.blightcaller.curse.Curses;
@@ -44,6 +45,9 @@ import snownee.jade.api.ui.IElementHelper;
  *     <li><b>Client:</b> the remaining time is counted down every frame from the end, so it runs smoothly between Jade's
  *     data requests. Own curses are drawn in full, curses of other players dimmed. Two styles ({@link
  *     BlightcallerJadePlugin.Style}): compact (icon and time per curse, one line) or list (one line per curse).</li>
+ *     <li><b>Priority</b> (Blightcaller's client option {@code priority}, phase I.1): while the icons above the head have
+ *     priority, the tooltip only shows the curse level line, with the highest Deepening Rot bonus of the player's own curses
+ *     ("Curse level 3 · Deepening Rot +30%"), in both styles; the single curses stand above the head.</li>
  * </ul>
  */
 public enum CurseJadeProvider implements IEntityComponentProvider, StreamServerDataProvider<EntityAccessor, CurseJadeProvider.Data> {
@@ -156,6 +160,17 @@ public enum CurseJadeProvider implements IEntityComponentProvider, StreamServerD
         IElementHelper helper = IElementHelper.get();
         IThemeHelper theme = IThemeHelper.get();
         Component header = theme.danger(Component.translatable("jade.blightcaller.curse_level", data.level()));
+        if (!BlightcallerClientConfig.jadeShowsAllCurses()) {
+            // the icons above the head show the single curses: only the curse level, with the highest own Deepening Rot bonus
+            int bonus = 0;
+            for (Line line : data.lines()) {
+                bonus = Math.max(bonus, line.bonus());
+            }
+            tooltip.add(bonus > 0
+                    ? theme.danger(Component.translatable("jade.blightcaller.curse_level_bonus", data.level(), bonus))
+                    : header);
+            return;
+        }
         if (style == BlightcallerJadePlugin.Style.LIST) {
             tooltip.add(header);
             for (Line line : data.lines()) {

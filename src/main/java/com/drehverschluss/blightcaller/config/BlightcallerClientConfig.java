@@ -26,8 +26,30 @@ public final class BlightcallerClientConfig {
     public static final ModConfigSpec.IntValue CURSE_ICON_SIZE;
     public static final ModConfigSpec.EnumValue<IconStyle> CURSE_ICON_STYLE;
     public static final ModConfigSpec.BooleanValue CURSE_ICON_SECONDS;
-    public static final ModConfigSpec.BooleanValue CURSE_ICONS_WITH_JADE;
+    public static final ModConfigSpec.EnumValue<Priority> CURSE_PRIORITY;
     public static final ModConfigSpec.EnumValue<HudRow> CURSE_HUD_ROW;
+
+    /**
+     * Who shows the single curses when Jade is installed (phase I.1, wish of 21.11.). Without Jade there is nothing to choose:
+     * the icons always stand.
+     */
+    public enum Priority implements TranslatableEnum {
+        /** With Health Bars (coupling found) like ICONS, since the row at its box already shows the curses with seconds;
+         *  without Health Bars like JADE. */
+        AUTO,
+        /** The icons above the head always stand, also at the mob in Jade's crosshair; Jade only shows the curse level. */
+        ICONS,
+        /** Jade shows every curse; the mob in Jade's crosshair within reach gets no icons (they would sit under Jade's tooltip). */
+        JADE;
+
+        @Override
+        public Component getTranslatedName() {
+            return Component.translatable("blightcaller.configuration.curse_priority." + name().toLowerCase(Locale.ROOT));
+        }
+    }
+
+    /** Whether Health Bars was coupled at client setup (set by the curse display; read for {@link Priority#AUTO}). */
+    private static volatile boolean healthBarsCoupled;
 
     /** Which mobs show the curse icons above their head. */
     public enum IconMode implements TranslatableEnum {
@@ -96,9 +118,10 @@ public final class BlightcallerClientConfig {
                 .translation("blightcaller.configuration.curse_display")
                 .push("curse_display");
         CURSE_VEIL = builder
-                .comment("A faint violet veil over cursed mobs, stronger with every curse level (1 to 3, pulsing at 3).")
+                .comment("A faint violet veil over cursed mobs, stronger with every curse level (1 to 3, pulsing at 3).",
+                        "Off by default (phase I.1): the number of different curse icons above the head shows the curse level as well.")
                 .translation("blightcaller.configuration.curse_veil")
-                .define("veil", true);
+                .define("veil", false);
         CURSE_ICONS = builder
                 .comment("Small curse icons above the head that show their remaining time (see icon_style).",
                         "OFF: none. LOOKED_AT: only the mob you look at. OWN_TARGETS: also every mob with one of your own curses in range.")
@@ -121,10 +144,14 @@ public final class BlightcallerClientConfig {
                 .comment("Remaining seconds in the corner of the curse tiles above the head (style DETAILED; hidden while a tile is too small on the screen).")
                 .translation("blightcaller.configuration.curse_icon_seconds")
                 .define("icon_seconds", true);
-        CURSE_ICONS_WITH_JADE = builder
-                .comment("Keep the curse icons above the head while Jade is installed (Jade shows the details of one mob, the icons an overview).")
-                .translation("blightcaller.configuration.curse_icons_with_jade")
-                .define("icons_with_jade", true);
+        // replaces icons_with_jade (phase I.1): no icons at all with Jade is icons = OFF; an old entry is dropped by NeoForge
+        CURSE_PRIORITY = builder
+                .comment("Only with Jade: who shows the single curses.",
+                        "ICONS: the icons above the head always stand, Jade only shows the curse level.",
+                        "JADE: Jade shows every curse, the mob in Jade's crosshair gets no icons.",
+                        "AUTO: ICONS with Health Bars (its box row shows the curses with seconds), JADE without.")
+                .translation("blightcaller.configuration.curse_priority")
+                .defineEnum("priority", Priority.AUTO);
         CURSE_HUD_ROW = builder
                 .comment("Row of curses with seconds at the mob box of Health Bars (only with Health Bars).",
                         "NAME: right above the mob's name. TEXT: right under the health line. ABOVE / BELOW: outside the whole box.",
@@ -161,9 +188,9 @@ public final class BlightcallerClientConfig {
         return !SPEC.isLoaded() || DRAIN_SOUL_TORN_SOUL.get();
     }
 
-    /** The veil over cursed mobs (default on). */
+    /** The veil over cursed mobs (default off since phase I.1). */
     public static boolean curseVeil() {
-        return !SPEC.isLoaded() || CURSE_VEIL.get();
+        return SPEC.isLoaded() && CURSE_VEIL.get();
     }
 
     public static IconMode curseIcons() {
@@ -188,8 +215,24 @@ public final class BlightcallerClientConfig {
         return !SPEC.isLoaded() || CURSE_ICON_SECONDS.get();
     }
 
-    public static boolean curseIconsWithJade() {
-        return !SPEC.isLoaded() || CURSE_ICONS_WITH_JADE.get();
+    public static Priority cursePriority() {
+        return SPEC.isLoaded() ? CURSE_PRIORITY.get() : Priority.AUTO;
+    }
+
+    public static void setHealthBarsCoupled(boolean coupled) {
+        healthBarsCoupled = coupled;
+    }
+
+    /**
+     * Whether Jade shows every single curse (and the mob in Jade's crosshair therefore gets no icons), or only the curse level
+     * line. Read every frame, so a change of the option works at once. Only meaningful while Jade is installed.
+     */
+    public static boolean jadeShowsAllCurses() {
+        return switch (cursePriority()) {
+            case ICONS -> false;
+            case JADE -> true;
+            case AUTO -> !healthBarsCoupled;
+        };
     }
 
     public static HudRow curseHudRow() {

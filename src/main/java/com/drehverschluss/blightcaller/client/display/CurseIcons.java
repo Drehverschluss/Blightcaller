@@ -44,7 +44,8 @@ import org.joml.Matrix4f;
  *     <li>otherwise above the name tag if one is shown, else where the name tag would be.</li>
  * </ul>
  * <b>Which mobs</b> (client option): the mob looked at, and with {@code OWN_TARGETS} every mob with an own curse in range.
- * With Jade, the mob in the crosshair within reach (Jade's tooltip shows it in detail) gets no icons.
+ * With Jade and the client option {@code priority} at JADE (or AUTO without Health Bars), the mob in the crosshair within reach
+ * (Jade's tooltip shows it in detail) gets no icons; with ICONS they always stand and Jade only shows the curse level.
  */
 final class CurseIcons {
     /** Icon edge at 100 % in the units of Health Bars' bar (gui pixels) and in the own name tag size; client option
@@ -85,8 +86,7 @@ final class CurseIcons {
         ClientLevel level = mc.level;
         BlightcallerClientConfig.IconMode mode = BlightcallerClientConfig.curseIcons();
         // hidden with the GUI (F1) like the vanilla name tags and Health Bars' bars
-        if (level == null || mc.player == null || mode == BlightcallerClientConfig.IconMode.OFF || !Minecraft.renderNames()
-                || (CurseDisplay.jade() && !BlightcallerClientConfig.curseIconsWithJade())) {
+        if (level == null || mc.player == null || mode == BlightcallerClientConfig.IconMode.OFF || !Minecraft.renderNames()) {
             SEEN.clear();
             return;
         }
@@ -107,9 +107,9 @@ final class CurseIcons {
                 continue;
             }
             boolean show = living == picked || mode == BlightcallerClientConfig.IconMode.OWN_TARGETS && CurseLines.hasOwn(view, me);
-            // the mob in the crosshair within reach is the one Jade shows in detail at the top of the screen: no icons there,
-            // they would sit under Jade's tooltip when standing close
-            if (!show || CurseDisplay.jade() && mc.crosshairPickEntity == living) {
+            // while Jade shows every curse (client option priority), the mob in the crosshair within reach is the one Jade shows
+            // in detail at the top of the screen: no icons there, they would sit under Jade's tooltip when standing close
+            if (!show || CurseDisplay.jadeShowsAllCurses() && mc.crosshairPickEntity == living) {
                 continue;
             }
             List<CurseLines.Shown> shown = CurseLines.shown(view, me, tick);
