@@ -14,6 +14,8 @@ import net.neoforged.neoforge.common.TranslatableEnum;
  */
 public final class BlightcallerClientConfig {
     public static final ModConfigSpec SPEC;
+    /** Default size of the curse icons above the head, percent of the size before phase I. */
+    public static final int DEFAULT_ICON_SIZE = 70;
 
     public static final ModConfigSpec.BooleanValue CURSE_TICK_FLASH;
     public static final ModConfigSpec.BooleanValue CURSE_TICK_SOUND;
@@ -21,6 +23,9 @@ public final class BlightcallerClientConfig {
     public static final ModConfigSpec.BooleanValue CURSE_VEIL;
     public static final ModConfigSpec.EnumValue<IconMode> CURSE_ICONS;
     public static final ModConfigSpec.IntValue CURSE_ICON_RANGE;
+    public static final ModConfigSpec.IntValue CURSE_ICON_SIZE;
+    public static final ModConfigSpec.EnumValue<IconStyle> CURSE_ICON_STYLE;
+    public static final ModConfigSpec.BooleanValue CURSE_ICON_SECONDS;
     public static final ModConfigSpec.BooleanValue CURSE_ICONS_WITH_JADE;
     public static final ModConfigSpec.EnumValue<HudRow> CURSE_HUD_ROW;
 
@@ -39,11 +44,30 @@ public final class BlightcallerClientConfig {
         }
     }
 
+    /** How the curse icons above the head look. */
+    public enum IconStyle implements TranslatableEnum {
+        /** A small symbol with a ring that runs down with the remaining time. */
+        SIMPLE,
+        /** The curse icon as a tile that turns grey from the top as the curse runs out, with the remaining seconds. */
+        DETAILED;
+
+        @Override
+        public Component getTranslatedName() {
+            return Component.translatable("blightcaller.configuration.curse_icon_style." + name().toLowerCase(Locale.ROOT));
+        }
+    }
+
     /** Where the row of curses goes at the mob box of Health Bars. */
     public enum HudRow implements TranslatableEnum {
-        /** On the side with room: below a box at the top, above a box in the middle or at the bottom. */
+        /** In the box: under the health line for a box at the top of the screen, else above the mob's name. */
         AUTO,
+        /** In the box, right above the mob's name, in line with it. */
+        NAME,
+        /** In the box, right under the health line, in line with the name. */
+        TEXT,
+        /** Outside, above the whole box. */
         ABOVE,
+        /** Outside, below the whole box. */
         BELOW,
         OFF;
 
@@ -76,7 +100,7 @@ public final class BlightcallerClientConfig {
                 .translation("blightcaller.configuration.curse_veil")
                 .define("veil", true);
         CURSE_ICONS = builder
-                .comment("Small curse icons above the head, each with a ring that runs down with its remaining time.",
+                .comment("Small curse icons above the head that show their remaining time (see icon_style).",
                         "OFF: none. LOOKED_AT: only the mob you look at. OWN_TARGETS: also every mob with one of your own curses in range.")
                 .translation("blightcaller.configuration.curse_icons")
                 .defineEnum("icons", IconMode.OWN_TARGETS);
@@ -84,13 +108,27 @@ public final class BlightcallerClientConfig {
                 .comment("Range in blocks for the curse icons (the mob you look at and your own targets).")
                 .translation("blightcaller.configuration.curse_icon_range")
                 .defineInRange("icon_range", 16, 4, 64);
+        CURSE_ICON_SIZE = builder
+                .comment("Size of the curse icons above the head in percent (100 = the size before phase I).")
+                .translation("blightcaller.configuration.curse_icon_size")
+                .defineInRange("icon_size", DEFAULT_ICON_SIZE, 40, 100);
+        CURSE_ICON_STYLE = builder
+                .comment("DETAILED: the curse icon as a tile that turns grey from the top as the curse runs out, with the remaining seconds.",
+                        "SIMPLE: a small symbol with a ring that runs down with the remaining time.")
+                .translation("blightcaller.configuration.curse_icon_style")
+                .defineEnum("icon_style", IconStyle.DETAILED);
+        CURSE_ICON_SECONDS = builder
+                .comment("Remaining seconds in the corner of the curse tiles above the head (style DETAILED; hidden while a tile is too small on the screen).")
+                .translation("blightcaller.configuration.curse_icon_seconds")
+                .define("icon_seconds", true);
         CURSE_ICONS_WITH_JADE = builder
                 .comment("Keep the curse icons above the head while Jade is installed (Jade shows the details of one mob, the icons an overview).")
                 .translation("blightcaller.configuration.curse_icons_with_jade")
                 .define("icons_with_jade", true);
         CURSE_HUD_ROW = builder
                 .comment("Row of curses with seconds at the mob box of Health Bars (only with Health Bars).",
-                        "AUTO: below a box at the top of the screen, above a box in the middle or at the bottom.")
+                        "NAME: right above the mob's name. TEXT: right under the health line. ABOVE / BELOW: outside the whole box.",
+                        "AUTO: TEXT for a box at the top of the screen, else NAME.")
                 .translation("blightcaller.configuration.curse_hud_row")
                 .defineEnum("hud_row", HudRow.AUTO);
         builder.pop();
@@ -134,6 +172,20 @@ public final class BlightcallerClientConfig {
 
     public static int curseIconRange() {
         return SPEC.isLoaded() ? CURSE_ICON_RANGE.get() : 16;
+    }
+
+    /** Size factor of the curse icons above the head (1 = the size before phase I). */
+    public static float curseIconScale() {
+        return (SPEC.isLoaded() ? CURSE_ICON_SIZE.get() : DEFAULT_ICON_SIZE) / 100.0F;
+    }
+
+    public static IconStyle curseIconStyle() {
+        return SPEC.isLoaded() ? CURSE_ICON_STYLE.get() : IconStyle.DETAILED;
+    }
+
+    /** Remaining seconds in the corner of the curse tiles (default on). */
+    public static boolean curseIconSeconds() {
+        return !SPEC.isLoaded() || CURSE_ICON_SECONDS.get();
     }
 
     public static boolean curseIconsWithJade() {

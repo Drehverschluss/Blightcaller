@@ -23,10 +23,14 @@ public interface HealthBarsView {
     /**
      * The mob box of Health Bars on the screen (gui coordinates) and the entity it shows.
      *
-     * @param anchorX -1 left, 0 centre, 1 right (Health Bars' anchor point)
-     * @param anchorY -1 top, 0 middle, 1 bottom
+     * @param anchorX    -1 left, 0 centre, 1 right (Health Bars' anchor point)
+     * @param anchorY    -1 top, 0 middle, 1 bottom
+     * @param textX      left edge of the text column (name, bar, health line): right of the portrait if there is one
+     * @param textX1     right edge of the text column (a box on the right side mirrors: portrait right, text right-aligned)
+     * @param titleTop   top of the mob's name
+     * @param textBottom bottom of the last text line (health and armour, shadow included, or the bar without that line)
      */
-    record Box(LivingEntity entity, int x0, int y0, int x1, int y1, int anchorX, int anchorY) {}
+    record Box(LivingEntity entity, int x0, int y0, int x1, int y1, int anchorX, int anchorY, int textX, int textX1, int titleTop, int textBottom) {}
 
     /** The floating bar Health Bars draws for this mob now, or {@code null} if it draws none. */
     @Nullable

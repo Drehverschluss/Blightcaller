@@ -261,8 +261,14 @@ public final class HealthBarsCompat implements HealthBarsView {
             boolean display = renderEntityDisplay.getBoolean(gui);
             int x1 = x + (display ? elementWidth : width);
             int y0 = display ? y : y + 4;
-            int y1 = display ? y + 42 : y + (renderAttributeComponents.getBoolean(gui) ? 38 : 27);
-            return new Box(entity, x, y0, x1, y1, ax, ay);
+            boolean attributes = renderAttributeComponents.getBoolean(gui);
+            int y1 = display ? y + 42 : y + (attributes ? 38 : 27);
+            // the text column (measured in the game, phase I): 47 wide portrait part (on the right for a box on the right side,
+            // Health Bars mirrors it), the name 5 below the top of the box, the health line with its shadow ends 37 below it
+            // (26 for the bar without that line)
+            int textX = display && ax <= 0 ? x + 47 : x;
+            int textX1 = display && ax > 0 ? x1 - 47 : x1;
+            return new Box(entity, x, y0, x1, y1, ax, ay, textX, textX1, y + 5, y + (attributes ? 37 : 26));
         } catch (Throwable t) {
             fail(t);
             return null;

@@ -20,8 +20,8 @@
   "exclusive_root": true,
   "background": {
     "texture": "blightcaller:textures/gui/skill_background.png",
-    "width": 512,
-    "height": 288,
+    "width": 768,
+    "height": 434,
     "position": "fill"
   },
   "colors": {

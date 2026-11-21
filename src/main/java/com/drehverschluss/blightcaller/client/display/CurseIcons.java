@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
@@ -26,9 +27,12 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 
 /**
- * Curse icons above the head (concept 8.1, level 2 of the display): one small icon per curse, each with a ring that runs
- * down with its remaining time, blinking in the last two seconds; own curses bright, other players' curses pale; the own
- * entry's time if there is one, else the longest (like Jade).
+ * Curse icons above the head (concept 8.1, level 2 of the display): one small icon per curse that shows its remaining time,
+ * blinking in the last two seconds; own curses bright, other players' curses pale; the own entry's time if there is one,
+ * else the longest (like Jade). Client option {@code icon_style}: DETAILED = the effect icon as a tile that turns grey from
+ * the top as the curse runs out, with a thin bright frame and the remaining seconds in its corner (client option
+ * {@code icon_seconds}, hidden while the tile is too small on the screen); SIMPLE = the small symbol with a ring. See
+ * {@link CursePainter}.
  * <p>
  * <b>Where:</b> the mob's name tag event ({@code RenderNameTagEvent}, the same event Health Bars and the vanilla name tag
  * use) is watched at the lowest priority: it says that the mob is drawn this frame and whether a name tag is shown. The
@@ -43,17 +47,21 @@ import org.joml.Matrix4f;
  * With Jade, the mob in the crosshair within reach (Jade's tooltip shows it in detail) gets no icons.
  */
 final class CurseIcons {
-    /** Icon edge in the units of Health Bars' bar (gui pixels) and in the own name tag size. */
+    /** Icon edge at 100 % in the units of Health Bars' bar (gui pixels) and in the own name tag size; client option
+     *  {@code icon_size} scales it (phase I: smaller, so the icons do not pull the eye away from the health bar). */
     static final float HB_ICON = 12.0F;
     static final float OWN_ICON = 10.0F;
     static final float GAP_FACTOR = 0.45F;
+    /** Gap between two tiles (they have no ring, so a little closer). */
+    static final float TILE_GAP_FACTOR = 0.3F;
 
     /** What the name tag event of a cursed mob said this frame. */
     record Seen(long frame, boolean name, @Nullable HealthBarsView.LevelBar bar) {}
 
     private static final Map<Integer, Seen> SEEN = new HashMap<>();
-    /** Mobs with icons in the last frame (probe, report). */
+    /** Mobs with icons in the last frame and seconds drawn in it (probe, report). */
     static int lastShown;
+    static int lastSeconds;
 
     private CurseIcons() {}
 
@@ -72,6 +80,7 @@ final class CurseIcons {
     static void render(PoseStack.Pose base, Vec3 cam, MultiBufferSource.BufferSource buffers, float partialTick, long frame,
                        @Nullable LivingEntity picked) {
         lastShown = 0;
+        lastSeconds = 0;
         Minecraft mc = Minecraft.getInstance();
         ClientLevel level = mc.level;
         BlightcallerClientConfig.IconMode mode = BlightcallerClientConfig.curseIcons();
@@ -112,21 +121,53 @@ final class CurseIcons {
         if (placed.isEmpty()) {
             return;
         }
-        // two batches for all mobs: first every ring, then every icon
+        boolean simple = BlightcallerClientConfig.curseIconStyle() == BlightcallerClientConfig.IconStyle.SIMPLE;
+        if (!simple) {
+            // tiles: every frame, then every tile, then the seconds on top
+            VertexConsumer frames = buffers.getBuffer(FxRenderTypes.FLAT);
+            for (Placed p : placed) {
+                p.each((s, x, y, size) -> CursePainter.frame(frames, p.matrix(), s, x, y, size, now, 1.0F));
+            }
+            buffers.endBatch(FxRenderTypes.FLAT);
+            VertexConsumer tiles = buffers.getBuffer(FxRenderTypes.ICON);
+            for (Placed p : placed) {
+                p.each((s, x, y, size) -> CursePainter.tile(tiles, p.matrix(), s, x, y, size, now, 1.0F));
+            }
+            buffers.endBatch(FxRenderTypes.ICON);
+            if (BlightcallerClientConfig.curseIconSeconds()) {
+                Font font = mc.font;
+                for (Placed p : placed) {
+                    p.each((s, x, y, size) -> {
+                        if (CursePainter.seconds(font, buffers, p.matrix(), s, x, y, size, now, 1.0F, p.pixelsPerUnit())) {
+                            lastSeconds++;
+                        }
+                    });
+                }
+                buffers.endBatch();
+            }
+            return;
+        }
+        // symbols: first every ring, then every dark edge, then every symbol
         VertexConsumer flat = buffers.getBuffer(FxRenderTypes.FLAT);
         for (Placed p : placed) {
             p.each((s, x, y, size) -> CursePainter.rings(flat, p.matrix(), s, x, y, size, now, 1.0F));
         }
         buffers.endBatch(FxRenderTypes.FLAT);
+        // the dark edges in their own batch first (the batch is sorted by distance), then the icons on top
+        VertexConsumer edges = buffers.getBuffer(FxRenderTypes.ICON);
+        for (Placed p : placed) {
+            p.each((s, x, y, size) -> CursePainter.edge(edges, p.matrix(), s, x, y, size, now, 1.0F, simple));
+        }
+        buffers.endBatch(FxRenderTypes.ICON);
         VertexConsumer icons = buffers.getBuffer(FxRenderTypes.ICON);
         for (Placed p : placed) {
-            p.each((s, x, y, size) -> CursePainter.icon(icons, p.matrix(), s, x, y, size, now, 1.0F));
+            p.each((s, x, y, size) -> CursePainter.icon(icons, p.matrix(), s, x, y, size, now, 1.0F, simple));
         }
         buffers.endBatch(FxRenderTypes.ICON);
     }
 
     /** Where the icons of one mob go: the camera facing matrix and the row in its units. */
-    private record Placed(Matrix4f matrix, List<CurseLines.Shown> shown, float x0, float cy, float size, float step) {
+    private record Placed(Matrix4f matrix, List<CurseLines.Shown> shown, float x0, float cy, float size, float step, float pixelsPerUnit) {
         void each(Cell cell) {
             float x = x0;
             for (CurseLines.Shown s : shown) {
@@ -165,7 +206,7 @@ final class CurseIcons {
         if (bar != null) {
             // right above Health Bars' bar and text, in its size (it follows its config and grows with distance like the bar)
             unit = bar.unit();
-            size = HB_ICON;
+            size = HB_ICON * BlightcallerClientConfig.curseIconScale();
             // a vanilla name tag shown at the same time sits at 0..9 in name tag units (0.025): its top is at 0 here too
             bottom = (seen.name() ? Math.min(bar.top(), 0.0F) : bar.top()) - 4.0F;
             maxWidth = bar.width();
@@ -173,25 +214,29 @@ final class CurseIcons {
             // own position: above the name tag, or where it would be; a little bigger farther away to stay readable
             double distance = Math.sqrt(living.position().distanceToSqr(cam));
             unit = 0.025F * (1.0F + 0.8F * (float) Mth.clamp((distance - 6.0) / 14.0, 0.0, 1.0));
-            size = OWN_ICON;
+            size = OWN_ICON * BlightcallerClientConfig.curseIconScale();
             float nameTop = "deadmau5".equals(living.getDisplayName().getString()) ? -10.0F : 0.0F;
             bottom = seen.name() ? (nameTop - 3.0F) * 0.025F / unit : 9.0F * 0.025F / unit;
             maxWidth = Float.MAX_VALUE;
         }
-        float gap = size * GAP_FACTOR;
-        float ring = size * 0.22F;
-        float cell = size + 2.0F * ring;
+        boolean simple = BlightcallerClientConfig.curseIconStyle() == BlightcallerClientConfig.IconStyle.SIMPLE;
+        float gap = size * (simple ? GAP_FACTOR : TILE_GAP_FACTOR);
+        float cell = simple ? CursePainter.ringCell(size) : CursePainter.tileCell(size);
         float width = n * cell + (n - 1) * gap;
         if (width > maxWidth) {
             float shrink = maxWidth / width;
             size *= shrink;
             gap *= shrink;
-            ring *= shrink;
             cell *= shrink;
             width = maxWidth;
         }
         pose.scale(unit, -unit, unit);
-        return new Placed(new Matrix4f(pose.last().pose()), shown, -width * 0.5F + cell * 0.5F, bottom - cell * 0.5F, size, cell + gap);
+        // screen pixels per unit at this distance (for the seconds: hidden while their digits would be too small to read)
+        double distance = Math.max(0.05, at.length());
+        double fov = Math.toRadians(mc.options.fov().get());
+        float pixelsPerUnit = (float) (unit * mc.getWindow().getHeight() / (2.0 * distance * Math.tan(fov * 0.5)));
+        return new Placed(new Matrix4f(pose.last().pose()), shown, -width * 0.5F + cell * 0.5F, bottom - cell * 0.5F, size, cell + gap,
+                pixelsPerUnit);
     }
 
     private static Vec3 lerp(Entity e, float partialTick) {
