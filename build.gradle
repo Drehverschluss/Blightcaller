@@ -140,6 +140,8 @@ dependencies {
     // Spell Engine and Spell Power are never bundled, only compiled against. At runtime they come from libs/test (dev runs) or the mods folder.
     compileOnly("maven.modrinth:spell-engine:${spell_engine_version}") { transitive = false }
     compileOnly "maven.modrinth:spell-power:${spell_power_version}"
+    // Armor Model API: robe model with glow mask (client/BlightcallerArmorRenderers), required, never bundled
+    compileOnly("maven.modrinth:armor-model-api:${armor_model_api_version}") { transitive = false }
     // tiny_config (ConfigManager for equipment.json), shipped jar-in-jar by Spell Engine and Spell Power, never bundled here
     compileOnly("maven.modrinth:tiny-config:${tiny_config_version}") { transitive = false }
 
@@ -170,6 +172,7 @@ var generateModMetadata = tasks.register("generateModMetadata", ProcessResources
             spell_engine_version_range: spell_engine_version_range,
             spell_power_version_range: spell_power_version_range,
             runes_version_range    : runes_version_range,
+            armor_model_api_version_range: armor_model_api_version_range,
             jade_version_range     : jade_version_range,
             skill_tree_version_range: skill_tree_version_range,
             puffish_skills_version_range: puffish_skills_version_range,

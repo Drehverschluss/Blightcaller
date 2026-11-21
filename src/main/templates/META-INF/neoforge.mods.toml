@@ -61,6 +61,14 @@ description='''${mod_description}'''
     side="BOTH"
 
 [[dependencies.${mod_id}]]
+    # Robe model of tier 1 to 3 with glow mask (client/BlightcallerArmorRenderers)
+    modId="armor_model_api"
+    type="required"
+    versionRange="${armor_model_api_version_range}"
+    ordering="AFTER"
+    side="BOTH"
+
+[[dependencies.${mod_id}]]
     # Optional: curse level and every curse with its remaining time in the Jade tooltip (compat/jade, only with Jade)
     modId="jade"
     type="optional"

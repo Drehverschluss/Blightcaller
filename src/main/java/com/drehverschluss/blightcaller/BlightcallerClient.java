@@ -1,5 +1,6 @@
 package com.drehverschluss.blightcaller;
 
+import com.drehverschluss.blightcaller.client.BlightcallerArmorRenderers;
 import com.drehverschluss.blightcaller.client.CurseParticles;
 import com.drehverschluss.blightcaller.client.CurseTooltips;
 import com.drehverschluss.blightcaller.client.SkillNodeTooltips;
@@ -25,7 +26,10 @@ public class BlightcallerClient {
         container.registerConfig(ModConfig.Type.CLIENT, BlightcallerClientConfig.SPEC);
         // in game: mod list > Blightcaller > Config (client options, and the server options in single player)
         container.registerExtensionPoint(IConfigScreenFactory.class, ConfigurationScreen::new);
-        modEventBus.addListener(FMLClientSetupEvent.class, event -> event.enqueueWork(CurseParticles::register));
+        modEventBus.addListener(FMLClientSetupEvent.class, event -> {
+            BlightcallerArmorRenderers.register();
+            event.enqueueWork(CurseParticles::register);
+        });
         CurseTooltips.register();
         SkillNodeTooltips.register();
         com.drehverschluss.blightcaller.fx.GraveWave.setClientHandler(p -> com.drehverschluss.blightcaller.client.fx.GravebindChains

@@ -191,7 +191,8 @@ public final class BlightcallerItems {
                 AttributeModifier.multiply(BlightcallerAttributes.CURSE_DURATION.getId(), curseDuration)));
     }
 
-    /** Armor material like the robes of Wizards (no toughness, no knockback resistance), Vanilla layer textures. */
+    /** Armor material like the robes of Wizards (no toughness, no knockback resistance). The look comes from the Armor
+     * Model API (client/BlightcallerArmorRenderers), the material layer has no texture of its own. */
     private static Holder<ArmorMaterial> material(String name, int enchantability, Supplier<Ingredient> repair) {
         Map<ArmorItem.Type, Integer> defense = new EnumMap<>(ArmorItem.Type.class);
         defense.put(ArmorItem.Type.HELMET, ARMOR_HEAD);
