@@ -1,0 +1,33 @@
+{
+  "name": "hexbinder",
+  "items": [
+    "blightcaller:hexbinder_robe_head",
+    "blightcaller:hexbinder_robe_chest",
+    "blightcaller:hexbinder_robe_legs",
+    "blightcaller:hexbinder_robe_feet"
+  ],
+  "bonuses": [
+    {
+      "required_piece_count": 2,
+      "attributes": {
+        "modifiers": [
+          {
+            "type": "spell_power:soul",
+            "amount": 0.1,
+            "id": "blightcaller:hexbinder_set",
+            "operation": "add_multiplied_base",
+            "slot": "armor"
+          }
+        ]
+      }
+    },
+    {
+      "required_piece_count": 4,
+      "spells": {
+        "spell_ids": [
+          "blightcaller:hexbinder_last_rites"
+        ]
+      }
+    }
+  ]
+}

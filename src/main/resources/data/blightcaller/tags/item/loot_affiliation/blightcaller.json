@@ -2,6 +2,9 @@
   "values": [
     "#blightcaller:wands",
     "#blightcaller:grimoires",
-    "#blightcaller:armor_type/blight_robes"
+    "#blightcaller:armor_type/blight_robes",
+    "blightcaller:gravemother_upgrade_smithing_template",
+    "blightcaller:gravemothers_spore_crystal",
+    "blightcaller:gravemothers_bone_crystal"
   ]
 }

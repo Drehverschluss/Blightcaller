@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:smithing_transform",
+  "template": {
+    "item": "blightcaller:gravemother_upgrade_smithing_template"
+  },
+  "base": {
+    "item": "blightcaller:blight_robe_chest"
+  },
+  "addition": {
+    "item": "blightcaller:gravemothers_spore_crystal"
+  },
+  "result": {
+    "id": "blightcaller:blightspore_robe_chest",
+    "count": 1
+  }
+}

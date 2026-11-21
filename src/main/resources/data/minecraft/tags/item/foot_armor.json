@@ -12,6 +12,14 @@
     {
       "id": "blightcaller:netherite_blight_robe_feet",
       "required": false
+    },
+    {
+      "id": "blightcaller:blightspore_robe_feet",
+      "required": false
+    },
+    {
+      "id": "blightcaller:hexbinder_robe_feet",
+      "required": false
     }
   ]
 }

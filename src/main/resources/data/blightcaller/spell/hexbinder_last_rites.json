@@ -1,0 +1,25 @@
+{
+  "school": "spell_power:soul",
+  "range": 0.0,
+  "tier": 4,
+  "type": "MODIFIER",
+  "tooltip": {
+    "show_header": false,
+    "name": {
+      "show_in_compact": false,
+      "show_in_details": false
+    },
+    "description": {
+      "color": "gray"
+    }
+  },
+  "modifiers": [
+    {
+      "spell_pattern": "blightcaller:last_rites",
+      "power_modifier": {
+        "power_multiplier": 0.1
+      },
+      "cooldown_duration_deduct": 3.0
+    }
+  ]
+}

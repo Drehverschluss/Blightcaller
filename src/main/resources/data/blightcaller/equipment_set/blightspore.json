@@ -1,0 +1,33 @@
+{
+  "name": "blightspore",
+  "items": [
+    "blightcaller:blightspore_robe_head",
+    "blightcaller:blightspore_robe_chest",
+    "blightcaller:blightspore_robe_legs",
+    "blightcaller:blightspore_robe_feet"
+  ],
+  "bonuses": [
+    {
+      "required_piece_count": 2,
+      "attributes": {
+        "modifiers": [
+          {
+            "type": "blightcaller:curse_duration",
+            "amount": 0.05,
+            "id": "blightcaller:blightspore_set",
+            "operation": "add_multiplied_base",
+            "slot": "armor"
+          }
+        ]
+      }
+    },
+    {
+      "required_piece_count": 4,
+      "spells": {
+        "spell_ids": [
+          "blightcaller:blightspore_pestilence"
+        ]
+      }
+    }
+  ]
+}

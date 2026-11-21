@@ -48,6 +48,38 @@
     {
       "id": "blightcaller:netherite_blight_robe_feet",
       "required": false
+    },
+    {
+      "id": "blightcaller:blightspore_robe_head",
+      "required": false
+    },
+    {
+      "id": "blightcaller:blightspore_robe_chest",
+      "required": false
+    },
+    {
+      "id": "blightcaller:blightspore_robe_legs",
+      "required": false
+    },
+    {
+      "id": "blightcaller:blightspore_robe_feet",
+      "required": false
+    },
+    {
+      "id": "blightcaller:hexbinder_robe_head",
+      "required": false
+    },
+    {
+      "id": "blightcaller:hexbinder_robe_chest",
+      "required": false
+    },
+    {
+      "id": "blightcaller:hexbinder_robe_legs",
+      "required": false
+    },
+    {
+      "id": "blightcaller:hexbinder_robe_feet",
+      "required": false
     }
   ]
 }

@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:smithing_transform",
+  "template": {
+    "item": "blightcaller:gravemother_upgrade_smithing_template"
+  },
+  "base": {
+    "item": "blightcaller:blight_robe_feet"
+  },
+  "addition": {
+    "item": "blightcaller:gravemothers_bone_crystal"
+  },
+  "result": {
+    "id": "blightcaller:hexbinder_robe_feet",
+    "count": 1
+  }
+}

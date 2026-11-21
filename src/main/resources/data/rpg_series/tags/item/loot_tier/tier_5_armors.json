@@ -1,0 +1,17 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "blightcaller:gravemother_upgrade_smithing_template",
+      "required": false
+    },
+    {
+      "id": "blightcaller:gravemothers_spore_crystal",
+      "required": false
+    },
+    {
+      "id": "blightcaller:gravemothers_bone_crystal",
+      "required": false
+    }
+  ]
+}

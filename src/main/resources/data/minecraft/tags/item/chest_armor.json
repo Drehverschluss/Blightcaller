@@ -12,6 +12,14 @@
     {
       "id": "blightcaller:netherite_blight_robe_chest",
       "required": false
+    },
+    {
+      "id": "blightcaller:blightspore_robe_chest",
+      "required": false
+    },
+    {
+      "id": "blightcaller:hexbinder_robe_chest",
+      "required": false
     }
   ]
 }
