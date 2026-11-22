@@ -92,7 +92,6 @@ public final class EntityGhost {
         }
         if (vertices == 0 && supported(entity.getType()) && !entity.isInvisible()) {
             UNSUPPORTED.add(entity.getType());
-            Blightcaller.LOGGER.debug("Blightcaller: no model layers to draw as a ghost for {}", EntityType.getKey(entity.getType()));
         }
         return vertices > 0;
     }

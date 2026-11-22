@@ -1,7 +1,6 @@
 package com.drehverschluss.blightcaller.compat.skilltree;
 
 import com.drehverschluss.blightcaller.config.BlightcallerConfig;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -124,16 +123,5 @@ public final class ClassLock {
 
     private static long countUnlocked(Category category, ServerPlayer player, boolean own) {
         return category.streamUnlockedSkills(player).filter(skill -> own || !skill.getId().startsWith(ClassBranchHook.PREFIX)).count();
-    }
-
-    /** For tests: the tabs that block the Blightcaller root for this player right now. */
-    public static List<ResourceLocation> blockingTabs(ServerPlayer player) {
-        List<ResourceLocation> out = new ArrayList<>();
-        for (ResourceLocation other : otherTabs()) {
-            if (unlockedCount(player, other) > 0) {
-                out.add(other);
-            }
-        }
-        return out;
     }
 }

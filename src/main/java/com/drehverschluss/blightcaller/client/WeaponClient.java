@@ -1,12 +1,11 @@
 package com.drehverschluss.blightcaller.client;
 
 import com.drehverschluss.blightcaller.Blightcaller;
+import com.drehverschluss.blightcaller.item.LoreLines;
 import com.drehverschluss.blightcaller.weapon.WeaponPassives;
 import java.util.Set;
-import net.minecraft.ChatFormatting;
 import net.minecraft.client.renderer.entity.NoopRenderer;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
@@ -15,10 +14,10 @@ import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
 
 /**
  * Client side of the tier 4 weapons (phase 8C): the patch of Grave Mould has no renderer of its own (its looks are the particles of
- * the spell), and the two unique weapons get their lore line right under the name (gold, italic, like the unique jewelry).
+ * the spell), and the two unique weapons get their lore right under the name (gold, italic, like the unique jewelry; {@link LoreLines}).
  */
 public final class WeaponClient {
-    /** Items with a lore line {@code item.blightcaller.<path>.lore}. */
+    /** Items with a lore line {@code item.blightcaller.<path>.lore} (and an optional second one, {@code .lore2}). */
     private static final Set<ResourceLocation> LORE = Set.of(Blightcaller.id("wand_gravemother"), Blightcaller.id("grimoire_gravemother"));
 
     private WeaponClient() {}
@@ -34,7 +33,6 @@ public final class WeaponClient {
         if (!LORE.contains(id) || event.getToolTip().isEmpty()) {
             return;
         }
-        event.getToolTip().add(1, Component.translatable("item." + id.getNamespace() + "." + id.getPath() + ".lore")
-                .withStyle(ChatFormatting.ITALIC, ChatFormatting.GOLD));
+        event.getToolTip().addAll(1, LoreLines.of("item." + id.getNamespace() + "." + id.getPath()));
     }
 }

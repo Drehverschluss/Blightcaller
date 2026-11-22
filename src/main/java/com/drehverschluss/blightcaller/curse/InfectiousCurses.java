@@ -171,7 +171,6 @@ public final class InfectiousCurses {
         }
         if (placedAny) {
             SkillMarkers.arc(roll.level, source, next);
-            Blightcaller.LOGGER.debug("[Blightcaller] Infectious Curses: {} from {} to {}", roll.curses, source, next);
         }
     }
 }

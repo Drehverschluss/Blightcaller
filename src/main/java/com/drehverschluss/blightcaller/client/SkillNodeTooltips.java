@@ -27,7 +27,8 @@ import org.jetbrains.annotations.Nullable;
  * <ul>
  *     <li>{@code {migration_range}}, {@code {migration_jumps}}: Soul Migration ({@code [soul_migration]} of the server config);</li>
  *     <li>{@code {rot_per_tick}}, {@code {rot_max}}, {@code {rot_ticks}}: Deepening Rot; {@code {spread_range}}: Spreading Rot;</li>
- *     <li>{@code {enervation}}, {@code {enervation_boss}}; {@code {frailty}}, {@code {frailty_boss}}, {@code {frailty_base}};</li>
+ *     <li>{@code {enervation}}, {@code {enervation_boss}}; {@code {sap}}, {@code {sap_boss}}, {@code {sap_seconds}} (Wailing Scream,
+ *     marker {@code power_sap/<fraction>/<seconds>}); {@code {frailty}}, {@code {frailty_boss}}, {@code {frailty_base}};</li>
  *     <li>{@code {soulburn_damage}}, {@code {soulburn_duration}}: the Soulburn of Blightbloom, Soulfire Chains and Soul Echo (damage per
  *     second with the soul power of the player right now); {@code {bloom_range}};</li>
  *     <li>{@code {hex_duration}}, {@code {hex_cooldown}}: Vengeful Hex; {@code {infect_chance}}, {@code {infect_range}};
@@ -38,7 +39,8 @@ import org.jetbrains.annotations.Nullable;
  *     <li>{@code {rites_bonus}}, {@code {rites_base}} (Improved Last Rites), {@code {focus_bonus}}, {@code {focus_base}},
  *     {@code {focus_max}}, {@code {focus_max_base}} (Hex Bolt with the wand choice): the bonus per curse level read from the target
  *     modifiers of the spell, with and without the node; {@code {burst_range}}, {@code {burst_base}}.</li>
- *     <li>Passives of the unique weapons: {@code {spike_curse_level}} (curse level in the trigger of Bone Spike), {@code {mould_max}}
+ *     <li>Passives of the unique weapons: {@code {spike_curse_level}} (curse level in the trigger of Bone Spike), {@code {spike_damage}}
+ *     (its hit with one decimal), {@code {mould_max}}
  *     (Grave Mould, {@code [grave_mould] max_patches}), {@code {mould_bonus}} (Grave Mould, marker {@code mould_rot/<bonus>}).</li>
  * </ul>
  * Percent signs: like {@code CurseTooltips}, a single {@code %} never directly followed by a letter.
@@ -118,6 +120,12 @@ public final class SkillNodeTooltips {
                 if (v != null && v.length >= 1) {
                     text = text.replace("{spread_range}", number(v[0]));
                 }
+            } else if (handler.startsWith(SkillMarkers.POWER_SAP)) {
+                double[] v = SkillMarkers.values(handler, SkillMarkers.POWER_SAP);
+                if (v != null && v.length >= 2) {
+                    text = text.replace("{sap}", percent(v[0])).replace("{sap_boss}", percent(v[0] * 0.5))
+                            .replace("{sap_seconds}", number(v[1]));
+                }
             } else if (handler.startsWith(SkillMarkers.ENERVATION)) {
                 double[] v = SkillMarkers.values(handler, SkillMarkers.ENERVATION);
                 if (v != null && v.length >= 1) {
@@ -195,6 +203,15 @@ public final class SkillNodeTooltips {
                 }
             }
             text = text.replace("{mould_max}", Integer.toString(BlightcallerConfig.get(BlightcallerConfig.GRAVE_MOULD_MAX_PATCHES)));
+            // direct damage of a passive (Bone Spike) with one decimal: Spell Engine's {damage} rounds 4.5 down to "4" (phase 11)
+            if (text.contains("{spike_damage}")) {
+                for (Spell.Impact impact : spell.impacts) {
+                    if (impact.action != null && impact.action.type == Spell.Impact.Action.Type.DAMAGE && impact.action.damage != null) {
+                        text = text.replace("{spike_damage}", hit(impact.action.damage.spell_power_coefficient));
+                        break;
+                    }
+                }
+            }
             // Grave Mould (phase 9B): how much stronger the player's curses tick inside the patch
             for (Spell.Impact impact : spell.impacts) {
                 String handler = SkillMarkers.handler(impact);
@@ -299,6 +316,16 @@ public final class SkillNodeTooltips {
     }
 
     /** Soul damage per second of a curse factor with the player's soul power right now (without vulnerability). */
+    /** One hit of {@code coefficient} x the soul power of the player right now, one decimal. */
+    private static String hit(double coefficient) {
+        Player player = Minecraft.getInstance().player;
+        if (player == null) {
+            return number(coefficient);
+        }
+        double power = SpellPower.getSpellPower(SpellSchools.SOUL, player).baseValue();
+        return number(Math.round(power * coefficient * 10.0) / 10.0);
+    }
+
     private static String damage(double factor) {
         Player player = Minecraft.getInstance().player;
         if (player == null) {

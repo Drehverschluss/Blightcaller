@@ -184,7 +184,6 @@ public final class ClassBranchHook {
         }
         computing = true;
         try {
-            long start = System.nanoTime();
             Extended extended = extend(resources, server, choice);
             for (String file : REPLACED) {
                 FILES.put(file, extended.files().get(file));
@@ -193,8 +192,6 @@ public final class ClassBranchHook {
             lastResult = extended.summary();
             Couplings.foundAgain(MOD_NAME, "branch added to the Class Skills tab (mode " + choice.mode() + ", layout " + extended.layout() + ", "
                     + extended.summary() + ")");
-            Blightcaller.LOGGER.debug("[Blightcaller] Class Skills branch: {}, {} ({} ms)", choice.reason(), extended.description(),
-                    (System.nanoTime() - start) / 1_000_000);
         } catch (Exception e) {
             fallback(Couplings.reason(e));
         } finally {
@@ -343,7 +340,7 @@ public final class ClassBranchHook {
 
             @Override
             public void emitWarning(String message) {
-                Blightcaller.LOGGER.debug("[Blightcaller] Class Skills check: {}", message);
+                // not logged: these were debug notes of the config check only
             }
         };
         return new VersionedConfigContext(plain, version);
@@ -438,7 +435,6 @@ public final class ClassBranchHook {
         }
         computing = true;
         try {
-            long start = System.nanoTime();
             Extended extended = extendWeapon(resources, server);
             for (String file : REPLACED) {
                 WEAPON_FILES.put(file, extended.files().get(file));
@@ -447,8 +443,6 @@ public final class ClassBranchHook {
             lastWeaponResult = extended.summary();
             Couplings.foundAgain(WEAPON_MOD_NAME, "Hex Bolt and Blight Burst nodes added to the " + choice.reason() + " ("
                     + extended.summary() + ")");
-            Blightcaller.LOGGER.debug("[Blightcaller] Weapon Skills nodes: {} ({} ms)", extended.description(),
-                    (System.nanoTime() - start) / 1_000_000);
         } catch (Exception e) {
             weaponFallback(Couplings.reason(e));
         } finally {
@@ -554,7 +548,6 @@ public final class ClassBranchHook {
             try {
                 return new StormcallerPeer(ClassBranchLayout.parse(readJson(resources, STORMCALLER_LAYOUT)).forms());
             } catch (Exception e) {
-                Blightcaller.LOGGER.debug("[Blightcaller] layout of the Stormcaller branch not readable: {}", e.toString());
                 return null;
             }
         }
@@ -575,7 +568,6 @@ public final class ClassBranchHook {
                         settings.freeFactor(), settings.nodes(), settings.normal(), settings.exclusive(), settings.definitions());
                 return WeaponBranchLayout.place(skills, connections, plain);
             } catch (Exception e) {
-                Blightcaller.LOGGER.debug("[Blightcaller] place of the Stormcaller weapon group not foreseen: {}", e.toString());
                 return null;
             }
         }
@@ -588,7 +580,6 @@ public final class ClassBranchHook {
                 Method ready = Class.forName("com.drehverschluss.stormcaller.mixin.skills.SkillsMixinPlugin").getMethod("hooksReady");
                 return on && (Boolean) ready.invoke(null);
             } catch (Throwable t) {
-                Blightcaller.LOGGER.debug("[Blightcaller] Stormcaller weapon state not readable, assuming it hooks in: {}", t.toString());
                 return true;
             }
         }
@@ -601,7 +592,6 @@ public final class ClassBranchHook {
                 Method ready = Class.forName("com.drehverschluss.stormcaller.mixin.skills.SkillsMixinPlugin").getMethod("hooksReady");
                 return classTree && (Boolean) ready.invoke(null);
             } catch (Throwable t) {
-                Blightcaller.LOGGER.debug("[Blightcaller] Stormcaller skill tree state not readable, assuming it hooks in: {}", t.toString());
                 return true;
             }
         }

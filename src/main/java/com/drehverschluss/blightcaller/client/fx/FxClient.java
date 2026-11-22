@@ -66,7 +66,7 @@ public final class FxClient {
         if (!(event.getEntity() instanceof LivingEntity living) || !living.level().isClientSide() || !living.isAlive()) {
             return;
         }
-        CurseView view = living.getExistingData(CurseView.type()).orElse(null);
+        CurseView view = CurseView.of(living).orElse(null);
         if (view == null || view.lines().isEmpty()) {
             return;
         }

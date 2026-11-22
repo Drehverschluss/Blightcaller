@@ -119,7 +119,7 @@ public final class BlightcallerClientConfig {
                 .push("curse_display");
         CURSE_VEIL = builder
                 .comment("A faint violet veil over cursed mobs, stronger with every curse level (1 to 3, pulsing at 3).",
-                        "Off by default (phase I.1): the number of different curse icons above the head shows the curse level as well.")
+                        "Off by default: the number of different curse icons above the head shows the curse level as well.")
                 .translation("blightcaller.configuration.curse_veil")
                 .define("veil", false);
         CURSE_ICONS = builder
@@ -132,7 +132,7 @@ public final class BlightcallerClientConfig {
                 .translation("blightcaller.configuration.curse_icon_range")
                 .defineInRange("icon_range", 16, 4, 64);
         CURSE_ICON_SIZE = builder
-                .comment("Size of the curse icons above the head in percent (100 = the size before phase I).")
+                .comment("Size of the curse icons above the head in percent (100 = the largest size).")
                 .translation("blightcaller.configuration.curse_icon_size")
                 .defineInRange("icon_size", DEFAULT_ICON_SIZE, 40, 100);
         CURSE_ICON_STYLE = builder

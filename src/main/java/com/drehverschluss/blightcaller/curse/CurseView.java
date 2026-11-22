@@ -103,6 +103,14 @@ public record CurseView(List<Line> lines) {
         return type.get();
     }
 
+    /**
+     * The synced curse view of an entity, if it has one (both sides). Code outside the curse package reads the view only through
+     * this, so the storage stays in one place (concept 3.2, backport).
+     */
+    public static Optional<CurseView> of(net.minecraft.world.entity.Entity entity) {
+        return entity.getExistingData(type());
+    }
+
     /** The line of one curse, or {@code null}. */
     public Line line(Holder<MobEffect> curse) {
         for (Line line : lines) {

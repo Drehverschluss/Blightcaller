@@ -26,7 +26,6 @@ import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -293,7 +292,7 @@ public final class GravebindChains {
                     || living.position().distanceToSqr(cam) > MAX_DISTANCE * MAX_DISTANCE) {
                 continue;
             }
-            CurseView view = living.getExistingData(CurseView.type()).orElse(null);
+            CurseView view = CurseView.of(living).orElse(null);
             if (view == null || view.line(CurseEffects.GRAVEBIND) == null) {
                 continue;
             }
@@ -319,7 +318,7 @@ public final class GravebindChains {
         bound.sort(java.util.Comparator.comparingDouble(e -> e.position().distanceToSqr(cam)));
         for (int rank = 0; rank < bound.size(); rank++) {
             LivingEntity living = bound.get(rank);
-            CurseView.Line line = living.getExistingData(CurseView.type()).map(v -> v.line(CurseEffects.GRAVEBIND)).orElse(null);
+            CurseView.Line line = CurseView.of(living).map(v -> v.line(CurseEffects.GRAVEBIND)).orElse(null);
             if (line != null) {
                 drawEntity(level, drawer, veil, cracks, cam, living, line, now, partialTick, rank >= FULL_DETAIL);
             }
@@ -610,9 +609,5 @@ public final class GravebindChains {
     private static float easeOut(float t) {
         float u = 1.0F - t;
         return 1.0F - u * u * u;
-    }
-
-    static void clearWaves() {
-        WAVES.clear();
     }
 }

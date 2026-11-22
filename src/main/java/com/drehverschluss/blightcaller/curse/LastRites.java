@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
-import java.util.TreeSet;
 import java.util.UUID;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
@@ -150,11 +149,6 @@ public final class LastRites {
                     double part = Curses.damagePerSecond(living, curse.get(), entry) * values.seconds() * values.factor() * (1.0 + deepening);
                     sum += part;
                     own = true;
-                    if (Blightcaller.LOGGER.isDebugEnabled()) {
-                        Blightcaller.LOGGER.debug("[Blightcaller] Last Rites on {}: {} {}/s x {} s x {} x (1 + Deepening Rot {}) = {}",
-                                living.getName().getString(), curse.get().getRegisteredName(),
-                                Curses.damagePerSecond(living, curse.get(), entry), values.seconds(), values.factor(), deepening, part);
-                    }
                 }
             }
             if (own) {
@@ -168,10 +162,6 @@ public final class LastRites {
         double coup = SkillMarkers.coupDeGrace(caster, living);
         double level = levelMultiplier(power, caster, context);
         double amount = sum * level * context.total(spell) * (1.0 + coup);
-        if (Blightcaller.LOGGER.isDebugEnabled()) {
-            Blightcaller.LOGGER.debug("[Blightcaller] Last Rites on {}: sum {} x curse level {} x area {} x (1 + Coup de Grace {}) = {}",
-                    living.getName().getString(), sum, level, context.total(spell), coup, amount);
-        }
         DETONATED.put(living.getId(), new Detonation(casterId, living.level().getGameTime()));
         // remove first: the hit may kill the target, and death handlers must not see the detonated entries
         for (Holder<MobEffect> curse : detonate) {
@@ -301,7 +291,6 @@ public final class LastRites {
             if (spells == null) {
                 return;
             }
-            TreeSet<String> added = new TreeSet<>();
             for (Spell spell : spells) {
                 List<Spell.Impact> impacts = new ArrayList<>();
                 if (spell.impacts != null) {
@@ -326,14 +315,10 @@ public final class LastRites {
                     Optional<Values> values = valuesOf(handler);
                     if (values.isPresent()) {
                         register(handler, values.get());
-                        added.add(handler);
                     } else {
                         Blightcaller.LOGGER.warn("Blightcaller: invalid Last Rites impact '{}', expected {}<seconds>/<factor>[/<base>[/<single>]]", handler, PREFIX);
                     }
                 }
-            }
-            if (!added.isEmpty()) {
-                Blightcaller.LOGGER.info("Blightcaller: registered Last Rites impacts {}", added);
             }
         } catch (Exception e) {
             Blightcaller.LOGGER.error("Blightcaller: registering Last Rites impacts failed", e);

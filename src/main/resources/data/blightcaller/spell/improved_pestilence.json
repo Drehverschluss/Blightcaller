@@ -6,7 +6,10 @@
   "modifiers": [
     {
       "spell_pattern": "blightcaller:pestilence",
-      "effect_amplifier_add": 2
+      "effect_amplifier_add": 2,
+      "power_modifier": {
+        "power_multiplier": 0.25
+      }
     }
   ]
 }

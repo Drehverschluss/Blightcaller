@@ -7,7 +7,7 @@
     {
       "spell_pattern": "blightcaller:soul_rot",
       "power_modifier": {
-        "power_multiplier": 0.1
+        "power_multiplier": 0.55
       }
     }
   ]

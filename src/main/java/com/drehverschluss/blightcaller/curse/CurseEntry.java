@@ -112,11 +112,6 @@ public final class CurseEntry {
         return caster == null ? other == null : caster.equals(other);
     }
 
-    /** Damage per tick before the target's vulnerability: power x factor, x critical damage if critical. */
-    public double baseDamage() {
-        return power * factor * (critical ? criticalDamage : 1.0);
-    }
-
     @Override
     public String toString() {
         return "CurseEntry{caster=" + caster + ", power=" + power + ", factor=" + factor + ", critical=" + critical

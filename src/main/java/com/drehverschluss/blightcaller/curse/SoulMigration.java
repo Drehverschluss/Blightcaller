@@ -84,7 +84,7 @@ public final class SoulMigration {
     private static void onDeath(LivingDeathEvent event) {
         LivingEntity dead = event.getEntity();
         try {
-            if (event.isCanceled() || !(dead.level() instanceof ServerLevel level) || !dead.hasData(CurseData.TYPE)) {
+            if (event.isCanceled() || !(dead.level() instanceof ServerLevel level) || !CurseData.present(dead)) {
                 return;
             }
             Optional<CurseData> optional = Curses.data(dead);
@@ -94,7 +94,7 @@ public final class SoulMigration {
             CurseData data = optional.get();
             long now = level.getGameTime();
             int maxJumps = BlightcallerConfig.get(BlightcallerConfig.SOUL_MIGRATION_MAX_JUMPS);
-            CurseView view = dead.getExistingData(CurseView.type()).orElse(null);
+            CurseView view = CurseView.of(dead).orElse(null);
             List<Death> deaths = new ArrayList<>();
             for (var e : data.all().entrySet()) {
                 Optional<Holder.Reference<MobEffect>> holder = BuiltInRegistries.MOB_EFFECT.getHolder(e.getKey());

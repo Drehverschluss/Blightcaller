@@ -106,8 +106,6 @@ public final class BranchTransition {
             message(player, "moved.own", classRemoved);
             message(player, "moved.conflict", conflictRemoved);
             message(player, "moved.weapon", weaponRemoved);
-            Blightcaller.LOGGER.debug("Blightcaller skills: nodes reset for {}: own tab {}, Class Skills {} (+{} conflict), Weapon Skills {}",
-                    player.getGameProfile().getName(), ownRemoved, classRemoved, conflictRemoved, weaponRemoved);
         }
         if (classActive == ownActive) {
             return; // nothing loaded: no experience, no marker
@@ -151,8 +149,6 @@ public final class BranchTransition {
         // first time: only a fresh own tab (a world that always had it keeps its own experience)
         if (ownTotal < classTotal && (!firstTime || ownTotal == 0)) {
             own.setTotal(player, classTotal);
-            Blightcaller.LOGGER.debug("Blightcaller skills: experience of the own tab {} -> {} for {}", ownTotal, classTotal,
-                    player.getGameProfile().getName());
         }
     }
 

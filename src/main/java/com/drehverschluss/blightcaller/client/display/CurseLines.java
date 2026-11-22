@@ -35,7 +35,7 @@ final class CurseLines {
     /** The synced view of a mob, or {@code null} if it has no curses. */
     @Nullable
     static CurseView view(LivingEntity entity) {
-        CurseView view = entity.getExistingData(CurseView.type()).orElse(null);
+        CurseView view = CurseView.of(entity).orElse(null);
         return view == null || view.lines().isEmpty() ? null : view;
     }
 

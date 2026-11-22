@@ -6,6 +6,9 @@
   "modifiers": [
     {
       "spell_pattern": "blightcaller:blight_burst",
+      "power_modifier": {
+        "power_multiplier": 0.11
+      },
       "replacing_area_impact": {
         "radius": 4.5,
         "area": {

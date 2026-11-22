@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.OptionalDouble;
 import java.util.Set;
-import java.util.TreeSet;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -252,7 +251,6 @@ public final class CurseImpacts {
             if (spells == null) {
                 return;
             }
-            TreeSet<String> added = new TreeSet<>();
             for (Spell spell : spells) {
                 for (Spell.Impact impact : impactsOf(spell)) {
                     if (impact == null || impact.action == null || impact.action.type != Spell.Impact.Action.Type.CUSTOM
@@ -264,15 +262,10 @@ public final class CurseImpacts {
                         continue;
                     }
                     OptionalDouble factor = factorOf(handler);
-                    if (factor.isPresent() && register(handler, factor.getAsDouble())) {
-                        added.add(handler);
-                    } else {
+                    if (factor.isEmpty() || !register(handler, factor.getAsDouble())) {
                         Blightcaller.LOGGER.warn("Blightcaller: invalid curse impact '{}', expected {}<factor>", handler, PREFIX);
                     }
                 }
-            }
-            if (!added.isEmpty()) {
-                Blightcaller.LOGGER.info("Blightcaller: registered curse impacts {}", added);
             }
         } catch (Exception e) {
             Blightcaller.LOGGER.error("Blightcaller: registering curse impacts failed", e);

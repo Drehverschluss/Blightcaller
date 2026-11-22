@@ -53,11 +53,6 @@ public record CurseApplication(Holder<MobEffect> curse, @Nullable UUID caster, d
         return chance > 0.0 && random.nextDouble() < chance;
     }
 
-    public CurseApplication withDuration(double ticks) {
-        return new CurseApplication(curse, caster, power, critical, criticalDamage, factor, ticks, extend, jumps, chain,
-                transferred, amplifier);
-    }
-
     public CurseApplication withAmplifier(int value) {
         return new CurseApplication(curse, caster, power, critical, criticalDamage, factor, durationTicks, extend, jumps, chain,
                 transferred, value);
@@ -72,10 +67,5 @@ public record CurseApplication(Holder<MobEffect> curse, @Nullable UUID caster, d
     public CurseApplication withChain(@Nullable UUID id) {
         return new CurseApplication(curse, caster, power, critical, criticalDamage, factor, durationTicks, extend, jumps, id,
                 transferred, amplifier);
-    }
-
-    public CurseApplication asTransferred() {
-        return new CurseApplication(curse, caster, power, critical, criticalDamage, factor, durationTicks, false, jumps, chain,
-                true, amplifier);
     }
 }

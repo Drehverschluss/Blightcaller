@@ -11,6 +11,9 @@ import net.spell_engine.api.spell.event.SpellHandlers;
  * {@link EnfeebleEffect}, also on targets without effects), with the fixed duration of the spell (no Curse Duration bonus).
  * A longer Enfeeble of the same player is never shortened, Enervation on the target stays.
  * <p>
+ * Since phase 11 the spell also carries the marker {@code blightcaller:power_sap/<fraction>/<seconds>} ({@link SkillMarkers#POWER_SAP}):
+ * every enemy hit deals less damage for a while, without a curse of its own, next to any Enfeeble, not stacking with Enervation.
+ * <p>
  * Being a passive spell, its hits trigger neither the Grave Candle nor the skull itself (their triggers only take active spells).
  */
 public final class WailingScream {

@@ -44,7 +44,7 @@ public final class CurseEvents {
 
     private static void onEntityTick(EntityTickEvent.Post event) {
         Entity entity = event.getEntity();
-        if (!(entity instanceof LivingEntity living) || entity.level().isClientSide() || !entity.hasData(CurseData.TYPE)) {
+        if (!(entity instanceof LivingEntity living) || entity.level().isClientSide() || !CurseData.present(entity)) {
             return;
         }
         try {
@@ -109,7 +109,7 @@ public final class CurseEvents {
     private static void onDeath(LivingDeathEvent event) {
         LivingEntity entity = event.getEntity();
         try {
-            if (!event.isCanceled() && !entity.level().isClientSide() && entity.hasData(CurseData.TYPE)) {
+            if (!event.isCanceled() && !entity.level().isClientSide() && CurseData.present(entity)) {
                 CurseModifiers.removeAll(entity);
             }
         } catch (Exception e) {

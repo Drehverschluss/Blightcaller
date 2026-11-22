@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
-import java.util.TreeSet;
 import java.util.UUID;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
@@ -55,6 +54,11 @@ public final class SkillMarkers {
     public static final String DEEPENING_ROT = Blightcaller.MODID + ":deepening_rot/";
     public static final String SPREADING_ROT = Blightcaller.MODID + ":spreading_rot/";
     public static final String ENERVATION = Blightcaller.MODID + ":enervation/";
+    /**
+     * In the impacts of Wailing Scream (Wailing Skull, phase 11): {@code power_sap/<fraction>/<seconds>}, every enemy hit deals that
+     * much less damage for that long (bosses half), without a curse ({@link Curses#sap}). Does not stack with Enervation.
+     */
+    public static final String POWER_SAP = Blightcaller.MODID + ":power_sap/";
     /** Passive: {@code blightbloom/<radius>/<seconds>/<factor>} ({@link Blightbloom}). */
     public static final String BLIGHTBLOOM = Blightcaller.MODID + ":blightbloom/";
     /** Passive: {@code infectious_curses/<chance>/<radius>} ({@link InfectiousCurses}). */
@@ -169,7 +173,6 @@ public final class SkillMarkers {
             if (spells == null) {
                 return;
             }
-            TreeSet<String> added = new TreeSet<>();
             for (Spell spell : spells) {
                 List<Spell.Impact> impacts = new ArrayList<>(spell.impacts);
                 if (spell.modifiers != null) {
@@ -184,13 +187,8 @@ public final class SkillMarkers {
                     if (handler == null || SpellHandlers.customImpact.containsKey(handler)) {
                         continue;
                     }
-                    if (registerMarker(handler)) {
-                        added.add(handler);
-                    }
+                    registerMarker(handler);
                 }
-            }
-            if (!added.isEmpty()) {
-                Blightcaller.LOGGER.info("Blightcaller: registered skill markers {}", added);
             }
         } catch (Exception e) {
             Blightcaller.LOGGER.error("Blightcaller: registering skill markers failed", e);
@@ -277,6 +275,25 @@ public final class SkillMarkers {
                     return spreadingRot(caster, target, v[0]);
                 } catch (Exception e) {
                     Blightcaller.LOGGER.error("Blightcaller: Spreading Rot failed", e);
+                    return NONE;
+                }
+            });
+            return true;
+        }
+        if (handler.startsWith(POWER_SAP)) {
+            double[] v = values(handler, POWER_SAP);
+            if (v == null || v.length < 2) {
+                Blightcaller.LOGGER.warn("Blightcaller: invalid marker '{}', expected {}<fraction>/<seconds>", handler, POWER_SAP);
+                return false;
+            }
+            double ticks = v[1] * 20.0;
+            SpellHandlers.registerCustomImpact(id, (spell, power, caster, target, context) -> {
+                try {
+                    boolean ok = Curses.living(target) instanceof LivingEntity living && !living.level().isClientSide()
+                            && Curses.sap(living, caster.getUUID(), v[0], ticks);
+                    return new SpellHandlers.ImpactResult(ok, false);
+                } catch (Exception e) {
+                    Blightcaller.LOGGER.error("Blightcaller: Power Sap failed", e);
                     return NONE;
                 }
             });
@@ -408,11 +425,11 @@ public final class SkillMarkers {
         return new SpellHandlers.ImpactResult(true, false);
     }
 
-    /** Damage dealt by a target under an Enfeeble with Enervation: less by the strongest Enervation on it, bosses half. */
+    /** Damage dealt by a target under an Enfeeble with Enervation or a power sap: less by the strongest of them, bosses half. */
     private static void onIncomingDamage(LivingIncomingDamageEvent event) {
         try {
             if (!(event.getSource().getEntity() instanceof LivingEntity attacker) || attacker.level().isClientSide()
-                    || !attacker.hasData(CurseData.TYPE)) {
+                    || !CurseData.present(attacker)) {
                 return;
             }
             double weaken = weakening(attacker);
@@ -424,11 +441,23 @@ public final class SkillMarkers {
         }
     }
 
-    /** How much less damage this entity deals right now (Enervation), 0 without. */
+    /**
+     * How much less damage this entity deals right now, 0 without: the strongest Enervation (on an Enfeeble entry) or power sap
+     * (Wailing Skull) of any caster, half on bosses. They never stack.
+     */
     public static double weakening(LivingEntity entity) {
         double strongest = 0.0;
         for (CurseEntry entry : Curses.entries(entity, CurseEffects.ENFEEBLE)) {
             strongest = Math.max(strongest, entry.enervation);
+        }
+        CurseData data = Curses.data(entity).orElse(null);
+        if (data != null) {
+            long now = entity.level().getGameTime();
+            for (CurseData.PowerSap sap : data.saps()) {
+                if (sap.end() >= now) {
+                    strongest = Math.max(strongest, sap.fraction());
+                }
+            }
         }
         return EnfeebleEffect.resistant(entity) ? strongest * 0.5 : strongest;
     }

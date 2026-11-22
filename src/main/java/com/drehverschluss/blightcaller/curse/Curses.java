@@ -130,15 +130,6 @@ public final class Curses {
         return data(entity).map(d -> d.amplifier(id)).orElse(0);
     }
 
-    /** Game time at which the longest entry of the curse ends, or the current time if there is none. */
-    public static long latestEnd(LivingEntity entity, Holder<MobEffect> curse) {
-        long latest = entity.level().getGameTime();
-        for (CurseEntry entry : entries(entity, curse)) {
-            latest = Math.max(latest, entry.expires());
-        }
-        return latest;
-    }
-
     /**
      * Exact duration in game ticks after Curse Duration: {@code ticks x (1 + bonus of the caster)}, unless not extended.
      * Not rounded: 4 s with +8 % are 86.4 ticks, the last tick then deals 0.32 of the damage.
@@ -259,6 +250,7 @@ public final class Curses {
         CurseData data = optional.get();
         boolean changed = dropMissingDisplays(entity, data);
         long now = entity.level().getGameTime();
+        changed |= data.dropEndedSaps(now);
         int interval = BlightcallerConfig.get(BlightcallerConfig.CURSE_TICK_INTERVAL);
         boolean pestilence = false;
         for (ResourceLocation id : List.copyOf(data.all().keySet())) {
@@ -332,6 +324,24 @@ public final class Curses {
             }
         }
         return changed;
+    }
+
+    // ------------------------------------------------------------------------------------------------ power sap
+
+    /**
+     * Power sap (phase 11, Wailing Skull): the target deals {@code fraction} less damage for {@code ticks} game ticks
+     * ({@link SkillMarkers#weakening}, bosses and {@code #blightcaller:curse_resistant} half). Not a curse: no entry, no effect,
+     * no curse level, works next to any Enfeeble. The same caster refreshes it, several casters and Enervation do not stack
+     * (the strongest counts). Targets in {@code #blightcaller:curse_immune} and dying targets get none. Returns whether it was put on.
+     */
+    public static boolean sap(LivingEntity target, @Nullable UUID caster, double fraction, double ticks) {
+        if (!(target.level() instanceof ServerLevel level) || target.isDeadOrDying() || isImmune(target) || fraction <= 0.0
+                || ticks < 1.0) {
+            return false;
+        }
+        long now = level.getGameTime();
+        target.getData(CurseData.TYPE).sap(caster, Math.min(1.0, fraction), now + ticks, now);
+        return true;
     }
 
     // ------------------------------------------------------------------------------------------------ extend entries
@@ -536,6 +546,8 @@ public final class Curses {
         syncView(entity, data);
         if (data.isEmpty()) {
             STARTS.remove(entity.getUUID());
+        }
+        if (data.isUnused()) {
             if (entity.hasData(CurseData.TYPE)) {
                 entity.removeData(CurseData.TYPE);
             }

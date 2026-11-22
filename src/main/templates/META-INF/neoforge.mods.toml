@@ -99,3 +99,43 @@ description='''${mod_description}'''
     versionRange="${curios_version_range}"
     ordering="AFTER"
     side="BOTH"
+
+[[dependencies.${mod_id}]]
+    # Optional: curse icons attached to the health bars of Health Bars (compat/healthbars, client only)
+    modId="healthbars"
+    type="optional"
+    versionRange="${healthbars_version_range}"
+    ordering="NONE"
+    side="CLIENT"
+
+[[dependencies.${mod_id}]]
+    # Optional: mana costs instead of runes come from data/blightcaller/runelessrpg (data only)
+    modId="runelessrpg"
+    type="optional"
+    versionRange="${runelessrpg_version_range}"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.${mod_id}]]
+    # Optional: attack animations of the wands and grimoires (data/blightcaller/weapon_attributes, data only)
+    modId="bettercombat"
+    type="optional"
+    versionRange="${bettercombat_version_range}"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.${mod_id}]]
+    # Optional: the dragonbone wand and grimoire of tier 4 are crafted from Better End materials (recipes and items need it)
+    modId="betterend"
+    type="optional"
+    versionRange="${betterend_version_range}"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.${mod_id}]]
+    # Optional: offers at the Wizard Merchant (compat/WizardMerchantTrades); Blightcaller does not need Wizards
+    modId="wizards"
+    type="optional"
+    versionRange="${wizards_version_range}"
+    ordering="NONE"
+    side="BOTH"

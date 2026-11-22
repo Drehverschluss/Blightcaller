@@ -179,6 +179,11 @@ var generateModMetadata = tasks.register("generateModMetadata", ProcessResources
             skill_tree_version_range: skill_tree_version_range,
             puffish_skills_version_range: puffish_skills_version_range,
             curios_version_range   : curios_version_range,
+            healthbars_version_range: healthbars_version_range,
+            runelessrpg_version_range: runelessrpg_version_range,
+            bettercombat_version_range: bettercombat_version_range,
+            betterend_version_range: betterend_version_range,
+            wizards_version_range  : wizards_version_range,
     ]
     inputs.properties replaceProperties
     expand replaceProperties

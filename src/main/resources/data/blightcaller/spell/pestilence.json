@@ -132,7 +132,7 @@
         "type": "CUSTOM",
         "custom": {
           "intent": "HARMFUL",
-          "handler": "blightcaller:curse/0.5"
+          "handler": "blightcaller:curse/0.4"
         }
       }
     }

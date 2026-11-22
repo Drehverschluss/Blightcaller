@@ -1,9 +1,9 @@
 package com.drehverschluss.blightcaller.compat.curios;
 
+import com.drehverschluss.blightcaller.item.LoreLines;
 import com.drehverschluss.blightcaller.trinket.BlightcallerTrinkets;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
-import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -69,8 +69,7 @@ public class BlightcallerCurioItem extends Item implements ICurioItem {
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
         super.appendHoverText(stack, context, tooltip, flag);
         if (def.kind() == BlightcallerTrinkets.Kind.JEWELRY) {
-            tooltip.add(Component.translatable(Util.makeDescriptionId("item", def.id()) + ".lore")
-                    .withStyle(ChatFormatting.ITALIC, ChatFormatting.GOLD));
+            tooltip.addAll(LoreLines.of(Util.makeDescriptionId("item", def.id())));
         }
     }
 

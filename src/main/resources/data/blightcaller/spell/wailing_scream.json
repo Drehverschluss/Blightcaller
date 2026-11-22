@@ -111,6 +111,15 @@
           "handler": "blightcaller:wailing_scream"
         }
       }
+    },
+    {
+      "action": {
+        "type": "CUSTOM",
+        "custom": {
+          "intent": "HARMFUL",
+          "handler": "blightcaller:power_sap/0.1/4"
+        }
+      }
     }
   ],
   "cost": {

@@ -32,11 +32,6 @@ public final class DeepeningRot {
         return Math.min(values[1], values[0] * (number - 1));
     }
 
-    /** The bonus the next tick of this entry would get (for Jade), 0 without the passive. */
-    public static double nextBonus(@Nullable LivingEntity caster, CurseEntry entry) {
-        return bonus(caster, entry.ticks + 1);
-    }
-
     /** The bonus of the last tick this entry dealt (for Jade), 0 without the passive. */
     public static double currentBonus(@Nullable LivingEntity caster, CurseEntry entry) {
         return bonus(caster, entry.ticks);

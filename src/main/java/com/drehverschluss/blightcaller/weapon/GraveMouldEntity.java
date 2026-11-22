@@ -81,15 +81,6 @@ public class GraveMouldEntity extends SpellCloud {
         }
     }
 
-    /** Active patches of a player (for tests and the command line). */
-    public static int activeCount(UUID owner) {
-        ArrayDeque<GraveMouldEntity> patches = PATCHES.get(owner);
-        if (patches == null) {
-            return 0;
-        }
-        return (int) patches.stream().filter(patch -> !patch.isRemoved() && !patch.isDespawning()).count();
-    }
-
     /** The number of the first {@code mould_rot/<bonus>} marker in the spell's impacts, 0 without one. */
     private static double boostOf(@Nullable Holder<Spell> spell) {
         if (spell == null || spell.value().impacts == null) {

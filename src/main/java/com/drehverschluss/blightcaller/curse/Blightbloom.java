@@ -69,15 +69,10 @@ public final class Blightbloom {
         return v != null && v.length >= 3 ? v : null;
     }
 
-    /** Bursts waiting for a later tick (for tests). */
-    public static int pending() {
-        return PENDING.size();
-    }
-
     private static void onDeath(LivingDeathEvent event) {
         LivingEntity dead = event.getEntity();
         try {
-            if (event.isCanceled() || !(dead.level() instanceof ServerLevel level) || !dead.hasData(CurseData.TYPE)) {
+            if (event.isCanceled() || !(dead.level() instanceof ServerLevel level) || !CurseData.present(dead)) {
                 return;
             }
             Optional<CurseData> data = Curses.data(dead);
@@ -156,7 +151,6 @@ public final class Blightbloom {
             }
         }
         effects(level, at, radius);
-        Blightcaller.LOGGER.debug("[Blightcaller] Blightbloom of {} at {}: Soulburn on {} enemies", bloom.caster(), at, hit);
     }
 
     /** Placeholder burst: rot dust and dark spores in a ring, soul shreds rising, a wet burst sound. */
