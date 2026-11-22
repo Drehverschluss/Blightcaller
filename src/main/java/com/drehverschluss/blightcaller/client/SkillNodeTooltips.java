@@ -31,7 +31,7 @@ import org.jetbrains.annotations.Nullable;
  *     <li>{@code {soulburn_damage}}, {@code {soulburn_duration}}: the Soulburn of Blightbloom, Soulfire Chains and Soul Echo (damage per
  *     second with the soul power of the player right now); {@code {bloom_range}};</li>
  *     <li>{@code {hex_duration}}, {@code {hex_cooldown}}: Vengeful Hex; {@code {infect_chance}}, {@code {infect_range}};
- *     {@code {coup_health}}, {@code {coup_bonus}}; {@code {relic_range}}: the range of a passive relic spell (Wailing Scream);</li>
+ *     {@code {coup_health}}, {@code {coup_bonus}}; {@code {rend_seconds}} (Lingering Rend); {@code {relic_range}}: the range of a passive relic spell (Wailing Scream);</li>
  *     <li>{@code {gravebind_range}}, {@code {gravebind_base}}; {@code {carriers}}, {@code {carriers_base}};
  *     {@code {contagion_interval}}, {@code {contagion_base}}, {@code {first_spread}}, {@code {contagion_range}},
  *     {@code {spread_range_new}}, {@code {spread_range_base}};</li>
@@ -143,6 +143,11 @@ public final class SkillNodeTooltips {
                 double[] v = SkillMarkers.values(handler, SkillMarkers.COUP_DE_GRACE);
                 if (v != null && v.length >= 2) {
                     text = text.replace("{coup_health}", percent(v[0])).replace("{coup_bonus}", percent(v[1]));
+                }
+            } else if (handler.startsWith(SkillMarkers.LINGERING_REND)) {
+                double[] v = SkillMarkers.values(handler, SkillMarkers.LINGERING_REND);
+                if (v != null && v.length >= 1) {
+                    text = text.replace("{rend_seconds}", number(v[0]));
                 }
             } else if (handler.startsWith(SkillMarkers.RAPID_CONTAGION)) {
                 double[] v = SkillMarkers.values(handler, SkillMarkers.RAPID_CONTAGION);

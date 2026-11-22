@@ -173,6 +173,8 @@ public final class Curses {
                     now + interval, end, app.jumps(), app.chain(), 0, app.transferred());
             entries.add(entry);
         }
+        // the cap of Lingering Rend: the time this entry has from now on
+        entry.full = entry.end - now;
 
         // strength: the spell's amplifier (or the curse's default for this target); the strongest one counts
         int requested = app.amplifier() >= 0 ? app.amplifier()
@@ -306,6 +308,65 @@ public final class Curses {
             }
         }
         return changed;
+    }
+
+    // ------------------------------------------------------------------------------------------------ extend entries
+
+    /**
+     * Lingering Rend (phase 9A): moves the end of every curse entry of {@code caster} on the target later by {@code ticks}, at most
+     * up to the full duration the entry had when it was put on ({@link CurseEntry#full}, counted from now). Curses with and without
+     * damage count; Pestilence does not (its chain runs out together) and entries of other casters stay as they are. The tick rhythm
+     * and the tick count (Deepening Rot) stay, the display effect and the client view follow the new end; the grey part of the curse
+     * icon keeps its start. Returns the number of entries that got longer.
+     */
+    public static int extendOwn(LivingEntity target, UUID caster, double ticks) {
+        Optional<CurseData> optional = data(target);
+        if (optional.isEmpty() || caster == null || ticks <= 0.0 || !(target.level() instanceof ServerLevel level)
+                || target.isDeadOrDying()) {
+            return 0;
+        }
+        CurseData data = optional.get();
+        long now = level.getGameTime();
+        CurseView view = target.getExistingData(CurseView.type()).orElse(null);
+        int extended = 0;
+        for (Map.Entry<ResourceLocation, List<CurseEntry>> e : data.all().entrySet()) {
+            Optional<Holder.Reference<MobEffect>> holder = BuiltInRegistries.MOB_EFFECT.getHolder(e.getKey());
+            if (holder.isEmpty() || !isCurse(holder.get()) || Pestilence.isPestilence(holder.get())) {
+                continue;
+            }
+            boolean longer = false;
+            for (CurseEntry entry : e.getValue()) {
+                if (!caster.equals(entry.caster) || entry.full <= 0.0 || now > entry.expires()) {
+                    continue;
+                }
+                double end = Math.min(entry.end + ticks, now + entry.full);
+                if (end <= entry.end + 1.0E-9) {
+                    continue;
+                }
+                if (entry.viewSince < 0 && view != null) {
+                    // keep the start of the icon's grey part: the view still has the old end
+                    CurseView.Line line = view.line(holder.get());
+                    if (line != null) {
+                        for (CurseView.Caster c : line.casters()) {
+                            if (c.end() == entry.expires() && caster.equals(c.caster().orElse(null))) {
+                                entry.viewSince = c.since();
+                                break;
+                            }
+                        }
+                    }
+                }
+                entry.end = end;
+                longer = true;
+                extended++;
+            }
+            if (longer && data.shown(e.getKey())) {
+                data.setShown(e.getKey(), showEffect(target, holder.get(), e.getValue(), now, data.amplifier(e.getKey()), null));
+            }
+        }
+        if (extended > 0) {
+            finishChange(target, data);
+        }
+        return extended;
     }
 
     // ------------------------------------------------------------------------------------------------ remove entries

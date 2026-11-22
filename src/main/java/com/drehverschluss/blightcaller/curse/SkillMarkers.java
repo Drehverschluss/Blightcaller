@@ -69,6 +69,11 @@ public final class SkillMarkers {
     public static final String RAPID_CONTAGION = Blightcaller.MODID + ":rapid_contagion/";
     /** Appended to Pestilence (Wide Contagion): {@code wide_contagion/<extra blocks>}. */
     public static final String WIDE_CONTAGION = Blightcaller.MODID + ":wide_contagion/";
+    /**
+     * Appended to Drain Soul (Lingering Rend, phase 9A): {@code lingering_rend/<seconds per pulse>}. Every pulse moves the end of the
+     * caster's own curses on the target later, at most up to their full duration ({@link Curses#extendOwn}).
+     */
+    public static final String LINGERING_REND = Blightcaller.MODID + ":lingering_rend/";
     /** Passive markers that never run, they only mark the node. */
     private static final List<String> PASSIVE_MARKERS = List.of(DEEPENING_ROT, BLIGHTBLOOM, INFECTIOUS_CURSES, COUP_DE_GRACE);
     private static final SpellHandlers.ImpactResult NONE = new SpellHandlers.ImpactResult(false, false);
@@ -236,6 +241,25 @@ public final class SkillMarkers {
             });
             return true;
         }
+        if (handler.startsWith(LINGERING_REND)) {
+            double[] v = values(handler, LINGERING_REND);
+            if (v == null || v.length < 1) {
+                Blightcaller.LOGGER.warn("Blightcaller: invalid marker '{}', expected {}<seconds>", handler, LINGERING_REND);
+                return false;
+            }
+            double ticks = v[0] * 20.0;
+            SpellHandlers.registerCustomImpact(id, (spell, power, caster, target, context) -> {
+                try {
+                    boolean ok = target instanceof LivingEntity living && !living.level().isClientSide()
+                            && Curses.extendOwn(living, caster.getUUID(), ticks) > 0;
+                    return new SpellHandlers.ImpactResult(ok, false);
+                } catch (Exception e) {
+                    Blightcaller.LOGGER.error("Blightcaller: Lingering Rend failed", e);
+                    return NONE;
+                }
+            });
+            return true;
+        }
         if (handler.startsWith(SPREADING_ROT)) {
             double[] v = values(handler, SPREADING_ROT);
             if (v == null || v.length < 1) {
@@ -309,7 +333,7 @@ public final class SkillMarkers {
                 || !LastRites.detonatedNow(caster, living)) {
             return NONE;
         }
-        SpellPower.Result snapshot = new SpellPower.Result(power.school(), power.baseValue() * context.total(spell),
+        SpellPower.Result snapshot = new SpellPower.Result(power.school(), power.baseValue() * CurseImpacts.multiplier(context, spell),
                 power.criticalChance(), power.criticalDamage());
         CurseApplication app = CurseApplication.cast(CurseEffects.SOULBURN, caster, snapshot, factor, Math.round(seconds * 20.0),
                 caster.getRandom());

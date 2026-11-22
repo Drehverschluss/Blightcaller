@@ -172,7 +172,7 @@
   "area_impact": {
     "radius": 3.0,
     "area": {
-      "distance_dropoff": "NONE"
+      "distance_dropoff": "SQUARED"
     },
     "visuals": {
       "particles": [

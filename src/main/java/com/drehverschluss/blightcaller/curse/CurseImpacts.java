@@ -44,7 +44,8 @@ import org.jetbrains.annotations.Nullable;
  *     {@code effect_duration_add} of the caster's modifier spells), then extended by Curse Duration. Never read from the
  *     effect instance on the target: with several casters that is the longest duration of someone else.</li>
  *     <li><b>Power:</b> the power Spell Engine hands to the marker (spell power with all modifiers of the impact) times
- *     the channel/distance/charge multiplier of the cast, as for damage impacts. Critical is rolled once here.</li>
+ *     the channel/charge multiplier of the cast, as for damage impacts, but without the distance drop-off of an area impact
+ *     (the curse is the same on every target of an area, phase 9A). Critical is rolled once here.</li>
  *     <li><b>Pestilence:</b> every cast starts a new chain (carrier budget, {@link Pestilence}).</li>
  * </ul>
  */
@@ -107,7 +108,7 @@ public final class CurseImpacts {
             return new SpellHandlers.ImpactResult(false, false);
         }
         int ticks = baseDurationTicks(caster, spell, source.impact(), context);
-        SpellPower.Result snapshot = new SpellPower.Result(power.school(), power.baseValue() * context.total(spell),
+        SpellPower.Result snapshot = new SpellPower.Result(power.school(), power.baseValue() * multiplier(context, spell),
                 power.criticalChance(), power.criticalDamage());
         CurseApplication app = CurseApplication.cast(source.curse(), caster, snapshot, factor, ticks, caster.getRandom())
                 .withAmplifier(amplifier(caster, spell, source.impact(), context));
@@ -125,6 +126,14 @@ public final class CurseImpacts {
         }
         // never reported as critical: a critical flag here would trigger "on spell crit" passives a second time
         return new SpellHandlers.ImpactResult(entry != null, false);
+    }
+
+    /**
+     * Multiplier of the cast for a curse snapshot: channel and charge like for damage impacts, but never the distance drop-off of an
+     * area impact (phase 9A, Blight Burst): the direct damage falls off towards the edge, the curse is the same on every target.
+     */
+    public static float multiplier(SpellExecution.ImpactContext context, Holder<Spell> spell) {
+        return context.distance(1.0F).total(spell);
     }
 
     /** The curse status effect impact this marker belongs to, and its effect. */

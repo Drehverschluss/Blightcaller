@@ -9,7 +9,7 @@
       "replacing_area_impact": {
         "radius": 4.5,
         "area": {
-          "distance_dropoff": "NONE"
+          "distance_dropoff": "SQUARED"
         },
         "visuals": {
           "particles": [

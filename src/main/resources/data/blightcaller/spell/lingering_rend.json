@@ -6,7 +6,18 @@
   "modifiers": [
     {
       "spell_pattern": "blightcaller:drain_soul",
-      "effect_duration_add": 4.0
+      "mutate_impacts": "APPEND",
+      "impacts": [
+        {
+          "action": {
+            "type": "CUSTOM",
+            "custom": {
+              "intent": "HARMFUL",
+              "handler": "blightcaller:lingering_rend/0.5"
+            }
+          }
+        }
+      ]
     }
   ]
 }

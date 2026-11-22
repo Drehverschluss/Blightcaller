@@ -28,13 +28,15 @@ public final class CurseEntry {
             Codec.INT.optionalFieldOf("ticks", 0).forGetter(e -> e.ticks),
             Codec.BOOL.optionalFieldOf("transferred", false).forGetter(e -> e.transferred),
             Codec.LONG.optionalFieldOf("next_spread", 0L).forGetter(e -> e.nextSpread),
-            Codec.DOUBLE.optionalFieldOf("enervation", 0.0).forGetter(e -> e.enervation)
+            Codec.DOUBLE.optionalFieldOf("enervation", 0.0).forGetter(e -> e.enervation),
+            Codec.DOUBLE.optionalFieldOf("full", 0.0).forGetter(e -> e.full)
     ).apply(i, (caster, power, factor, critical, criticalDamage, nextTick, end, jumps, chain, ticks, transferred, nextSpread,
-                enervation) -> {
+                enervation, full) -> {
         CurseEntry entry = new CurseEntry(caster.orElse(null), power, factor, critical, criticalDamage, nextTick, end, jumps,
                 chain.orElse(null), ticks, transferred);
         entry.nextSpread = nextSpread;
         entry.enervation = enervation;
+        entry.full = full;
         return entry;
     }));
 
@@ -54,9 +56,9 @@ public final class CurseEntry {
     /**
      * Exact game time at which the entry ends, with fractions of a game tick (4 s x 1.08 = 86.4 ticks). A full tick due
      * at or before this time still happens; if the end falls between two ticks, the last tick deals the matching
-     * fraction of the damage ({@link Curses}).
+     * fraction of the damage ({@link Curses}). Only Lingering Rend moves it later ({@link Curses#extendOwn}).
      */
-    public final double end;
+    public double end;
     /** Times this curse has moved to a new target (Soul Migration). */
     public final int jumps;
     /** Shared id of all copies made by one cast of Pestilence ({@link Pestilence}): their common carrier budget. */
@@ -73,6 +75,12 @@ public final class CurseEntry {
      * half). Set by the marker {@code blightcaller:enervation/<fraction>} right after the curse; a refresh without it clears it.
      */
     public double enervation;
+    /**
+     * Full duration in game ticks the entry had when it was put on (after Curse Duration; for a moved or copied curse the
+     * remaining time when it arrived; for a refresh the time left after the refresh). The cap for Lingering Rend
+     * ({@link Curses#extendOwn}); 0 = unknown (saved before phase 9A), then never extended.
+     */
+    public double full;
     /**
      * Client view only, not saved: game time from which the ring of the curse icon runs for a curse that moved here (Soul
      * Migration keeps the ring where it was). -1 = none.
@@ -114,6 +122,6 @@ public final class CurseEntry {
         return "CurseEntry{caster=" + caster + ", power=" + power + ", factor=" + factor + ", critical=" + critical
                 + ", criticalDamage=" + criticalDamage + ", nextTick=" + nextTick + ", end=" + end + ", jumps=" + jumps
                 + ", chain=" + chain + ", ticks=" + ticks + ", transferred=" + transferred + ", nextSpread=" + nextSpread
-                + ", enervation=" + enervation + "}";
+                + ", enervation=" + enervation + ", full=" + full + "}";
     }
 }
