@@ -39,7 +39,7 @@ import org.jetbrains.annotations.Nullable;
  *     {@code {focus_max}}, {@code {focus_max_base}} (Hex Bolt with the wand choice): the bonus per curse level read from the target
  *     modifiers of the spell, with and without the node; {@code {burst_range}}, {@code {burst_base}}.</li>
  *     <li>Passives of the unique weapons: {@code {spike_curse_level}} (curse level in the trigger of Bone Spike), {@code {mould_max}}
- *     (Grave Mould, {@code [grave_mould] max_patches}).</li>
+ *     (Grave Mould, {@code [grave_mould] max_patches}), {@code {mould_bonus}} (Grave Mould, marker {@code mould_rot/<bonus>}).</li>
  * </ul>
  * Percent signs: like {@code CurseTooltips}, a single {@code %} never directly followed by a letter.
  */
@@ -195,6 +195,16 @@ public final class SkillNodeTooltips {
                 }
             }
             text = text.replace("{mould_max}", Integer.toString(BlightcallerConfig.get(BlightcallerConfig.GRAVE_MOULD_MAX_PATCHES)));
+            // Grave Mould (phase 9B): how much stronger the player's curses tick inside the patch
+            for (Spell.Impact impact : spell.impacts) {
+                String handler = SkillMarkers.handler(impact);
+                if (handler != null && handler.startsWith(SkillMarkers.MOULD_ROT)) {
+                    double[] v = SkillMarkers.values(handler, SkillMarkers.MOULD_ROT);
+                    if (v != null && v.length >= 1) {
+                        text = text.replace("{mould_bonus}", percent(v[0]));
+                    }
+                }
+            }
             for (Spell.Impact impact : spell.impacts) {
                 if (impact.action != null && impact.action.type == Spell.Impact.Action.Type.STATUS_EFFECT && impact.action.status_effect != null) {
                     text = text.replace("{hex_duration}", number(impact.action.status_effect.duration));

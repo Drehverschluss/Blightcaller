@@ -6,7 +6,7 @@
   "modifiers": [
     {
       "spell_pattern": "blightcaller:enfeeble",
-      "effect_amplifier_add": 1
+      "effect_amplifier_add": 2
     }
   ]
 }

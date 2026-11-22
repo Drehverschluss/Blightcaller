@@ -3,6 +3,7 @@ package com.drehverschluss.blightcaller.trinket;
 import com.drehverschluss.blightcaller.Blightcaller;
 import com.drehverschluss.blightcaller.attribute.BlightcallerAttributes;
 import com.drehverschluss.blightcaller.compat.curios.CuriosCompat;
+import com.drehverschluss.blightcaller.config.ConfigDefaults;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffectCategory;
@@ -23,8 +24,10 @@ import java.util.List;
  * Rings, amulets and relics (phase 8B). Only registered when Curios is loaded ({@link CuriosCompat}); this class itself has
  * no Curios reference and is always loaded (ids, config, status effects).
  * <ul>
- *   <li>Rotheart Signet / Amulet (spell haste) and Witchbone Band / Pendant (spell critical damage): unique jewelry (slots
- *   {@code ring} / {@code necklace}), Soul Spell Power and Curse Duration on both pairs, attributes from {@link #CONFIG}.</li>
+ *   <li>Rotheart Signet / Amulet (spell critical chance and damage, side A) and Witchbone Band / Pendant (spell haste, side B): unique
+ *   jewelry (slots {@code ring} / {@code necklace}), Soul Spell Power and Curse Duration on both pairs, attributes from {@link #CONFIG}.
+ *   Phase 9B swapped the second values of 8B: haste is worth most to side B (hex bolts and Drain Soul are bound by cast time), a critical
+ *   curse carries its critical hit through every tick and every copy (side A).</li>
  *   <li>Grave Candle, Blight Orb, Wailing Skull: relics (slot {@code spell_trinket}), each with one spell in its spell container
  *   ({@code data/blightcaller/spell/<spell>.json}: chance, duration, cooldown). The status effects of the first two are
  *   registered here in any case, their modifiers come from {@link #CONFIG}. The skull uses the existing Enfeeble.</li>
@@ -45,11 +48,12 @@ public final class BlightcallerTrinkets {
     public static final ResourceLocation BLIGHT_SURGE_SPELL = Blightcaller.id("blight_surge");
     public static final ResourceLocation WAILING_SCREAM_SPELL = Blightcaller.id("wailing_scream");
 
-    // Defaults of trinkets.json (start values, measured in phase 9)
-    private static final float UNIQUE_SOUL = 0.08F;            // like the school uniques of Jewelry
+    // Defaults of trinkets.json (phase 9B: gain of jewelry and relic on tier 4 in the band of the other schools, +23 to +57 %)
+    private static final float UNIQUE_SOUL = 0.12F;            // 8B: 0.08 like the school uniques of Jewelry
     private static final float UNIQUE_CURSE_DURATION = 0.03F;  // on both pairs, like the shock chance on both Stormcaller pairs
-    private static final float UNIQUE_HASTE = 0.03F;           // Rotheart: more casts, more curses
-    private static final float UNIQUE_CRIT_DAMAGE = 0.1F;      // Witchbone: burst, like the Fire/Frost uniques of Jewelry
+    private static final float ROTHEART_CRIT_CHANCE = 0.06F;   // Rotheart (side A): a critical curse ticks critically to its end
+    private static final float ROTHEART_CRIT_DAMAGE = 0.1F;
+    private static final float WITCHBONE_HASTE = 0.05F;        // Witchbone (side B): more hex bolts, faster Drain Soul
     private static final float GRAVE_EMBER_SOUL = 0.15F;       // like the lesser procs of Relics
     private static final float GRAVE_EMBER_CURSE_DURATION = 0.05F;
     private static final float BLIGHT_SURGE_SOUL = 0.2F;       // like the orbs of Relics
@@ -106,14 +110,26 @@ public final class BlightcallerTrinkets {
      */
     public static class Config {
         /** Written into the file, explains the sections (JSON has no comments). */
-        public String _comment = "items: attributes of the rings and amulets, keyed by item id (operation ADD_MULTIPLIED_BASE,"
-                + " 0.08 means +8%). effects: attributes of the relic effects Grave Ember (Grave Candle) and Blight Surge"
-                + " (Blight Orb). Chances, durations and cooldowns of the relics are in their spell files"
-                + " (data/blightcaller/spell/grave_ember.json, blight_surge.json, wailing_scream.json), change them with a data pack."
-                + " Read once at startup, changes need a restart. Keep the file of server and client equal (tooltips read the client file).";
+        public String _comment = COMMENT;
+        /**
+         * Version of the defaults this file was written with (0 = before phase 9B). Older files: rings and amulets that still have
+         * exactly the old defaults get the new ones, changed entries stay ({@link ConfigDefaults}).
+         */
+        public int defaults_version = 0;
         public LinkedHashMap<String, EffectConfig> items = new LinkedHashMap<>();
         public LinkedHashMap<String, EffectConfig> effects = new LinkedHashMap<>();
     }
+
+    private static final String COMMENT = "items: attributes of the rings and amulets, keyed by item id (operation ADD_MULTIPLIED_BASE,"
+            + " 0.08 means +8%). effects: attributes of the relic effects Grave Ember (Grave Candle) and Blight Surge"
+            + " (Blight Orb). Chances, durations and cooldowns of the relics are in their spell files"
+            + " (data/blightcaller/spell/grave_ember.json, blight_surge.json, wailing_scream.json), change them with a data pack."
+            + " Read once at startup, changes need a restart. Keep the file of server and client equal (tooltips read the client file)."
+            + " defaults_version: set by the mod. When an update changes the defaults, entries that still have the old defaults get the"
+            + " new ones once, entries you changed are kept.";
+
+    /** Version of the defaults in this code: 1 = phase 8B, 2 = phase 9B (stronger rings and amulets of tier 4). */
+    public static final int DEFAULTS_VERSION = 2;
 
     public static final ConfigManager<Config> CONFIG = new ConfigManager<>("trinkets", new Config())
             .builder()
@@ -127,17 +143,21 @@ public final class BlightcallerTrinkets {
         return new EffectConfig(List.of(
                 AttributeModifier.multiply(SpellSchools.SOUL.id, UNIQUE_SOUL),
                 AttributeModifier.multiply(BlightcallerAttributes.CURSE_DURATION.getId(), UNIQUE_CURSE_DURATION),
-                AttributeModifier.multiply(SpellPowerMechanics.HASTE.id, UNIQUE_HASTE)));
+                AttributeModifier.multiply(SpellPowerMechanics.CRITICAL_CHANCE.id, ROTHEART_CRIT_CHANCE),
+                AttributeModifier.multiply(SpellPowerMechanics.CRITICAL_DAMAGE.id, ROTHEART_CRIT_DAMAGE)));
     }
 
     private static EffectConfig witchboneDefaults() {
         return new EffectConfig(List.of(
                 AttributeModifier.multiply(SpellSchools.SOUL.id, UNIQUE_SOUL),
                 AttributeModifier.multiply(BlightcallerAttributes.CURSE_DURATION.getId(), UNIQUE_CURSE_DURATION),
-                AttributeModifier.multiply(SpellPowerMechanics.CRITICAL_DAMAGE.id, UNIQUE_CRIT_DAMAGE)));
+                AttributeModifier.multiply(SpellPowerMechanics.HASTE.id, WITCHBONE_HASTE)));
     }
 
-    /** Mod constructor: reads trinkets.json and adds missing item entries (jewelry only). */
+    /**
+     * Mod constructor: reads trinkets.json, takes over changed defaults into an older file ({@link #DEFAULTS_VERSION}) and adds
+     * missing item entries (jewelry only).
+     */
     public static void init() {
         CONFIG.refresh();
         if (CONFIG.value.items == null) {
@@ -146,12 +166,46 @@ public final class BlightcallerTrinkets {
         if (CONFIG.value.effects == null) {
             CONFIG.value.effects = new LinkedHashMap<>();
         }
+        CONFIG.value._comment = COMMENT;
+        if (CONFIG.value.defaults_version < DEFAULTS_VERSION) {
+            for (Def def : ITEMS) {
+                EffectConfig existing = def.kind() == Kind.JEWELRY ? CONFIG.value.items.get(def.id().toString()) : null;
+                if (existing == null) {
+                    continue;
+                }
+                List<AttributeModifier> old = legacyDefaults(def);
+                if (existing.conditional_attributes == null && old != null && ConfigDefaults.same(existing.attributes, old)) {
+                    CONFIG.value.items.put(def.id().toString(), def.defaults());
+                    Blightcaller.LOGGER.info("Blightcaller: trinkets.json: {} had the old default values, took over the new defaults",
+                            def.id());
+                } else if (!ConfigDefaults.same(existing.attributes, def.defaults().attributes)) {
+                    Blightcaller.LOGGER.info("Blightcaller: trinkets.json: kept your values for {} (the defaults changed in this version)",
+                            def.id());
+                }
+            }
+            CONFIG.value.defaults_version = DEFAULTS_VERSION;
+        }
         for (Def def : ITEMS) {
             if (def.kind() == Kind.JEWELRY) {
                 CONFIG.value.items.putIfAbsent(def.id().toString(), def.defaults());
             }
         }
         CONFIG.save();
+    }
+
+    /** Defaults of the jewelry before phase 9B (version 1, phase 8B), to recognise unchanged entries of an older file. */
+    private static List<AttributeModifier> legacyDefaults(Def def) {
+        String id = def.id().toString();
+        boolean rotheart = id.equals(ROTHEART_RING.toString()) || id.equals(ROTHEART_NECKLACE.toString());
+        boolean witchbone = id.equals(WITCHBONE_RING.toString()) || id.equals(WITCHBONE_NECKLACE.toString());
+        if (!rotheart && !witchbone) {
+            return null;
+        }
+        return List.of(
+                AttributeModifier.multiply(SpellSchools.SOUL.id, 0.08F),
+                AttributeModifier.multiply(BlightcallerAttributes.CURSE_DURATION.getId(), 0.03F),
+                rotheart ? AttributeModifier.multiply(SpellPowerMechanics.HASTE.id, 0.03F)
+                        : AttributeModifier.multiply(SpellPowerMechanics.CRITICAL_DAMAGE.id, 0.1F));
     }
 
     /** Attributes of a trinket from the config (empty if none). */

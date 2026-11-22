@@ -1,6 +1,7 @@
 package com.drehverschluss.blightcaller.curse;
 
 import com.drehverschluss.blightcaller.Blightcaller;
+import com.drehverschluss.blightcaller.weapon.GraveMouldEntity;
 import java.util.UUID;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
@@ -57,16 +58,17 @@ public final class CurseDamage {
     /**
      * Like {@link #tick(LivingEntity, CurseEntry, double)}, as the {@code number}-th tick of the entry on this target: with
      * Deepening Rot (skill tree) the caster's ticks grow stronger with every tick ({@link DeepeningRot}), with Coup de Grace they hit
-     * harder on targets with low health ({@link SkillMarkers#coupDeGrace}).
+     * harder on targets with low health ({@link SkillMarkers#coupDeGrace}), inside a patch of the caster's Grave Mould they tick stronger
+     * ({@link GraveMouldEntity#boost}).
      */
     public static boolean tick(LivingEntity target, CurseEntry entry, double share, int number) {
         if (!(target.level() instanceof ServerLevel level) || target.isDeadOrDying()) {
             return false;
         }
         LivingEntity caster = resolveCaster(level, entry.caster);
-        // Deepening Rot and Coup de Grace multiply (decided 20.11.)
+        // Deepening Rot, Coup de Grace and Grave Mould multiply (decided 20.11., Grave Mould phase 9B)
         float amount = (float) (amount(target, entry) * share * (1.0 + DeepeningRot.bonus(caster, number))
-                * (1.0 + SkillMarkers.coupDeGrace(caster, target)));
+                * (1.0 + SkillMarkers.coupDeGrace(caster, target)) * (1.0 + GraveMouldEntity.boost(entry.caster, target)));
         if (amount <= 0.0F) {
             return false;
         }

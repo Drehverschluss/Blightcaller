@@ -46,9 +46,12 @@ import org.jetbrains.annotations.Nullable;
  *     <li><b>Base damage</b> (optional third value, phase 9A, default 0 = none): {@code base} x soul power at every target that
  *     carries at least one of the caster's curses (with or without damage), with the bonus per curse level of the target modifiers,
  *     as a normal soul spell hit with a critical roll, before the detonation. Curses without damage stay on the target.</li>
+ *     <li><b>Only one target</b> (optional fourth value, phase 9B, default 0 = every target): with {@code 1} only the enemy in range
+ *     with the most of the caster's curses (ties: the nearest) takes the base damage; the detonation still hits every target.</li>
+ *     <li>A target hit through several body parts (Ender Dragon) takes the base damage once per cast.</li>
  * </ul>
- * Handler ids: {@code blightcaller:last_rites} (4 s x 1.5) or {@code blightcaller:last_rites/<seconds>/<factor>[/<base>]}, e.g.
- * {@code blightcaller:last_rites/4/1.5}. Handlers for the values used by the loaded spells are registered at server start.
+ * Handler ids: {@code blightcaller:last_rites} (4 s x 1.5) or {@code blightcaller:last_rites/<seconds>/<factor>[/<base>[/<single>]]},
+ * e.g. {@code blightcaller:last_rites/4/1.5/4}. Handlers for the values used by the loaded spells are registered at server start.
  */
 public final class LastRites {
     public static final String PREFIX = Blightcaller.MODID + ":last_rites/";
@@ -56,10 +59,10 @@ public final class LastRites {
     public static final double DEFAULT_SECONDS = 4.0;
     public static final double DEFAULT_FACTOR = 1.5;
 
-    /** Seconds, factor and base damage (x soul power, 0 = none) of a handler id. */
-    public record Values(double seconds, double factor, double base) {
+    /** Seconds, factor, base damage (x soul power, 0 = none) and whether the base damage hits only one target, of a handler id. */
+    public record Values(double seconds, double factor, double base, boolean single) {
         public Values(double seconds, double factor) {
-            this(seconds, factor, 0.0);
+            this(seconds, factor, 0.0, false);
         }
     }
 
@@ -67,6 +70,10 @@ public final class LastRites {
     private record Detonation(UUID caster, long tick) {}
 
     private static final java.util.Map<Integer, Detonation> DETONATED = new java.util.HashMap<>();
+    /** Targets that took the base damage in this game tick, per caster (body parts of one target, phase 9B). */
+    private static final java.util.Set<String> BASED = new java.util.HashSet<>();
+    /** The one target of the base damage per caster in this game tick (fourth value 1), entity id or -1. */
+    private static final java.util.Map<UUID, Integer> SINGLE = new java.util.HashMap<>();
 
     /** Whether Last Rites of this caster detonated curses on the target in this game tick (Soul Echo). */
     public static boolean detonatedNow(LivingEntity caster, LivingEntity target) {
@@ -78,7 +85,11 @@ public final class LastRites {
 
     public static void register() {
         register(PLAIN.toString(), new Values(DEFAULT_SECONDS, DEFAULT_FACTOR));
-        NeoForge.EVENT_BUS.addListener(net.neoforged.neoforge.event.tick.ServerTickEvent.Post.class, event -> DETONATED.clear());
+        NeoForge.EVENT_BUS.addListener(net.neoforged.neoforge.event.tick.ServerTickEvent.Post.class, event -> {
+            DETONATED.clear();
+            BASED.clear();
+            SINGLE.clear();
+        });
         NeoForge.EVENT_BUS.addListener(ServerAboutToStartEvent.class, LastRites::onServerAboutToStart);
     }
 
@@ -99,7 +110,9 @@ public final class LastRites {
 
     private static SpellHandlers.ImpactResult onImpact(Values values, Holder<Spell> spell, SpellPower.Result power, LivingEntity caster,
                                                        @Nullable Entity target, SpellExecution.ImpactContext context) {
-        if (!(target instanceof LivingEntity living) || living.level().isClientSide() || living.isDeadOrDying() || target == caster) {
+        // a body part (Ender Dragon) counts as its owner (phase 9B)
+        LivingEntity living = Curses.living(target);
+        if (living == null || living.level().isClientSide() || living.isDeadOrDying() || living == caster) {
             return new SpellHandlers.ImpactResult(false, false);
         }
         UUID casterId = caster.getUUID();
@@ -112,7 +125,8 @@ public final class LastRites {
         // base damage (phase 9A, optional): any own curse counts, also one without damage
         boolean critical = false;
         boolean based = false;
-        if (values.base() > 0.0 && hasOwnCurse(data.get(), casterId)) {
+        if (values.base() > 0.0 && hasOwnCurse(data.get(), casterId) && (!values.single() || singleTarget(spell, caster) == living.getId())
+                && BASED.add(casterId + "/" + living.getId())) {
             SpellPower.Result scaled = new SpellPower.Result(power.school(), power.baseValue() * values.base() * context.total(spell),
                     power.criticalChance(), power.criticalDamage());
             SpellPower.Result.Value hit = scaled.random(SpellPower.getVulnerability(living, power.school()));
@@ -169,6 +183,48 @@ public final class LastRites {
         return new SpellHandlers.ImpactResult(true, critical);
     }
 
+    /**
+     * The one target of the base damage of this cast (fourth value 1): among the living enemies within the spell's range around the
+     * caster, the one with the most different curses of the caster, ties broken by distance. Computed once per caster and game tick.
+     */
+    private static int singleTarget(Holder<Spell> spell, LivingEntity caster) {
+        return SINGLE.computeIfAbsent(caster.getUUID(), id -> {
+            double range = Math.max(0.0, spell.value().range);
+            UUID casterId = caster.getUUID();
+            LivingEntity best = null;
+            int bestCount = 0;
+            double bestDistance = Double.MAX_VALUE;
+            for (LivingEntity candidate : caster.level().getEntitiesOfClass(LivingEntity.class, caster.getBoundingBox().inflate(range + 1.0),
+                    e -> e != caster && e.isAlive())) {
+                double distance = candidate.distanceToSqr(caster);
+                if (distance > (range + 1.0) * (range + 1.0)) {
+                    continue;
+                }
+                int count = Curses.data(candidate).map(d -> ownCurses(d, casterId)).orElse(0);
+                if (count > bestCount || (count == bestCount && count > 0 && distance < bestDistance)) {
+                    best = candidate;
+                    bestCount = count;
+                    bestDistance = distance;
+                }
+            }
+            return best != null ? best.getId() : -1;
+        });
+    }
+
+    /** Number of different curses with an entry of this caster. */
+    private static int ownCurses(CurseData data, UUID caster) {
+        int count = 0;
+        for (List<CurseEntry> entries : data.all().values()) {
+            for (CurseEntry entry : entries) {
+                if (entry.sameCaster(caster)) {
+                    count++;
+                    break;
+                }
+            }
+        }
+        return count;
+    }
+
     private static boolean hasOwnCurse(CurseData data, UUID caster) {
         for (List<CurseEntry> entries : data.all().values()) {
             for (CurseEntry entry : entries) {
@@ -221,18 +277,19 @@ public final class LastRites {
             return Optional.empty();
         }
         String[] parts = handler.substring(PREFIX.length()).trim().toLowerCase(Locale.ROOT).split("/");
-        if (parts.length != 2 && parts.length != 3) {
+        if (parts.length < 2 || parts.length > 4) {
             return Optional.empty();
         }
         try {
             double seconds = Double.parseDouble(parts[0]);
             double factor = Double.parseDouble(parts[1]);
-            double base = parts.length == 3 ? Double.parseDouble(parts[2]) : 0.0;
+            double base = parts.length >= 3 ? Double.parseDouble(parts[2]) : 0.0;
+            boolean single = parts.length == 4 && Double.parseDouble(parts[3]) >= 1.0;
             if (!Double.isFinite(seconds) || !Double.isFinite(factor) || !Double.isFinite(base) || seconds < 0.0 || factor < 0.0
                     || base < 0.0) {
                 return Optional.empty();
             }
-            return Optional.of(new Values(seconds, factor, base));
+            return Optional.of(new Values(seconds, factor, base, single));
         } catch (NumberFormatException e) {
             return Optional.empty();
         }
@@ -271,7 +328,7 @@ public final class LastRites {
                         register(handler, values.get());
                         added.add(handler);
                     } else {
-                        Blightcaller.LOGGER.warn("Blightcaller: invalid Last Rites impact '{}', expected {}<seconds>/<factor>[/<base>]", handler, PREFIX);
+                        Blightcaller.LOGGER.warn("Blightcaller: invalid Last Rites impact '{}', expected {}<seconds>/<factor>[/<base>[/<single>]]", handler, PREFIX);
                     }
                 }
             }

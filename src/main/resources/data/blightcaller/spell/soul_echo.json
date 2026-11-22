@@ -13,7 +13,7 @@
             "type": "CUSTOM",
             "custom": {
               "intent": "HARMFUL",
-              "handler": "blightcaller:soul_echo/4.0/0.1"
+              "handler": "blightcaller:soul_echo/4.0/0.13"
             }
           }
         }

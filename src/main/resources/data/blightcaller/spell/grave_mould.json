@@ -132,7 +132,16 @@
         "type": "CUSTOM",
         "custom": {
           "intent": "HARMFUL",
-          "handler": "blightcaller:curse/0.1"
+          "handler": "blightcaller:curse/0.15"
+        }
+      }
+    },
+    {
+      "action": {
+        "type": "CUSTOM",
+        "custom": {
+          "intent": "HARMFUL",
+          "handler": "blightcaller:mould_rot/0.15"
         }
       }
     }

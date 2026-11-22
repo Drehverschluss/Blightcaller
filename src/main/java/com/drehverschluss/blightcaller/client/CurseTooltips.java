@@ -44,7 +44,8 @@ import org.jetbrains.annotations.Nullable;
  *     after the last hit;</li>
  *     <li>Pestilence: also how it spreads (interval, radius, carriers per cast);</li>
  *     <li>damage and Last Rites impacts with target modifiers on {@code blightcaller:curse_level}: bonus per curse level;</li>
- *     <li>Last Rites ({@link LastRites}): the rule (own curses with damage, damage of the next seconds x factor).</li>
+ *     <li>Last Rites ({@link LastRites}): the base damage (x soul power of the player, every cursed enemy or only the one with the most
+ *     curses) and the rule (own curses with damage, damage of the next seconds x factor).</li>
  * </ul>
  * Uses Spell Engine's custom tooltip tokens (one resolver per spell id), registered after joining a world (spells come
  * from the server). Spells that already have a resolver from another mod are left alone.
@@ -61,6 +62,8 @@ public final class CurseTooltips {
     private static final String MARK_KEY = "spell.tooltip.blightcaller.curse_mark";
     private static final String SPREAD_KEY = "spell.tooltip.blightcaller.curse_spread";
     private static final String LAST_RITES_KEY = "spell.tooltip.blightcaller.last_rites";
+    private static final String LAST_RITES_BASE_KEY = "spell.tooltip.blightcaller.last_rites_base";
+    private static final String LAST_RITES_BASE_SINGLE_KEY = "spell.tooltip.blightcaller.last_rites_base_single";
     private static final String CURSE_LEVEL_PREDICATE = Blightcaller.id("curse_level").toString();
     private static final String CASTER_SPELL_PREDICATE = Blightcaller.id("caster_has_spell").toString();
     private static final Set<ResourceLocation> OWN = new HashSet<>();
@@ -138,6 +141,11 @@ public final class CurseTooltips {
         for (Spell.Impact impact : impactsOf(spell)) {
             LastRites.Values values = lastRitesOf(impact);
             if (values != null) {
+                if (values.base() > 0.0) {
+                    // base damage (phase 9B): base x soul power of the player right now
+                    double power = player == null ? 0.0 : SpellPower.getSpellPower(SpellSchools.SOUL, player).baseValue();
+                    lines.add(I18n.get(values.single() ? LAST_RITES_BASE_SINGLE_KEY : LAST_RITES_BASE_KEY, number(values.base() * power)));
+                }
                 lines.add(I18n.get(LAST_RITES_KEY, number(values.seconds()), number(values.factor())));
                 break;
             }

@@ -125,7 +125,7 @@
       "action": {
         "type": "DAMAGE",
         "damage": {
-          "spell_power_coefficient": 0.4,
+          "spell_power_coefficient": 0.6,
           "knockback": 0.5
         }
       },
@@ -164,7 +164,7 @@
         "type": "CUSTOM",
         "custom": {
           "intent": "HARMFUL",
-          "handler": "blightcaller:curse/0.1"
+          "handler": "blightcaller:curse/0.15"
         }
       }
     }

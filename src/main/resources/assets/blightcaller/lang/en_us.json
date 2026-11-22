@@ -217,7 +217,7 @@
   "spell.blightcaller.enfeeble.name": "Enfeeble",
   "spell.blightcaller.grave_ember.description": "On soul spell hit: {trigger_chance} chance to increase soul spell power by {effect|blightcaller:grave_ember|0|spell_power:soul|abs} and curse duration by {effect|blightcaller:grave_ember|0|blightcaller:curse_duration|abs} for {effect_duration} seconds. Only curses put on during that time last longer.",
   "spell.blightcaller.grave_ember.name": "Grave Ember",
-  "spell.blightcaller.grave_mould.description": "Where Blight Burst bursts, a patch of grave mould stays on the ground for {cloud_duration} seconds. Enemies within {cloud_radius} blocks of it get Soulburn every second ({soulburn_damage} soul damage per second for {soulburn_duration} seconds, Curse Duration adds to that). At most {mould_max} patches at a time, a new one makes the oldest wither away.",
+  "spell.blightcaller.grave_mould.description": "Where Blight Burst bursts, a patch of grave mould stays on the ground for {cloud_duration} seconds. Enemies within {cloud_radius} blocks of it get Soulburn every second ({soulburn_damage} soul damage per second for {soulburn_duration} seconds, Curse Duration adds to that), and your curses tick {mould_bonus} stronger on them while they stand in it. At most {mould_max} patches at a time, a new one makes the oldest wither away.",
   "spell.blightcaller.grave_mould.name": "Grave Mould",
   "spell.blightcaller.gravebind.description": "Ghostly chains burst from the ground around you, causing {damage} soul spell damage to all enemies nearby and binding them with Gravebind.",
   "spell.blightcaller.gravebind.name": "Gravebind",
@@ -280,5 +280,7 @@
   "spell.tooltip.blightcaller.curse_spread": "Every %1$s s each carrier infects an enemy within %2$s blocks that has no Pestilence, up to %3$s carriers per cast (the target included). Copies keep the remaining time.",
   "spell.tooltip.blightcaller.curse_weaken": "%1$s for %2$s s: the target takes %3$s more damage from all sources (bosses %4$s).",
   "spell.tooltip.blightcaller.last_rites": "Detonates your own curses with damage: the damage of their next %1$s s × %2$s at once, then they are gone. Curses of other players and curses without damage stay.",
+  "spell.tooltip.blightcaller.last_rites_base": "First deals %1$s soul spell damage to every enemy that carries one of your curses.",
+  "spell.tooltip.blightcaller.last_rites_base_single": "First deals %1$s soul spell damage to the enemy with the most of your curses.",
   "upgrade.blightcaller.gravemother_upgrade": "Gravemother Upgrade"
 }

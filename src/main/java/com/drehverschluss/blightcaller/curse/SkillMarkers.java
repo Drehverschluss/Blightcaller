@@ -74,8 +74,14 @@ public final class SkillMarkers {
      * caster's own curses on the target later, at most up to their full duration ({@link Curses#extendOwn}).
      */
     public static final String LINGERING_REND = Blightcaller.MODID + ":lingering_rend/";
-    /** Passive markers that never run, they only mark the node. */
-    private static final List<String> PASSIVE_MARKERS = List.of(DEEPENING_ROT, BLIGHTBLOOM, INFECTIOUS_CURSES, COUP_DE_GRACE);
+    /**
+     * In the impacts of Grave Mould (passive of Gravemother's Herbarium, phase 9B): {@code mould_rot/<bonus>}, the caster's own curses
+     * tick that much stronger on enemies inside one of the caster's patches ({@code weapon.GraveMouldEntity#boost}). The marker
+     * itself does nothing when the patch pulses.
+     */
+    public static final String MOULD_ROT = Blightcaller.MODID + ":mould_rot/";
+    /** Passive markers that never run, they only mark the node (or carry a value, Grave Mould). */
+    private static final List<String> PASSIVE_MARKERS = List.of(DEEPENING_ROT, BLIGHTBLOOM, INFECTIOUS_CURSES, COUP_DE_GRACE, MOULD_ROT);
     private static final SpellHandlers.ImpactResult NONE = new SpellHandlers.ImpactResult(false, false);
     private static final Vector3f ROT_COLOR = new Vector3f(0.55F, 0.8F, 0.3F);
 
@@ -231,7 +237,7 @@ public final class SkillMarkers {
             double radius = rapid ? 0.0 : v[0];
             SpellHandlers.registerCustomImpact(id, (spell, power, caster, target, context) -> {
                 try {
-                    boolean ok = target instanceof LivingEntity living && !living.level().isClientSide()
+                    boolean ok = Curses.living(target) instanceof LivingEntity living && !living.level().isClientSide()
                             && Pestilence.tune(living, caster.getUUID(), interval, radius);
                     return new SpellHandlers.ImpactResult(ok, false);
                 } catch (Exception e) {
@@ -250,7 +256,7 @@ public final class SkillMarkers {
             double ticks = v[0] * 20.0;
             SpellHandlers.registerCustomImpact(id, (spell, power, caster, target, context) -> {
                 try {
-                    boolean ok = target instanceof LivingEntity living && !living.level().isClientSide()
+                    boolean ok = Curses.living(target) instanceof LivingEntity living && !living.level().isClientSide()
                             && Curses.extendOwn(living, caster.getUUID(), ticks) > 0;
                     return new SpellHandlers.ImpactResult(ok, false);
                 } catch (Exception e) {
@@ -312,7 +318,7 @@ public final class SkillMarkers {
      */
     static SpellHandlers.ImpactResult plainEnfeeble(String handler, boolean extend, Holder<Spell> spell, SpellPower.Result power,
                                                     LivingEntity caster, @Nullable Entity target, SpellExecution.ImpactContext context) {
-        if (!(target instanceof LivingEntity living) || living.level().isClientSide()) {
+        if (!(Curses.living(target) instanceof LivingEntity living) || living.level().isClientSide()) {
             return NONE;
         }
         CurseEntry before = own(living, CurseEffects.ENFEEBLE, caster.getUUID());
@@ -329,7 +335,7 @@ public final class SkillMarkers {
     private static SpellHandlers.ImpactResult soulEcho(Holder<Spell> spell, SpellPower.Result power, LivingEntity caster,
                                                        @Nullable Entity target, SpellExecution.ImpactContext context,
                                                        double seconds, double factor) {
-        if (!(target instanceof LivingEntity living) || living.level().isClientSide() || living.isDeadOrDying()
+        if (!(Curses.living(target) instanceof LivingEntity living) || living.level().isClientSide() || living.isDeadOrDying()
                 || !LastRites.detonatedNow(caster, living)) {
             return NONE;
         }
@@ -363,7 +369,7 @@ public final class SkillMarkers {
 
     /** Spreading Rot: copies the caster's Soul Rot entry on the target to the nearest other enemy in the radius. */
     private static SpellHandlers.ImpactResult spreadingRot(LivingEntity caster, @Nullable Entity target, double radius) {
-        if (!(target instanceof LivingEntity living) || !(living.level() instanceof ServerLevel level)) {
+        if (!(Curses.living(target) instanceof LivingEntity living) || !(living.level() instanceof ServerLevel level)) {
             return NONE;
         }
         Holder<net.minecraft.world.effect.MobEffect> curse = CurseEffects.SOUL_ROT;
@@ -391,7 +397,7 @@ public final class SkillMarkers {
 
     /** Enervation: marks the caster's fresh Enfeeble entry on the target. */
     private static SpellHandlers.ImpactResult enervation(LivingEntity caster, @Nullable Entity target, double fraction) {
-        if (!(target instanceof LivingEntity living) || living.level().isClientSide()) {
+        if (!(Curses.living(target) instanceof LivingEntity living) || living.level().isClientSide()) {
             return NONE;
         }
         CurseEntry entry = own(living, CurseEffects.ENFEEBLE, caster.getUUID());

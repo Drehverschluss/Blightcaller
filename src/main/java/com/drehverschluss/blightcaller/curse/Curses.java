@@ -17,7 +17,10 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.neoforged.neoforge.entity.PartEntity;
+import net.spell_engine.compat.MultipartEntityCompat;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -61,6 +64,27 @@ public final class Curses {
     /** Entities in {@code #blightcaller:curse_immune} never get a curse. */
     public static boolean isImmune(LivingEntity entity) {
         return entity.getType().is(CurseEffects.CURSE_IMMUNE);
+    }
+
+    /**
+     * The living entity behind a spell target (phase 9B): the target itself, or the owner of a body part. Spell Engine hands
+     * hits on the Ender Dragon over as hits on its {@code EnderDragonPart}s, which are no {@link LivingEntity}; the curse
+     * belongs on the dragon ({@code parentMob}). Uses Spell Engine's resolvers ({@link MultipartEntityCompat}, which other
+     * mods can extend) and NeoForge's {@link PartEntity}. {@code null} if there is no living entity behind it.
+     */
+    @Nullable
+    public static LivingEntity living(@Nullable Entity target) {
+        if (target instanceof LivingEntity living) {
+            return living;
+        }
+        if (target == null) {
+            return null;
+        }
+        Entity owner = MultipartEntityCompat.getOwner(target);
+        if (owner == null && target instanceof PartEntity<?> part) {
+            owner = part.getParent();
+        }
+        return owner instanceof LivingEntity living ? living : null;
     }
 
     /** Whether a curse deals damage over time (all but curses like Enfeeble, see {@link CurseEffect#dealsDamage()}). */

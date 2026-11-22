@@ -217,7 +217,7 @@
   "spell.blightcaller.enfeeble.name": "Entkräftung",
   "spell.blightcaller.grave_ember.description": "Bei einem Treffer mit einem Seelenzauber: {trigger_chance} Chance, für {effect_duration} Sekunden die Seelenzauberkraft um {effect|blightcaller:grave_ember|0|spell_power:soul|abs} und die Fluchdauer um {effect|blightcaller:grave_ember|0|blightcaller:curse_duration|abs} zu erhöhen. Länger halten nur Flüche, die in dieser Zeit aufgelegt werden.",
   "spell.blightcaller.grave_ember.name": "Grabesglut",
-  "spell.blightcaller.grave_mould.description": "Wo der Fäulnisstoß platzt, bleibt {cloud_duration} Sekunden ein Fleck aus Grabesmoder liegen. Gegner im Umkreis von {cloud_radius} Blöcken bekommen jede Sekunde Seelenbrand ({soulburn_damage} Seelenschaden pro Sekunde für {soulburn_duration} Sekunden, die Fluchdauer verlängert das). Höchstens {mould_max} Flecken gleichzeitig, ein neuer lässt den ältesten verwelken.",
+  "spell.blightcaller.grave_mould.description": "Wo der Fäulnisstoß platzt, bleibt {cloud_duration} Sekunden ein Fleck aus Grabesmoder liegen. Gegner im Umkreis von {cloud_radius} Blöcken bekommen jede Sekunde Seelenbrand ({soulburn_damage} Seelenschaden pro Sekunde für {soulburn_duration} Sekunden, die Fluchdauer verlängert das), und solange sie darin stehen, ticken deine Flüche auf ihnen {mould_bonus} stärker. Höchstens {mould_max} Flecken gleichzeitig, ein neuer lässt den ältesten verwelken.",
   "spell.blightcaller.grave_mould.name": "Grabesmoder",
   "spell.blightcaller.gravebind.description": "Geisterketten brechen um dich herum aus dem Boden, fügen allen Gegnern in der Nähe {damage} Seelenzauber-Schaden zu und belegen sie mit Grabesfessel.",
   "spell.blightcaller.gravebind.name": "Grabesfessel",
@@ -280,5 +280,7 @@
   "spell.tooltip.blightcaller.curse_spread": "Alle %1$s s steckt jeder Träger einen Gegner in %2$s Blöcken an, der noch keine Seuche hat, bis zu %3$s Träger je Wirken (mit dem Ziel). Kopien behalten die Restzeit.",
   "spell.tooltip.blightcaller.curse_weaken": "%1$s für %2$s s: Das Ziel nimmt %3$s mehr Schaden aus allen Quellen (Bosse %4$s).",
   "spell.tooltip.blightcaller.last_rites": "Lässt deine eigenen Flüche mit Schaden ausbrechen: Schaden ihrer nächsten %1$s s × %2$s auf einmal, danach sind sie weg. Flüche anderer Spieler und Flüche ohne Schaden bleiben.",
+  "spell.tooltip.blightcaller.last_rites_base": "Verursacht zuerst %1$s Seelenzauber-Schaden an jedem Gegner, der einen deiner Flüche trägt.",
+  "spell.tooltip.blightcaller.last_rites_base_single": "Verursacht zuerst %1$s Seelenzauber-Schaden am Gegner mit den meisten deiner Flüche.",
   "upgrade.blightcaller.gravemother_upgrade": "Grabmutter-Aufwertung"
 }

@@ -1,6 +1,7 @@
 package com.drehverschluss.blightcaller.item;
 
 import com.drehverschluss.blightcaller.Blightcaller;
+import com.drehverschluss.blightcaller.config.ConfigDefaults;
 import com.drehverschluss.blightcaller.attribute.BlightcallerAttributes;
 import com.drehverschluss.blightcaller.trinket.BlightcallerTrinkets;
 import net.minecraft.ChatFormatting;
@@ -86,14 +87,25 @@ public final class BlightcallerItems {
             .sanitize(true)
             .build();
 
+    private static final String TWEAKS_COMMENT = "ignore_items_required_mods: true registers items that need another mod even without that"
+            + " mod (Dragonbone Blight Wand and Dragonbone Blight Grimoire: Better End). Default false. Server and client"
+            + " must use the same value. Needs a restart. equipment_defaults_version: set by the mod. When an update changes the"
+            + " defaults of equipment.json, entries that still have the old defaults get the new ones once, entries you changed are kept.";
+
+    /** Version of the equipment.json defaults in this code: 1 = phase 9B (unique weapons +10 instead of +8 Soul Spell Power). */
+    public static final int EQUIPMENT_DEFAULTS_VERSION = 1;
+
     /** Startup switches, like {@code config/wizards/tweaks.json}. */
     public static class Tweaks {
         /** Written into the file, explains the option (JSON has no comments). */
-        public String _comment = "ignore_items_required_mods: true registers items that need another mod even without that"
-                + " mod (Dragonbone Blight Wand and Dragonbone Blight Grimoire: Better End). Default false. Server and client"
-                + " must use the same value. Needs a restart.";
+        public String _comment = TWEAKS_COMMENT;
         /** Registers items that need another mod (the dragonbone weapons: Better End) even without that mod. */
         public boolean ignore_items_required_mods = false;
+        /**
+         * Version of the defaults equipment.json was last brought up to (0 = before phase 9B). equipment.json has Spell Engine's fixed
+         * format without room for a version, so it is kept here.
+         */
+        public int equipment_defaults_version = 0;
     }
 
     /** {@code config/blightcaller/equipment.json}, same format as the equipment configs of Wizards and Berserker. */
@@ -137,9 +149,12 @@ public final class BlightcallerItems {
     private static final float WEAPON_SOUL_T1 = 5.0F;
     private static final float WEAPON_SOUL_T2 = 6.0F;
     private static final float WEAPON_SOUL_T3 = 7.0F;
-    // tier 4 (dragonbone) and the uniques (tier 5): +8 like the tier 4 staves of Wizards and the unique staves of Arsenal, also
-    // for the uniques because they are one-handed (the two-handed Stormbringer Staff has +10)
+    // tier 4 (dragonbone): +8 like the tier 4 staves of Wizards and the unique staves of Arsenal
     private static final float WEAPON_SOUL_T4 = 8.0F;
+    // the uniques (tier 5): +10 like the Stormbringer Staff (decided 22.11. after phase 9A, was +8 in phase 8C)
+    private static final float WEAPON_SOUL_UNIQUE = 10.0F;
+    private static final float WEAPON_SOUL_UNIQUE_OLD = 8.0F;
+    private static final List<String> UNIQUE_WEAPONS = List.of("wand_gravemother", "grimoire_gravemother");
 
     // Armor values like the Wizard Robe (tier 1), Frost Robe (tier 2) and Netherite Frost Robe (tier 3) of Wizards
     private static final int ARMOR_HEAD = 1;
@@ -181,8 +196,44 @@ public final class BlightcallerItems {
     /** Loads tweaks.json and equipment.json. Called from the mod constructor, before registration. */
     public static void init() {
         TWEAKS_CONFIG.refresh();
-        TWEAKS_CONFIG.save();
+        TWEAKS_CONFIG.value._comment = TWEAKS_COMMENT;
         EQUIPMENT_CONFIG.refresh();
+        if (TWEAKS_CONFIG.value.equipment_defaults_version < EQUIPMENT_DEFAULTS_VERSION) {
+            migrateEquipment(EQUIPMENT_CONFIG.value);
+            TWEAKS_CONFIG.value.equipment_defaults_version = EQUIPMENT_DEFAULTS_VERSION;
+            EQUIPMENT_CONFIG.save();
+        }
+        TWEAKS_CONFIG.save();
+    }
+
+    /**
+     * Takes over the defaults of phase 9B into an older equipment.json: the unique weapons get +10 instead of +8 Soul Spell Power
+     * when they still have exactly the old +8 (changed values stay). A new file gets the new defaults on registration anyway.
+     */
+    private static void migrateEquipment(ConfigFile.Equipment config) {
+        if (config == null || config.weapons == null) {
+            return;
+        }
+        String soul = SpellSchools.SOUL.id.toString();
+        for (String name : UNIQUE_WEAPONS) {
+            var weapon = config.weapons.get(name);
+            if (weapon == null || weapon.attributes == null || weapon.conditional_attributes != null) {
+                continue;
+            }
+            List<AttributeModifier> old = List.of(AttributeModifier.bonus(SpellSchools.SOUL.id, WEAPON_SOUL_UNIQUE_OLD));
+            if (ConfigDefaults.same(weapon.attributes, old)) {
+                for (AttributeModifier attribute : weapon.attributes) {
+                    if (soul.equals(attribute.attribute)) {
+                        attribute.value = WEAPON_SOUL_UNIQUE;
+                    }
+                }
+                Blightcaller.LOGGER.info("Blightcaller: equipment.json: {} had the old default +{} Soul Spell Power, took over +{}", name,
+                        WEAPON_SOUL_UNIQUE_OLD, WEAPON_SOUL_UNIQUE);
+            } else {
+                Blightcaller.LOGGER.info("Blightcaller: equipment.json: kept your values for {} (the default changed to +{} Soul Spell"
+                        + " Power in this version)", name, WEAPON_SOUL_UNIQUE);
+            }
+        }
     }
 
     /** True if the dragonbone weapons are registered: Better End is loaded or the switch in tweaks.json is on. */
@@ -286,7 +337,7 @@ public final class BlightcallerItems {
      * in the tooltip and only fires it with the item in the main hand, {@code equipment_condition MAINHAND}).
      */
     private static Weapon.Entry unique(String name, Supplier<Ingredient> repair, ResourceLocation spell, ResourceLocation passive) {
-        Weapon.Entry entry = wand(name, Equipment.Tier.TIER_5, repair, WEAPON_SOUL_T4, spell).withAdditionalSpell(passive.toString());
+        Weapon.Entry entry = wand(name, Equipment.Tier.TIER_5, repair, WEAPON_SOUL_UNIQUE, spell).withAdditionalSpell(passive.toString());
         entry.rarity = Rarity.RARE;
         return entry;
     }

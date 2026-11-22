@@ -34,7 +34,8 @@ public final class CursePredicates {
     public static void register() {
         SpellEntityPredicates.register(Blightcaller.id("curse_level"), args -> {
             try {
-                return args.entity() instanceof LivingEntity living && Curses.curseLevel(living) >= parseLevel(args.param());
+                LivingEntity living = Curses.living(args.entity());
+                return living != null && Curses.curseLevel(living) >= parseLevel(args.param());
             } catch (Exception e) {
                 Blightcaller.LOGGER.error("Blightcaller: predicate curse_level failed", e);
                 return false;
@@ -50,7 +51,8 @@ public final class CursePredicates {
         });
         SpellEntityPredicates.register(Blightcaller.id("enemy"), args -> {
             try {
-                return args.entity() instanceof LivingEntity target && args.other() instanceof LivingEntity caster
+                LivingEntity target = Curses.living(args.entity());
+                return target != null && args.other() instanceof LivingEntity caster
                         && target != caster && target.isAlive()
                         && EntityRelations.actionAllowed(SpellTarget.FocusMode.DIRECT, SpellTarget.Intent.HARMFUL, caster, target);
             } catch (Exception e) {
@@ -60,7 +62,8 @@ public final class CursePredicates {
         });
         SpellEntityPredicates.register(Blightcaller.id("cursed"), args -> {
             try {
-                return args.entity() instanceof LivingEntity living && Curses.curseCount(living) > 0;
+                LivingEntity living = Curses.living(args.entity());
+                return living != null && Curses.curseCount(living) > 0;
             } catch (Exception e) {
                 Blightcaller.LOGGER.error("Blightcaller: predicate cursed failed", e);
                 return false;

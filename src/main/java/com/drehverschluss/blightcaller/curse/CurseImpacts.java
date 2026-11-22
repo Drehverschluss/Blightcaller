@@ -96,7 +96,9 @@ public final class CurseImpacts {
     public static SpellHandlers.ImpactResult curse(String handler, double factor, Holder<Spell> spell, SpellPower.Result power,
                                                    LivingEntity caster, @Nullable net.minecraft.world.entity.Entity target,
                                                    SpellExecution.ImpactContext context, boolean extend) {
-        if (!(target instanceof LivingEntity living) || living.level().isClientSide() || living.isDeadOrDying()) {
+        // a hit on a body part (Ender Dragon) curses the owner (phase 9B)
+        LivingEntity living = Curses.living(target);
+        if (living == null || living.level().isClientSide() || living.isDeadOrDying()) {
             return new SpellHandlers.ImpactResult(false, false);
         }
         CurseSource source = curseSource(caster, spell, handler, living);

@@ -7,7 +7,7 @@
     {
       "spell_pattern": "blightcaller:drain_soul",
       "power_modifier": {
-        "power_multiplier": 0.1
+        "power_multiplier": 0.35
       },
       "impact_filters": [
         {
