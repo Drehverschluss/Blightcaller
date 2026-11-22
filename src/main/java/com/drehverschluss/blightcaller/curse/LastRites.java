@@ -42,7 +42,12 @@ import org.jetbrains.annotations.Nullable;
  *     window neither swallows it nor is touched by it (same pattern as the curse ticks). Targets without own curses with
  *     damage get nothing (the impact fails, no visuals).</li>
  * </ul>
- * Handler ids: {@code blightcaller:last_rites} (4 s x 1.5) or {@code blightcaller:last_rites/<seconds>/<factor>}, e.g.
+ * <ul>
+ *     <li><b>Base damage</b> (optional third value, phase 9A, default 0 = none): {@code base} x soul power at every target that
+ *     carries at least one of the caster's curses (with or without damage), with the bonus per curse level of the target modifiers,
+ *     as a normal soul spell hit with a critical roll, before the detonation. Curses without damage stay on the target.</li>
+ * </ul>
+ * Handler ids: {@code blightcaller:last_rites} (4 s x 1.5) or {@code blightcaller:last_rites/<seconds>/<factor>[/<base>]}, e.g.
  * {@code blightcaller:last_rites/4/1.5}. Handlers for the values used by the loaded spells are registered at server start.
  */
 public final class LastRites {
@@ -51,8 +56,12 @@ public final class LastRites {
     public static final double DEFAULT_SECONDS = 4.0;
     public static final double DEFAULT_FACTOR = 1.5;
 
-    /** Seconds and factor of a handler id. */
-    public record Values(double seconds, double factor) {}
+    /** Seconds, factor and base damage (x soul power, 0 = none) of a handler id. */
+    public record Values(double seconds, double factor, double base) {
+        public Values(double seconds, double factor) {
+            this(seconds, factor, 0.0);
+        }
+    }
 
     /** Last detonation per target entity id (Soul Echo asks right after, in the same tick). */
     private record Detonation(UUID caster, long tick) {}
@@ -100,6 +109,20 @@ public final class LastRites {
         if (data.isEmpty()) {
             return new SpellHandlers.ImpactResult(false, false);
         }
+        // base damage (phase 9A, optional): any own curse counts, also one without damage
+        boolean critical = false;
+        boolean based = false;
+        if (values.base() > 0.0 && hasOwnCurse(data.get(), casterId)) {
+            SpellPower.Result scaled = new SpellPower.Result(power.school(), power.baseValue() * values.base() * context.total(spell),
+                    power.criticalChance(), power.criticalDamage());
+            SpellPower.Result.Value hit = scaled.random(SpellPower.getVulnerability(living, power.school()));
+            critical = hit.isCritical();
+            based = true;
+            hurt(living, caster, (float) hit.amount());
+            if (living.isDeadOrDying()) {
+                return new SpellHandlers.ImpactResult(true, critical);
+            }
+        }
         for (Map.Entry<ResourceLocation, List<CurseEntry>> e : List.copyOf(data.get().all().entrySet())) {
             Optional<Holder.Reference<MobEffect>> curse = BuiltInRegistries.MOB_EFFECT.getHolder(e.getKey());
             if (curse.isEmpty() || !Curses.dealsDamage(curse.get().value()) || e.getValue().isEmpty()) {
@@ -125,7 +148,7 @@ public final class LastRites {
             }
         }
         if (detonate.isEmpty()) {
-            return new SpellHandlers.ImpactResult(false, false);
+            return new SpellHandlers.ImpactResult(based, critical);
         }
         // Coup de Grace on top (target below the health threshold before the hit)
         double coup = SkillMarkers.coupDeGrace(caster, living);
@@ -143,7 +166,18 @@ public final class LastRites {
         if (amount > 0.0) {
             hurt(living, caster, (float) amount);
         }
-        return new SpellHandlers.ImpactResult(true, false);
+        return new SpellHandlers.ImpactResult(true, critical);
+    }
+
+    private static boolean hasOwnCurse(CurseData data, UUID caster) {
+        for (List<CurseEntry> entries : data.all().values()) {
+            for (CurseEntry entry : entries) {
+                if (entry.sameCaster(caster)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /**
@@ -187,16 +221,18 @@ public final class LastRites {
             return Optional.empty();
         }
         String[] parts = handler.substring(PREFIX.length()).trim().toLowerCase(Locale.ROOT).split("/");
-        if (parts.length != 2) {
+        if (parts.length != 2 && parts.length != 3) {
             return Optional.empty();
         }
         try {
             double seconds = Double.parseDouble(parts[0]);
             double factor = Double.parseDouble(parts[1]);
-            if (!Double.isFinite(seconds) || !Double.isFinite(factor) || seconds < 0.0 || factor < 0.0) {
+            double base = parts.length == 3 ? Double.parseDouble(parts[2]) : 0.0;
+            if (!Double.isFinite(seconds) || !Double.isFinite(factor) || !Double.isFinite(base) || seconds < 0.0 || factor < 0.0
+                    || base < 0.0) {
                 return Optional.empty();
             }
-            return Optional.of(new Values(seconds, factor));
+            return Optional.of(new Values(seconds, factor, base));
         } catch (NumberFormatException e) {
             return Optional.empty();
         }
@@ -235,7 +271,7 @@ public final class LastRites {
                         register(handler, values.get());
                         added.add(handler);
                     } else {
-                        Blightcaller.LOGGER.warn("Blightcaller: invalid Last Rites impact '{}', expected {}<seconds>/<factor>", handler, PREFIX);
+                        Blightcaller.LOGGER.warn("Blightcaller: invalid Last Rites impact '{}', expected {}<seconds>/<factor>[/<base>]", handler, PREFIX);
                     }
                 }
             }
