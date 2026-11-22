@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_blightcaller_robe_feet": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "blightcaller:blightcaller_robe_feet"
+          }
+        ]
+      }
+    },
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "blightcaller:amethyst_shard_from_smelting_blightcaller_robe_feet"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_blightcaller_robe_feet"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "blightcaller:amethyst_shard_from_smelting_blightcaller_robe_feet"
+    ]
+  }
+}

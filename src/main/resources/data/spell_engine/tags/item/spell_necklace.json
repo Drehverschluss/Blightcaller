@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "blightcaller:rotheart_necklace",
+      "required": false
+    },
+    {
+      "id": "blightcaller:witchbone_necklace",
+      "required": false
+    }
+  ]
+}

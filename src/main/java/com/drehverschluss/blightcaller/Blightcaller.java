@@ -2,6 +2,7 @@ package com.drehverschluss.blightcaller;
 
 import com.drehverschluss.blightcaller.attribute.BlightcallerAttributes;
 import com.drehverschluss.blightcaller.command.BlightcallerCommands;
+import com.drehverschluss.blightcaller.compat.WizardMerchantTrades;
 import com.drehverschluss.blightcaller.compat.skilltree.ClassLockPayload;
 import com.drehverschluss.blightcaller.compat.skilltree.SkillTab;
 import com.drehverschluss.blightcaller.compat.skilltree.SkillTreeCompat;
@@ -31,6 +32,7 @@ import net.neoforged.fml.config.ModConfig;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.AddPackFindersEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
+import net.neoforged.neoforge.event.village.VillagerTradesEvent;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.registries.RegisterEvent;
 import com.drehverschluss.blightcaller.weapon.WeaponPassives;
@@ -72,6 +74,8 @@ public class Blightcaller {
             SkillTreeCompat.init();
         }
         NeoForge.EVENT_BUS.addListener(RegisterCommandsEvent.class, BlightcallerCommands::onRegisterCommands);
+        // Wizard Merchant offers: only matches the profession wizards:wizard_merchant, so nothing happens without Wizards
+        NeoForge.EVENT_BUS.addListener(VillagerTradesEvent.class, WizardMerchantTrades::onVillagerTrades);
         LOGGER.info("Blightcaller {} loaded", modContainer.getModInfo().getVersion());
     }
 

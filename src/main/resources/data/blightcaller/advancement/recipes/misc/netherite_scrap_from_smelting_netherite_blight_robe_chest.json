@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_netherite_blight_robe_chest": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "blightcaller:netherite_blight_robe_chest"
+          }
+        ]
+      }
+    },
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "blightcaller:netherite_scrap_from_smelting_netherite_blight_robe_chest"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_netherite_blight_robe_chest"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "blightcaller:netherite_scrap_from_smelting_netherite_blight_robe_chest"
+    ]
+  }
+}

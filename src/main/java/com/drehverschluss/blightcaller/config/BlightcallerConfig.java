@@ -28,6 +28,7 @@ public final class BlightcallerConfig {
     public static final ModConfigSpec.DoubleValue SOUL_MIGRATION_RANGE;
     public static final ModConfigSpec.IntValue BLIGHTBLOOM_MAX_PER_TICK;
     public static final ModConfigSpec.IntValue GRAVE_MOULD_MAX_PATCHES;
+    public static final ModConfigSpec.BooleanValue TRADES_WIZARD_MERCHANT;
     public static final ModConfigSpec.ConfigValue<String> SKILL_TREE_MODE;
     public static final ModConfigSpec.BooleanValue SKILL_TREE_WEAPON_SKILLS;
     public static final ModConfigSpec.ConfigValue<String> SKILL_TREE_CLASS_TREE_LAYOUT;
@@ -125,6 +126,16 @@ public final class BlightcallerConfig {
         GRAVE_MOULD_MAX_PATCHES = builder
                 .comment("Most patches of one player at a time. A new patch makes the oldest one wither away.")
                 .defineInRange("max_patches", 2, 1, 64);
+        builder.pop();
+
+        builder.comment("Villager trades.")
+                .push("trades");
+        TRADES_WIZARD_MERCHANT = builder
+                .comment("Only with Wizards installed: the Wizard Merchant also offers Blightcaller items, like the schools of Wizards:",
+                         "Soul Rune (level 1), Blight Wand (level 2), enchanted Blight Grimoire (level 5). false: no Blightcaller offers,",
+                         "the merchant picks from the offers of the other schools only. Applies to offers rolled from now on;",
+                         "merchants keep the offers they already have.")
+                .define("wizard_merchant", true);
         builder.pop();
 
         builder.comment("Blightcaller skills (only with Skill Tree (RPG Series) installed).")

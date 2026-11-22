@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_netherite_blight_robe_head": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "blightcaller:netherite_blight_robe_head"
+          }
+        ]
+      }
+    },
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "blightcaller:netherite_scrap_from_blasting_netherite_blight_robe_head"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_netherite_blight_robe_head"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "blightcaller:netherite_scrap_from_blasting_netherite_blight_robe_head"
+    ]
+  }
+}

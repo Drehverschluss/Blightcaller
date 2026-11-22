@@ -1,0 +1,31 @@
+{
+  "parent": "rpg_series:classes",
+  "criteria": {
+    "book": {
+      "trigger": "spell_engine:spell_book_creation",
+      "conditions": {
+        "spell_pool": "blightcaller:spell_book/blightcaller"
+      }
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "spell_engine:spell_book",
+      "count": 1,
+      "components": {
+        "spell_engine:item_model": "blightcaller:item/spell_book/blightcaller"
+      }
+    },
+    "title": {
+      "translate": "advancements.blightcaller.path_choose_blightcaller.title"
+    },
+    "description": {
+      "translate": "advancements.blightcaller.path_choose_blightcaller.description"
+    }
+  },
+  "requirements": [
+    [
+      "book"
+    ]
+  ]
+}

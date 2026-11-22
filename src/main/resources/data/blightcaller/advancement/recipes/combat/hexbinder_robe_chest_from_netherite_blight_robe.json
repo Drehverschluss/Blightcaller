@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_gravemothers_bone_crystal": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "blightcaller:gravemothers_bone_crystal"
+          }
+        ]
+      }
+    },
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "blightcaller:hexbinder_robe_chest_from_netherite_blight_robe"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_gravemothers_bone_crystal"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "blightcaller:hexbinder_robe_chest_from_netherite_blight_robe"
+    ]
+  }
+}

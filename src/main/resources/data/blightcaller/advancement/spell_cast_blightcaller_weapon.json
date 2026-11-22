@@ -1,0 +1,31 @@
+{
+  "parent": "blightcaller:path_choose_blightcaller",
+  "criteria": {
+    "cast": {
+      "trigger": "spell_engine:spell_cast",
+      "conditions": {
+        "spell": "blightcaller:hex_bolt",
+        "other_spell": "blightcaller:blight_burst"
+      }
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "blightcaller:wand_blight",
+      "count": 1
+    },
+    "title": {
+      "translate": "advancements.blightcaller.spell_cast_blightcaller_weapon.title"
+    },
+    "description": {
+      "translate": "advancements.blightcaller.spell_cast_blightcaller_weapon.description"
+    },
+    "show_toast": false,
+    "announce_to_chat": false
+  },
+  "requirements": [
+    [
+      "cast"
+    ]
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_grimoire_netherite_blight": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "blightcaller:grimoire_netherite_blight"
+          }
+        ]
+      }
+    },
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "blightcaller:netherite_scrap_from_smelting_grimoire_netherite_blight"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_grimoire_netherite_blight"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "blightcaller:netherite_scrap_from_smelting_grimoire_netherite_blight"
+    ]
+  }
+}

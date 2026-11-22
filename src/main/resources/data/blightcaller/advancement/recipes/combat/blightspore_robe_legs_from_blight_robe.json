@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_gravemothers_spore_crystal": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "blightcaller:gravemothers_spore_crystal"
+          }
+        ]
+      }
+    },
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "blightcaller:blightspore_robe_legs_from_blight_robe"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_gravemothers_spore_crystal"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "blightcaller:blightspore_robe_legs_from_blight_robe"
+    ]
+  }
+}

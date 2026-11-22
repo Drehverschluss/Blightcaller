@@ -1,0 +1,30 @@
+{
+  "parent": "blightcaller:spell_novice_blightcaller",
+  "criteria": {
+    "bind": {
+      "trigger": "spell_engine:spell_binding",
+      "conditions": {
+        "spell_pool": "blightcaller:spell_book/blightcaller",
+        "complete": true
+      }
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "blightcaller:grimoire_netherite_blight",
+      "count": 1
+    },
+    "title": {
+      "translate": "advancements.blightcaller.spell_master_blightcaller.title"
+    },
+    "description": {
+      "translate": "advancements.blightcaller.spell_master_blightcaller.description"
+    },
+    "frame": "challenge"
+  },
+  "requirements": [
+    [
+      "bind"
+    ]
+  ]
+}

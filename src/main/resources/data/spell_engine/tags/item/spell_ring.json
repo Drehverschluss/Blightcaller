@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "blightcaller:rotheart_ring",
+      "required": false
+    },
+    {
+      "id": "blightcaller:witchbone_ring",
+      "required": false
+    }
+  ]
+}

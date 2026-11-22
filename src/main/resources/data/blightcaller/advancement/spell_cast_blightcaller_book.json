@@ -1,0 +1,33 @@
+{
+  "parent": "blightcaller:spell_novice_blightcaller",
+  "criteria": {
+    "cast": {
+      "trigger": "spell_engine:spell_cast",
+      "conditions": {
+        "spell": "#blightcaller:spell_book/blightcaller"
+      }
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "spell_engine:spell_book",
+      "count": 1,
+      "components": {
+        "spell_engine:item_model": "blightcaller:item/spell_book/blightcaller"
+      }
+    },
+    "title": {
+      "translate": "advancements.blightcaller.spell_cast_blightcaller_book.title"
+    },
+    "description": {
+      "translate": "advancements.blightcaller.spell_cast_blightcaller_book.description"
+    },
+    "show_toast": false,
+    "announce_to_chat": false
+  },
+  "requirements": [
+    [
+      "cast"
+    ]
+  ]
+}

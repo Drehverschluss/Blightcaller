@@ -1,0 +1,29 @@
+{
+  "parent": "blightcaller:path_choose_blightcaller",
+  "criteria": {
+    "bind": {
+      "trigger": "spell_engine:spell_binding",
+      "conditions": {
+        "spell_pool": "blightcaller:spell_book/blightcaller",
+        "complete": false
+      }
+    }
+  },
+  "display": {
+    "icon": {
+      "id": "blightcaller:grimoire_blight",
+      "count": 1
+    },
+    "title": {
+      "translate": "advancements.blightcaller.spell_novice_blightcaller.title"
+    },
+    "description": {
+      "translate": "advancements.blightcaller.spell_novice_blightcaller.description"
+    }
+  },
+  "requirements": [
+    [
+      "bind"
+    ]
+  ]
+}
