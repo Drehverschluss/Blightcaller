@@ -33,6 +33,7 @@ import net.neoforged.neoforge.event.AddPackFindersEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.registries.RegisterEvent;
+import com.drehverschluss.blightcaller.weapon.WeaponPassives;
 import org.slf4j.Logger;
 
 @Mod(Blightcaller.MODID)
@@ -50,6 +51,8 @@ public class Blightcaller {
         BlightcallerTrinkets.init();
         modEventBus.addListener(RegisterEvent.class, BlightcallerItems::onRegister);
         modEventBus.addListener(RegisterEvent.class, BlightcallerTrinkets::onRegister);
+        modEventBus.addListener(RegisterEvent.class, WeaponPassives::onRegister);
+        WeaponPassives.init();
         CurseEvents.register();
         CurseImpacts.register();
         CursePredicates.register();

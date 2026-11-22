@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "blightcaller:wand_gravemother",
+      "required": false
+    },
+    {
+      "id": "blightcaller:grimoire_gravemother",
+      "required": false
+    }
+  ]
+}

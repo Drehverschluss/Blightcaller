@@ -2,6 +2,14 @@
   "values": [
     "blightcaller:grimoire_blightcaller",
     "blightcaller:grimoire_blight",
-    "blightcaller:grimoire_netherite_blight"
+    "blightcaller:grimoire_netherite_blight",
+    {
+      "id": "blightcaller:grimoire_dragonbone_blight",
+      "required": false
+    },
+    {
+      "id": "blightcaller:grimoire_gravemother",
+      "required": false
+    }
   ]
 }

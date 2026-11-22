@@ -12,6 +12,14 @@
     {
       "id": "blightcaller:wailing_skull",
       "required": false
+    },
+    {
+      "id": "blightcaller:wand_gravemother",
+      "required": false
+    },
+    {
+      "id": "blightcaller:grimoire_gravemother",
+      "required": false
     }
   ]
 }

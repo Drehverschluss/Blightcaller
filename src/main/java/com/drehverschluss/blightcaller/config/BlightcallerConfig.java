@@ -27,6 +27,7 @@ public final class BlightcallerConfig {
     public static final ModConfigSpec.IntValue SOUL_MIGRATION_MAX_JUMPS;
     public static final ModConfigSpec.DoubleValue SOUL_MIGRATION_RANGE;
     public static final ModConfigSpec.IntValue BLIGHTBLOOM_MAX_PER_TICK;
+    public static final ModConfigSpec.IntValue GRAVE_MOULD_MAX_PATCHES;
     public static final ModConfigSpec.ConfigValue<String> SKILL_TREE_MODE;
     public static final ModConfigSpec.BooleanValue SKILL_TREE_WEAPON_SKILLS;
     public static final ModConfigSpec.ConfigValue<String> SKILL_TREE_CLASS_TREE_LAYOUT;
@@ -115,6 +116,15 @@ public final class BlightcallerConfig {
                 .comment("Most blooms in one server tick, against lag spikes in big hordes. Further blooms wait for the next tick",
                         "(none is lost). It only spreads the work over ticks, it is no limit on the chain itself.")
                 .defineInRange("max_per_tick", 3, 1, 1000);
+        builder.pop();
+
+        builder.comment("Grave Mould: passive of Gravemother's Herbarium. Where Blight Burst bursts, a patch of mould stays on the ground",
+                        "and puts Soulburn on the enemies in it every second (spell blightcaller:grave_mould: radius, duration, interval",
+                        "and Soulburn are in that spell).")
+                .push("grave_mould");
+        GRAVE_MOULD_MAX_PATCHES = builder
+                .comment("Most patches of one player at a time. A new patch makes the oldest one wither away.")
+                .defineInRange("max_patches", 2, 1, 64);
         builder.pop();
 
         builder.comment("Blightcaller skills (only with Skill Tree (RPG Series) installed).")

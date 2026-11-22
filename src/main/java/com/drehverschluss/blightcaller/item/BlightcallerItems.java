@@ -26,6 +26,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.SmithingTemplateItem;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.neoforged.fml.ModList;
 import net.neoforged.neoforge.registries.RegisterEvent;
 import net.spell_engine.PlatformEvents;
 import net.spell_engine.api.spell.Spell;
@@ -68,10 +69,32 @@ import java.util.function.Supplier;
  * ({@code data/blightcaller/equipment_set/*.json}, linked through the data component {@code spell_engine:equipment_set}),
  * made at the smithing table from a tier 2 or 3 robe piece with the Gravemother Upgrade template and one of the two
  * Gravemother crystals. Template and crystals drop as loot ({@code rpg_series:loot_tier/tier_5_armors}).
+ * <p>
+ * Tier 4 weapons (phase 8C, like Wizards and Arsenal): the Dragonbone Blight Wand and Grimoire (+8, only with Better End or the
+ * switch {@code ignore_items_required_mods} in {@code config/blightcaller/tweaks.json}, crafted from Better End items) and two
+ * unique weapons of the Gravemother that only drop as loot (tier 5, rare, +8): Gravemother's Fingerbone (Hex Bolt and the
+ * passive Bone Spike) and Gravemother's Herbarium (Blight Burst and the passive Grave Mould).
  */
 public final class BlightcallerItems {
     public static final ResourceLocation TAB_ID = Blightcaller.id("general");
     public static final ResourceKey<CreativeModeTab> TAB_KEY = ResourceKey.create(Registries.CREATIVE_MODE_TAB, TAB_ID);
+
+    /** {@code config/blightcaller/tweaks.json}, read once at startup (before the items are registered). */
+    public static final ConfigManager<Tweaks> TWEAKS_CONFIG = new ConfigManager<>("tweaks", new Tweaks())
+            .builder()
+            .setDirectory(Blightcaller.MODID)
+            .sanitize(true)
+            .build();
+
+    /** Startup switches, like {@code config/wizards/tweaks.json}. */
+    public static class Tweaks {
+        /** Written into the file, explains the option (JSON has no comments). */
+        public String _comment = "ignore_items_required_mods: true registers items that need another mod even without that"
+                + " mod (Dragonbone Blight Wand and Dragonbone Blight Grimoire: Better End). Default false. Server and client"
+                + " must use the same value. Needs a restart.";
+        /** Registers items that need another mod (the dragonbone weapons: Better End) even without that mod. */
+        public boolean ignore_items_required_mods = false;
+    }
 
     /** {@code config/blightcaller/equipment.json}, same format as the equipment configs of Wizards and Berserker. */
     public static final ConfigManager<ConfigFile.Equipment> EQUIPMENT_CONFIG = new ConfigManager<>("equipment", new ConfigFile.Equipment())
@@ -83,6 +106,11 @@ public final class BlightcallerItems {
     // Spell IDs of the weapon containers. The spells themselves follow in phase 4.
     public static final ResourceLocation HEX_BOLT = Blightcaller.id("hex_bolt");
     public static final ResourceLocation BLIGHT_BURST = Blightcaller.id("blight_burst");
+    // Passives of the two unique weapons (phase 8C, spell.BoneSpike / spell.GraveMould)
+    public static final ResourceLocation BONE_SPIKE = Blightcaller.id("bone_spike");
+    public static final ResourceLocation GRAVE_MOULD = Blightcaller.id("grave_mould");
+    /** Mod id of Better End: the dragonbone weapons need its items (recipe, repair). */
+    public static final String BETTER_END = "betterend";
 
     // Spell book and scroll (spell tags, the items come from Spell Engine)
     public static final TagKey<Spell> SPELL_BOOK_TAG = TagKey.create(SpellRegistry.KEY, Blightcaller.id("spell_book/blightcaller"));
@@ -109,6 +137,9 @@ public final class BlightcallerItems {
     private static final float WEAPON_SOUL_T1 = 5.0F;
     private static final float WEAPON_SOUL_T2 = 6.0F;
     private static final float WEAPON_SOUL_T3 = 7.0F;
+    // tier 4 (dragonbone) and the uniques (tier 5): +8 like the tier 4 staves of Wizards and the unique staves of Arsenal, also
+    // for the uniques because they are one-handed (the two-handed Stormbringer Staff has +10)
+    private static final float WEAPON_SOUL_T4 = 8.0F;
 
     // Armor values like the Wizard Robe (tier 1), Frost Robe (tier 2) and Netherite Frost Robe (tier 3) of Wizards
     private static final int ARMOR_HEAD = 1;
@@ -138,12 +169,25 @@ public final class BlightcallerItems {
     public static Weapon.Entry grimoireBlightcaller;
     public static Weapon.Entry grimoireBlight;
     public static Weapon.Entry grimoireNetheriteBlight;
+    /** Null without Better End (unless {@link Tweaks#ignore_items_required_mods}). */
+    public static Weapon.Entry wandDragonboneBlight;
+    /** Null without Better End (unless {@link Tweaks#ignore_items_required_mods}). */
+    public static Weapon.Entry grimoireDragonboneBlight;
+    public static Weapon.Entry wandGravemother;
+    public static Weapon.Entry grimoireGravemother;
 
     private BlightcallerItems() {}
 
-    /** Loads equipment.json. Called from the mod constructor, before registration. */
+    /** Loads tweaks.json and equipment.json. Called from the mod constructor, before registration. */
     public static void init() {
+        TWEAKS_CONFIG.refresh();
+        TWEAKS_CONFIG.save();
         EQUIPMENT_CONFIG.refresh();
+    }
+
+    /** True if the dragonbone weapons are registered: Better End is loaded or the switch in tweaks.json is on. */
+    public static boolean dragonboneWeapons() {
+        return ModList.get().isLoaded(BETTER_END) || TWEAKS_CONFIG.value.ignore_items_required_mods;
     }
 
     public static void onRegister(RegisterEvent event) {
@@ -162,15 +206,38 @@ public final class BlightcallerItems {
         Supplier<Ingredient> soulSand = () -> Ingredient.of(Items.SOUL_SAND, Items.SOUL_SOIL);
         Supplier<Ingredient> netherite = () -> Ingredient.of(Items.NETHERITE_INGOT);
 
-        // Weapons first: the creative tab lists them in this order (wands, grimoires), then the robes, then book and scroll
+        // Tier 4 (phase 8C) like the tier 4 staves of Wizards: only with Better End, repaired with aeternium (netherite without
+        // Better End), normal rarity, fire resistant (loot tier 4), crafted from Better End items (recipe condition), no passive.
+        boolean betterEnd = ModList.get().isLoaded(BETTER_END);
+        Supplier<Ingredient> aeternium = betterEnd
+                ? () -> Ingredient.of(BuiltInRegistries.ITEM.get(ResourceLocation.fromNamespaceAndPath(BETTER_END, "aeternium_ingot")))
+                : netherite;
+        boolean dragonbone = dragonboneWeapons();
+
+        // Weapons first: the creative tab lists them in this order (wands of tier 1 to 4 and the unique wand, then the
+        // grimoires the same way), then the robes, then book and scroll
+        List<Weapon.Entry> weapons = new ArrayList<>();
         wandBlightcaller = wand("wand_blightcaller", Equipment.Tier.TIER_1, amethyst, WEAPON_SOUL_T1, HEX_BOLT);
         wandBlight = wand("wand_blight", Equipment.Tier.TIER_2, soulSand, WEAPON_SOUL_T2, HEX_BOLT);
         wandNetheriteBlight = wand("wand_netherite_blight", Equipment.Tier.TIER_3, netherite, WEAPON_SOUL_T3, HEX_BOLT);
+        weapons.addAll(List.of(wandBlightcaller, wandBlight, wandNetheriteBlight));
+        if (dragonbone) {
+            wandDragonboneBlight = wand("wand_dragonbone_blight", Equipment.Tier.TIER_4, aeternium, WEAPON_SOUL_T4, HEX_BOLT);
+            weapons.add(wandDragonboneBlight);
+        }
+        wandGravemother = unique("wand_gravemother", netherite, HEX_BOLT, BONE_SPIKE);
+        weapons.add(wandGravemother);
         grimoireBlightcaller = wand("grimoire_blightcaller", Equipment.Tier.TIER_1, amethyst, WEAPON_SOUL_T1, BLIGHT_BURST);
         grimoireBlight = wand("grimoire_blight", Equipment.Tier.TIER_2, soulSand, WEAPON_SOUL_T2, BLIGHT_BURST);
         grimoireNetheriteBlight = wand("grimoire_netherite_blight", Equipment.Tier.TIER_3, netherite, WEAPON_SOUL_T3, BLIGHT_BURST);
-        Weapon.register(config.weapons, List.of(wandBlightcaller, wandBlight, wandNetheriteBlight,
-                grimoireBlightcaller, grimoireBlight, grimoireNetheriteBlight), TAB_KEY);
+        weapons.addAll(List.of(grimoireBlightcaller, grimoireBlight, grimoireNetheriteBlight));
+        if (dragonbone) {
+            grimoireDragonboneBlight = wand("grimoire_dragonbone_blight", Equipment.Tier.TIER_4, aeternium, WEAPON_SOUL_T4, BLIGHT_BURST);
+            weapons.add(grimoireDragonboneBlight);
+        }
+        grimoireGravemother = unique("grimoire_gravemother", netherite, BLIGHT_BURST, GRAVE_MOULD);
+        weapons.add(grimoireGravemother);
+        Weapon.register(config.weapons, weapons, TAB_KEY);
 
         Armor.Entry robeT1 = robe("blightcaller_robe", 1, DURABILITY_T1, ENCHANTABILITY_T1, amethyst, SOUL_T1, CURSE_DURATION_T1);
         Armor.Entry robeT2 = robe("blight_robe", 2, DURABILITY_T2, ENCHANTABILITY_T2, soulSand, SOUL_T2, CURSE_DURATION_T2);
@@ -210,6 +277,17 @@ public final class BlightcallerItems {
                 attribute.value = soulPower;
             }
         }
+        return entry;
+    }
+
+    /**
+     * Unique weapon of the Gravemother (phase 8C), like the Stormbringer Staff and the unique staves of Arsenal: tier 5 (loot
+     * tier 5 via tag, fire resistant), rare, no recipe. Its passive is part of the item's spell container (Spell Engine shows it
+     * in the tooltip and only fires it with the item in the main hand, {@code equipment_condition MAINHAND}).
+     */
+    private static Weapon.Entry unique(String name, Supplier<Ingredient> repair, ResourceLocation spell, ResourceLocation passive) {
+        Weapon.Entry entry = wand(name, Equipment.Tier.TIER_5, repair, WEAPON_SOUL_T4, spell).withAdditionalSpell(passive.toString());
+        entry.rarity = Rarity.RARE;
         return entry;
     }
 

@@ -40,5 +40,6 @@ public class BlightcallerClient {
         }
         FxClient.register(modEventBus);
         CurseDisplay.register(modEventBus);
+        com.drehverschluss.blightcaller.client.WeaponClient.register(modEventBus);
     }
 }

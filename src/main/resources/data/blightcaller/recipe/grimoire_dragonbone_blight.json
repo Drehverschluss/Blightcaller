@@ -1,0 +1,33 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "betterend"
+    }
+  ],
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "F": {
+      "item": "minecraft:fermented_spider_eye"
+    },
+    "D": {
+      "item": "betterend:dragon_bone_block"
+    },
+    "A": {
+      "item": "betterend:aeternium_ingot"
+    },
+    "B": {
+      "item": "minecraft:book"
+    }
+  },
+  "pattern": [
+    " F ",
+    "DBD",
+    "A A"
+  ],
+  "result": {
+    "id": "blightcaller:grimoire_dragonbone_blight",
+    "count": 1
+  }
+}

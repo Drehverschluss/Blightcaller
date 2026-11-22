@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "blightcaller:wand_dragonbone_blight",
+      "required": false
+    },
+    {
+      "id": "blightcaller:grimoire_dragonbone_blight",
+      "required": false
+    }
+  ]
+}

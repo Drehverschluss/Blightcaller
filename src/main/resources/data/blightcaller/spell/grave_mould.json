@@ -1,0 +1,144 @@
+{
+  "school": "spell_power:soul",
+  "range": 0.0,
+  "tier": 4,
+  "type": "PASSIVE",
+  "passive": {
+    "triggers": [
+      {
+        "type": "SPELL_AREA_IMPACT",
+        "spell": {
+          "id": "blightcaller:blight_burst",
+          "type": "ACTIVE"
+        },
+        "equipment_condition": "MAINHAND"
+      }
+    ]
+  },
+  "target": {
+    "type": "FROM_TRIGGER"
+  },
+  "deliver": {
+    "type": "CLOUD",
+    "clouds": [
+      {
+        "entity_type_id": "blightcaller:grave_mould",
+        "spawn_ticks": 10,
+        "despawn_ticks": 10,
+        "volume": {
+          "radius": 2.5,
+          "area": {
+            "vertical_range_multiplier": 0.5,
+            "distance_dropoff": "NONE"
+          }
+        },
+        "time_to_live_seconds": 4.0,
+        "impact_tick_interval": 20,
+        "spawn": {
+          "sound": {
+            "id": "minecraft:block.moss.place",
+            "volume": 0.9,
+            "pitch": 0.7,
+            "randomness": 0.1
+          }
+        },
+        "despawn": {
+          "sound": {
+            "id": "minecraft:block.moss_carpet.break",
+            "volume": 0.6,
+            "pitch": 0.6
+          }
+        },
+        "client_data": {
+          "particle_spawn_interval": 3,
+          "interval_particles": [
+            {
+              "id": "spell_engine:magic_spark",
+              "appearance": {
+                "color": 2580638207,
+                "motion": "STATIC",
+                "scale": 0.55
+              },
+              "batch": {
+                "count": 5.0,
+                "shape": "PILLAR",
+                "anchor": "GROUND",
+                "min_speed": 0.0,
+                "max_speed": 0.0
+              }
+            },
+            {
+              "id": "spell_engine:smoke_medium",
+              "appearance": {
+                "color": 1585068774,
+                "motion": "STATIC",
+                "scale": 0.6
+              },
+              "batch": {
+                "count": 1.5,
+                "shape": "PILLAR",
+                "anchor": "GROUND",
+                "min_speed": 0.0,
+                "max_speed": 0.004
+              }
+            },
+            {
+              "id": "spell_engine:magic_spark",
+              "appearance": {
+                "color": 3387467980,
+                "motion": "ASCEND",
+                "scale": 0.35
+              },
+              "batch": {
+                "count": 1.5,
+                "shape": "PILLAR",
+                "anchor": "GROUND",
+                "min_speed": 0.01,
+                "max_speed": 0.03
+              }
+            },
+            {
+              "id": "spell_engine:magic_spark",
+              "appearance": {
+                "color": 3113025535,
+                "motion": "ASCEND",
+                "scale": 0.3
+              },
+              "batch": {
+                "count": 0.4,
+                "shape": "PILLAR",
+                "anchor": "GROUND",
+                "min_speed": 0.015,
+                "max_speed": 0.035
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "impacts": [
+    {
+      "action": {
+        "type": "STATUS_EFFECT",
+        "status_effect": {
+          "effect_id": "blightcaller:soulburn",
+          "duration": 4.0
+        }
+      }
+    },
+    {
+      "action": {
+        "type": "CUSTOM",
+        "custom": {
+          "intent": "HARMFUL",
+          "handler": "blightcaller:curse/0.1"
+        }
+      }
+    }
+  ],
+  "cost": {
+    "exhaust": 0.0,
+    "durability": 0
+  }
+}

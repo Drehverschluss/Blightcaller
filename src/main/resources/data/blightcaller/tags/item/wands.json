@@ -2,6 +2,14 @@
   "values": [
     "blightcaller:wand_blightcaller",
     "blightcaller:wand_blight",
-    "blightcaller:wand_netherite_blight"
+    "blightcaller:wand_netherite_blight",
+    {
+      "id": "blightcaller:wand_dragonbone_blight",
+      "required": false
+    },
+    {
+      "id": "blightcaller:wand_gravemother",
+      "required": false
+    }
   ]
 }

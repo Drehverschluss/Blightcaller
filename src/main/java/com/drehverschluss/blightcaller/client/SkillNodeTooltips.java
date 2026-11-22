@@ -38,6 +38,8 @@ import org.jetbrains.annotations.Nullable;
  *     <li>{@code {rites_bonus}}, {@code {rites_base}} (Improved Last Rites), {@code {focus_bonus}}, {@code {focus_base}},
  *     {@code {focus_max}}, {@code {focus_max_base}} (Hex Bolt with the wand choice): the bonus per curse level read from the target
  *     modifiers of the spell, with and without the node; {@code {burst_range}}, {@code {burst_base}}.</li>
+ *     <li>Passives of the unique weapons: {@code {spike_curse_level}} (curse level in the trigger of Bone Spike), {@code {mould_max}}
+ *     (Grave Mould, {@code [grave_mould] max_patches}).</li>
  * </ul>
  * Percent signs: like {@code CurseTooltips}, a single {@code %} never directly followed by a letter.
  */
@@ -174,6 +176,20 @@ public final class SkillNodeTooltips {
         // active spells)
         if (spell.type == Spell.Type.PASSIVE) {
             text = text.replace("{relic_range}", number(spell.range));
+            // weapon passives (phase 8C): curse level a trigger needs (Bone Spike), most patches per player (Grave Mould)
+            if (spell.passive != null && spell.passive.triggers != null) {
+                for (Spell.Trigger trigger : spell.passive.triggers) {
+                    if (trigger.target_conditions == null) {
+                        continue;
+                    }
+                    for (Spell.TargetCondition condition : trigger.target_conditions) {
+                        if (CURSE_LEVEL.equals(condition.entity_predicate_id) && condition.entity_predicate_param != null) {
+                            text = text.replace("{spike_curse_level}", condition.entity_predicate_param);
+                        }
+                    }
+                }
+            }
+            text = text.replace("{mould_max}", Integer.toString(BlightcallerConfig.get(BlightcallerConfig.GRAVE_MOULD_MAX_PATCHES)));
             for (Spell.Impact impact : spell.impacts) {
                 if (impact.action != null && impact.action.type == Spell.Impact.Action.Type.STATUS_EFFECT && impact.action.status_effect != null) {
                     text = text.replace("{hex_duration}", number(impact.action.status_effect.duration));
