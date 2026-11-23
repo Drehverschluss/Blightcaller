@@ -16,14 +16,16 @@ import net.spell_engine.rpg_series.item.Armor;
  * with netherite grey edges (tier 3). Tier 2 and 3 glow through {@code <texture>_glowmask.png}: the diamond on the hood,
  * the runes on the chest, the eye on the back and the belt stone.
  * <p>
- * Tier 4 has one model per set, both built on the tier 1 to 3 robe:
+ * Tier 4 has one model per set (128 x 128 textures):
  * <ul>
- *     <li>Blightspore ({@code geo/blightspore_robe.geo.json}): dark blue violet with frayed moss, spore capsules (two at the
- *     collar, one on the chest, one as belt buckle), a vein tree over back and skirt, three bracket fungi on the right of
- *     the hood and two mushroom caps at the left hem. Glows pale sickly green.</li>
- *     <li>Hexbinder ({@code geo/hexbinder_robe.geo.json}): deep violet with bone white trims, three bone pendants, vertebrae
- *     on the front, a ritual sash with runes, a skull buckle, a collar with a bone hem, a ring of twelve bone beads with a
- *     brow eye around the hood and an eye in a rune ring on the back. Glows violet.</li>
+ *     <li>Blightspore ({@code geo/blightspore_robe.geo.json}): plague mask of bone white leather with glowing glass eyes
+ *     and a short beak under a pointed hat with a wide drooping brim, shelf fungi and pale mushrooms; moss shoulder pieces
+ *     with a cluster of glowing spore balls over narrower frayed moss sleeves; a vein tree on the back; dagged blue violet
+ *     panels over a wide moss skirt with mushrooms at the hem; leather boots with moss wraps. Glows pale sickly green.</li>
+ *     <li>Hexbinder ({@code geo/hexbinder_robe.geo.json}): near black square topped hood around a skull mask with a large
+ *     brow eye and a ring of rib spikes; a short ritual mantle with bone charms, rib spines and a skull on each shoulder;
+ *     bone bead necklace, vertebrae and a ritual sash with runes; a back panel with a slit eye in a rune ring; a wide skirt
+ *     with a bone bead fringe and a long tabard with runes; boots with stacked bone plates. Glows violet.</li>
  * </ul>
  * Textures {@code textures/armor/<id>.png}, glow masks {@code <id>_glowmask.png} (found by the Armor Model API). A resource
  * pack can replace models, textures and glow masks by these ids.
