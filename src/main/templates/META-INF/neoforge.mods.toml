@@ -21,6 +21,10 @@ displayName="${mod_name}"
 displayURL="https://github.com/Drehverschluss/Blightcaller"
 authors="${mod_authors}"
 description='''${mod_description}'''
+credits="Standalone class mod for Spell Engine and the RPG Series by Daedelus, not made by or affiliated with him. Built on Spell Engine, Spell Power Attributes, Runes and Armor Model API by Daedelus. See CREDITS.md in the source repository."
+# Pixel art icon: keep it sharp in the mod list
+logoFile="blightcaller_logo.png"
+logoBlur=false
 
 [[dependencies.${mod_id}]]
     modId="neoforge"

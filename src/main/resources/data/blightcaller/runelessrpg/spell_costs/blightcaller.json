@@ -2,11 +2,11 @@
   "factors": {
     "blightcaller:hex_bolt": 0.875,
     "blightcaller:blight_burst": 0.8,
-    "blightcaller:soul_rot": 0.57,
-    "blightcaller:enfeeble": 0.71,
+    "blightcaller:soul_rot": 0.5714286,
+    "blightcaller:enfeeble": 0.7142857,
     "blightcaller:gravebind": 1.0,
     "blightcaller:drain_soul": 2.0,
-    "blightcaller:pestilence": 0.71,
-    "blightcaller:last_rites": 0.71
+    "blightcaller:pestilence": 0.7142857,
+    "blightcaller:last_rites": 0.7142857
   }
 }
