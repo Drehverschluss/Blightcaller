@@ -18,7 +18,7 @@
         {
           "id": "spell_engine:magic_skull",
           "appearance": {
-            "color": 2321277183,
+            "color": 1868294399,
             "motion": "FLOAT",
             "scale": 0.5
           },
@@ -33,7 +33,7 @@
         {
           "id": "spell_engine:magic_spark",
           "appearance": {
-            "color": 2583652095,
+            "color": 2297462015,
             "scale": 0.5
           },
           "batch": {
@@ -60,22 +60,6 @@
             "count": 1.0,
             "shape": "NONE",
             "anchor": "GROUND"
-          }
-        },
-        {
-          "id": "spell_engine:smoke_medium",
-          "appearance": {
-            "color": 975851707,
-            "motion": "BURST",
-            "scale": 1.4
-          },
-          "batch": {
-            "count": 30.0,
-            "shape": "CIRCLE",
-            "anchor": "GROUND",
-            "min_speed": 0.3,
-            "max_speed": 0.5,
-            "extent": 5.0
           }
         }
       ]

@@ -44,7 +44,8 @@ import org.joml.Vector3f;
  * The burst of rot and soul shreds is a placeholder until the graphics phase.
  */
 public final class Blightbloom {
-    private static final Vector3f ROT_COLOR = new Vector3f(0.55F, 0.8F, 0.3F);
+    /** Rot green #5FBF5A (colour plan of phase 12B; before 0.55/0.8/0.3). */
+    private static final Vector3f ROT_COLOR = new Vector3f(0.373F, 0.749F, 0.353F);
     private static final Vector3f DARK_COLOR = new Vector3f(0.35F, 0.2F, 0.5F);
 
     /** One burst to come: where, which caster, after which game tick. */
@@ -153,7 +154,7 @@ public final class Blightbloom {
         effects(level, at, radius);
     }
 
-    /** Placeholder burst: rot dust and dark spores in a ring, soul shreds rising, a wet burst sound. */
+    /** Burst: rot dust and dark spores in a ring, sculk souls rising, falling spores, a wet burst sound. */
     private static void effects(ServerLevel level, Vec3 at, double radius) {
         DustParticleOptions rot = new DustParticleOptions(ROT_COLOR, 1.4F);
         DustParticleOptions dark = new DustParticleOptions(DARK_COLOR, 1.8F);
@@ -167,7 +168,8 @@ public final class Blightbloom {
             }
         }
         level.sendParticles(ParticleTypes.SCULK_SOUL, at.x, at.y, at.z, 8, 0.4, 0.4, 0.4, 0.06);
-        level.sendParticles(ParticleTypes.SQUID_INK, at.x, at.y, at.z, 10, 0.5, 0.3, 0.5, 0.05);
+        // phase 12B (A4 no. 44): falling spores instead of a black ink cloud (short lived; the floating spores of spore_blossom_air stayed for seconds)
+        level.sendParticles(ParticleTypes.FALLING_SPORE_BLOSSOM, at.x, at.y, at.z, 10, 0.5, 0.3, 0.5, 0.05);
         level.playSound(null, at.x, at.y, at.z, SoundEvents.SLIME_DEATH, SoundSource.PLAYERS, 1.0F, 0.5F);
         level.playSound(null, at.x, at.y, at.z, SoundEvents.SCULK_CATALYST_BLOOM, SoundSource.PLAYERS, 1.0F, 0.8F);
     }

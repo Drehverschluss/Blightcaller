@@ -15,14 +15,20 @@ import net.spell_engine.fx.SpellEngineParticles;
  * olive haze with yellow green spores.
  */
 public final class CurseParticles {
-    /** Violet #8A5BE0, opaque (RGBA). */
-    public static final long VIOLET = 0x8A5BE0FFL;
-    /** Pale green #99FF66, opaque (RGBA). */
-    public static final long PALE_GREEN = 0x99FF66FFL;
-    /** Sickly green of Soul Rot #7FB24A, opaque (RGBA). */
-    public static final long ROT_GREEN = 0x7FB24AFFL;
+    // colour plan of phase 12B: violet and the greens a little bluer, so that Complementary does not turn the violet pink
+    // (next to Arcane) and the greens yellow (like Pestilence)
+    /** Blue violet #6F5BE8, opaque (RGBA; until 12B #8A5BE0). */
+    public static final long VIOLET = 0x6F5BE8FFL;
+    /** Pale green #88F07C, opaque (RGBA; until 12B #99FF66). */
+    public static final long PALE_GREEN = 0x88F07CFFL;
+    /** Sickly green of Soul Rot #5FBF5A, opaque (RGBA; until 12B #7FB24A). */
+    public static final long ROT_GREEN = 0x5FBF5AFFL;
     /** Sickly green, half transparent (RGBA): wisps of Soul Rot. */
-    public static final long ROT_GREEN_SOFT = 0x7FB24A99L;
+    public static final long ROT_GREEN_SOFT = 0x5FBF5A99L;
+    /** Pale ash lilac #A99CC8 (RGBA): the glowing shreds of Enfeeble (phase 12B, invisible at night before). */
+    public static final long ASH_LILAC = 0xA99CC8FFL;
+    /** Bright plague spores #C4D445 (RGBA, phase 12B). */
+    public static final long PLAGUE_SPORE = 0xC4D445FFL;
     /** Grey violet of Enfeeble #7D7088, slightly transparent (RGBA). */
     public static final long ASH_VIOLET = 0x7D7088DDL;
     /** Pale bone violet of Gravebind #B8A9D9, opaque (RGBA). */
@@ -76,10 +82,11 @@ public final class CurseParticles {
                 .gravity(0.02F)
                 .batch(b -> b.shape(ParticleGroup.Shape.PIPE).count(2.5F).speed(0.0F, 0.01F).verticalOrigin(1.0F));
         ParticleGroup motes = ParticleGroupBuilder.magic(SpellEngineParticles.magic_stripe, ParticleGroup.Motion.DECELERATE)
-                .color(ASH_VIOLET)
-                .scale(1.0F)
+                .color(ASH_LILAC)
+                .scale(1.6F)
+                .glow(true)
                 .gravity(0.03F)
-                .batch(b -> b.shape(ParticleGroup.Shape.PIPE).count(1.5F).speed(0.0F, 0.01F).verticalOrigin(0.9F));
+                .batch(b -> b.shape(ParticleGroup.Shape.PIPE).count(2.0F).speed(0.0F, 0.01F).verticalOrigin(0.9F));
         CustomParticleStatusEffect.register(CurseEffects.ENFEEBLE.get(),
                 new BuffParticleSpawner(haze, motes).withFrequency(5).scaleWithAmplifier(false));
 
@@ -115,8 +122,8 @@ public final class CurseParticles {
                 .motion(ParticleGroup.Motion.FLOAT)
                 .batch(b -> b.shape(ParticleGroup.Shape.PIPE).count(1.5F).speed(0.01F, 0.02F).verticalOrigin(0.5F));
         ParticleGroup spores = ParticleGroupBuilder.magic(SpellEngineParticles.magic_spark, ParticleGroup.Motion.FLOAT)
-                .color(PLAGUE_OLIVE)
-                .scale(0.9F)
+                .color(PLAGUE_SPORE)
+                .scale(1.15F)
                 .glow(true)
                 .batch(b -> b.shape(ParticleGroup.Shape.SPHERE).count(3.0F).speed(0.02F, 0.05F).verticalOrigin(0.6F));
         CustomParticleStatusEffect.register(CurseEffects.PESTILENCE.get(),

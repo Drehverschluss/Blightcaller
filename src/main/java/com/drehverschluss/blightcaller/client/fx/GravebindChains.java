@@ -74,8 +74,14 @@ public final class GravebindChains {
     private static final float FADE_TICKS = 10.0F;
     /** Cast wave: from 1.5 blocks out to the radius of the cast (the spell's range for the caster) in 9 ticks, then it sinks in 5. */
     private static final float WAVE_FROM = 1.5F;
+    /** Legs of the Ender Dragon: along and across the body (share of its half size) and how far below the body box. */
+    private static final double DRAGON_LEG_ALONG = 0.35;
+    private static final double DRAGON_LEG_ACROSS = 0.4;
+    private static final double DRAGON_LEG_DROP = 1.0;
     private static final float WAVE_TICKS = 9.0F;
     private static final float WAVE_SINK = 5.0F;
+    /** Grave smoke of the ring at the edge of the cast (RGBA), as in the old spell file. */
+    private static final long SMOKE_RING = 0x3A2A50BBL;
     /** Dark iron (the vanilla chain is dark blue grey already) and the faint soul turquoise sheen. */
     private static final float[] METAL = {0.70F, 0.69F, 0.64F};
     private static final float[] SHEEN = {0.025F, 0.07F, 0.075F};
@@ -92,6 +98,11 @@ public final class GravebindChains {
     private static final int MODEL_REFRESH = 40;
     /** From this size step on (about a ravager) the visible model is measured; the foot radius counts up to this many hitbox halves. */
     private static final float BIG = 1.5F;
+    /**
+     * Upper limit of the size of the chains (links, ring, anchors). Phase 12B (A4 no. 38, 46): 4.5 instead of 3.2, so the links of
+     * very big bodies (Ender Dragon, Netherite Monstrosity) follow their hitbox further; mobs up to a ravager are not affected.
+     */
+    private static final float MAX_SCALE = 4.5F;
     private static final float MAX_FOOT = 2.2F;
 
     private record Wave(Vec3 origin, long start, float radius) {}
@@ -122,7 +133,28 @@ public final class GravebindChains {
         Minecraft mc = Minecraft.getInstance();
         if (mc.level != null) {
             WAVES.add(new Wave(new Vec3(x, y, z), mc.level.getGameTime(), Math.max(WAVE_FROM + 0.5F, radius)));
+            smokeRing(mc.level, new Vec3(x, y, z), radius);
         }
+    }
+
+    /**
+     * The ring of grave smoke at the edge of the cast (A4 no. 44, phase 12B): was a fixed circle of 5 blocks in the spell file,
+     * now drawn here with the real radius of the cast (Improved Gravebind: 6). Same particle, colour and look as before; as
+     * many puffs per block of edge as the old circle had at 5 blocks.
+     */
+    private static void smokeRing(ClientLevel level, Vec3 at, float radius) {
+        if (radius <= 0.5F) {
+            return;
+        }
+        float count = Math.round(30.0F * radius / 5.0F);
+        net.spell_engine.api.spell.fx.ParticleGroup ring = net.spell_engine.api.spell.fx.ParticleGroupBuilder
+                .of(net.spell_engine.fx.SpellEngineParticles.smoke_medium)
+                .color(SMOKE_RING)
+                .scale(1.4F)
+                .motion(net.spell_engine.api.spell.fx.ParticleGroup.Motion.BURST)
+                .batch(b -> b.shape(net.spell_engine.api.spell.fx.ParticleGroup.Shape.CIRCLE).count(count).speed(0.3F, 0.5F)
+                        .extent(radius).anchor(net.spell_engine.api.spell.fx.ParticleGroup.Anchor.GROUND));
+        net.spell_engine.fx.ParticleHelper.play(level, level.getGameTime(), at, 0.5F, 0.0F, 0.0F, ring, null);
     }
 
     // ------------------------------------------------------------------------------------------------ shape of one entity
@@ -163,7 +195,7 @@ public final class GravebindChains {
         box = box.move(lerp);
         float half = (float) Math.min(Math.max(box.getXsize(), box.getZsize()) * 0.5, 5.0);
         float height = (float) Math.min(box.getYsize(), 12.0);
-        float scale = Mth.clamp(Mth.sqrt(2.0F * half * height / (0.6F * 1.95F)), 0.5F, 3.2F);
+        float scale = Mth.clamp(Mth.sqrt(2.0F * half * height / (0.6F * 1.95F)), 0.5F, MAX_SCALE);
         float foot = -1.0F;
         if ((scale >= BIG || living.isMultipartEntity()) && !dragon) {
             // big mobs: the ring lies around the feet of the visible model, not only around the hitbox (Phase 6.2: the Netherite
@@ -173,7 +205,7 @@ public final class GravebindChains {
             if (model != null) {
                 foot = Math.min(model[1], half * MAX_FOOT);
                 height = Math.min(Math.max(height, model[2]), 12.0F);
-                scale = Mth.clamp(Mth.sqrt(2.0F * Math.max(half, foot * 0.8F) * height / (0.6F * 1.95F)), 0.5F, 3.2F);
+                scale = Mth.clamp(Mth.sqrt(2.0F * Math.max(half, foot * 0.8F) * height / (0.6F * 1.95F)), 0.5F, MAX_SCALE);
             }
         }
         // a third smaller than first built (wish 20.11.: the links looked very thick)
@@ -366,6 +398,12 @@ public final class GravebindChains {
         // the ghostly veil: faint by day, strong at night (by the light at the entity); no shreds far away or in crowds
         float veilStrength = distance >= MID_LOD ? 0.0F : veilStrength(level, body, partialTick) * fade * (crowded ? 0.6F : 1.0F);
         boolean shreds = !far && veilStrength > 0.0F;
+        // big, dark models by day (Netherite Monstrosity, Ender Dragon): more sheen, the dark links vanished in the dark model
+        // (A4 no. 46, phase 12B); at night the veil does this
+        if (body.scale() > 2.4F) {
+            float day = Mth.clamp((VEIL_NIGHT - veilStrength(level, body, partialTick)) / (VEIL_NIGHT - VEIL_DAY), 0.0F, 1.0F);
+            sheenLod *= 1.0F + 2.5F * day * Mth.clamp((body.scale() - 2.4F) / 0.8F, 0.0F, 1.0F);
+        }
         float veilWidth = ChainLinks.width() * size * slimness * 1.6F;
 
         // ---- the wave ring at the feet (rises out of the ground with the chains)
@@ -390,6 +428,12 @@ public final class GravebindChains {
                             0.32F * body.scale(), 0.16F * body.scale(), veilStrength * 0.8F);
                 }
             }
+        }
+
+        // ---- the Ender Dragon (A4 no. 38, phase 12B): fetters around its four legs, chained to the ring around the body (it
+        // flies, so there are no chains from the ground)
+        if (rise > 0.0F && living instanceof net.minecraft.world.entity.boss.enderdragon.EnderDragon dragon) {
+            dragonFetters(level, drawer, cam, body, ring, dragon, size, rise, fade, far, sheenLod, time, partialTick);
         }
 
         // ---- anchors: from the ground to the ring (decided 20.11.: the chains hold the ring, the ring holds the entity). High in
@@ -430,6 +474,42 @@ public final class GravebindChains {
         }
     }
 
+    /**
+     * Fetters on the legs of the Ender Dragon: a small ring of chain around each leg under the body, each held by a taut chain from
+     * the ring around the body. The legs are placed from the dragon's body box and its facing (its model is not measured).
+     */
+    private static void dragonFetters(ClientLevel level, ChainLinks.Drawer drawer, Vec3 cam, Body body, Ring ring,
+                                      net.minecraft.world.entity.boss.enderdragon.EnderDragon dragon, float size, float rise, float fade,
+                                      boolean far, float sheen, float time, float partialTick) {
+        float yaw = Mth.rotLerp(partialTick, dragon.yRotO, dragon.getYRot()) * Mth.DEG_TO_RAD;
+        double fx = -Mth.sin(yaw);
+        double fz = Mth.cos(yaw);
+        double along = body.half() * DRAGON_LEG_ALONG;
+        double across = body.half() * DRAGON_LEG_ACROSS;
+        double legY = body.feet() - DRAGON_LEG_DROP * body.scale() / MAX_SCALE * rise;
+        float cuff = ChainLinks.width() * size * 2.2F;
+        int light = light(level, body.x(), body.feet(), body.z());
+        for (int i = 0; i < 4; i++) {
+            double a = (i < 2 ? 1.0 : -1.0) * along;
+            double c = (i % 2 == 0 ? 1.0 : -1.0) * across;
+            Vec3 leg = new Vec3(body.x() + fx * a - fz * c, legY, body.z() + fz * a + fx * c);
+            ChainLinks.Drawer.Style style = style(size * 0.8F, far, light, sheen, time + i * 5.0F);
+            style.shown = Math.min(rise, fade);
+            Vec3[] loop = new Vec3[12];
+            for (int k = 0; k < loop.length; k++) {
+                float t = Mth.TWO_PI * k / loop.length;
+                loop[k] = leg.add(Mth.cos(t) * cuff, 0.0, Mth.sin(t) * cuff).subtract(cam);
+            }
+            drawer.chain(loop, true, new Vec3(0.0, 1.0, 0.0), style);
+            float angle = (float) Mth.atan2(leg.z - body.z(), leg.x - body.x());
+            Vec3 from = ring.at(body, angle);
+            Vec3 side = new Vec3(-Mth.sin(angle), 0.0, Mth.cos(angle));
+            Vec3[] points = taut(from, leg.add(0.0, cuff * 0.5, 0.0), side, 0.02F * body.scale(), time, i);
+            relative(points, cam);
+            drawer.chain(points, false, side, style(size * 0.8F, far, light, sheen, time + i * 5.0F));
+        }
+    }
+
     /** Strength of the ghostly veil: weak in full daylight, strong in the dark (light where the entity stands). */
     private static float veilStrength(ClientLevel level, Body body, float partialTick) {
         int packed = LevelRenderer.getLightColor(level, BlockPos.containing(body.x(), body.feet() + 0.5, body.z()));
@@ -447,7 +527,9 @@ public final class GravebindChains {
     }
 
     private static Ring ring(Body body, float size, float rise, float sink, float time) {
-        float amplitude = 0.07F + 0.07F * body.scale();
+        // half the height of phase 6.1 (wish 23.11.: the chains swung up and down too far); the anchors end on the ring and
+        // follow it, so they swing half as far too
+        float amplitude = 0.035F + 0.035F * body.scale();
         float lift = ChainLinks.width() * size * 0.55F + amplitude + 0.02F + Math.min(0.1F * body.height(), 0.6F);
         double baseY = body.feet() + lift - (1.0F - rise) * (lift + 0.25F * body.scale()) - sink;
         return new Ring(ringRadius(body), baseY, amplitude, body.scale() < 0.75F ? 2 : 3, time);

@@ -33,7 +33,7 @@
         {
           "id": "spell_engine:magic_spark",
           "appearance": {
-            "color": 2583652095,
+            "color": 2297462015,
             "scale": 0.5
           },
           "batch": {
@@ -93,9 +93,9 @@
           {
             "id": "spell_engine:magic_spark",
             "appearance": {
-              "color": 2830449407,
+              "color": 3302245887,
               "motion": "BURST",
-              "scale": 0.7,
+              "scale": 0.85,
               "glow": true
             },
             "batch": {

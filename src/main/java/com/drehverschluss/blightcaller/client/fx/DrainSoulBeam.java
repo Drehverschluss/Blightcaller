@@ -30,6 +30,7 @@ import net.spell_engine.internals.casting.SpellCaster;
 import net.spell_engine.utils.TargetHelper;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
+import org.joml.Vector3f;
 
 /**
  * Drain Soul: the soul is torn out of the target and pulled to the caster (Phase 6.1, decided 20.11.).
@@ -66,6 +67,9 @@ public final class DrainSoulBeam {
     private static final float[] GHOST = {0.36F, 0.95F, 1.0F};
     /** How much the way of the strands rises (over the caster's shoulder): a tenth of the length, at most 0.8 blocks. */
     private static final float LIFT = 1.0F;
+    /** Own third person view from behind: sideways bend past the right shoulder (blocks at full length) and extra lift. */
+    private static final double BEHIND_SIDE = 1.6;
+    private static final double BEHIND_LIFT = 0.4;
     /**
      * Share of the arcs in the own first person view: Phase 6.1 had 0.4 (the strands hid behind the wand), 0.8 rings the
      * target; 0.5 shows them beside the wand (compared in Phase 6.2).
@@ -77,10 +81,11 @@ public final class DrainSoulBeam {
                 boolean firstPerson, long frameTick) {}
 
     /** The way of the strands: from the tip of the wand (u = 0) to the target's (torn) chest (u = 1). */
-    record Path(Vec3 start, Vec3 end, double rise) {
+    /** {@code side}: how far the middle of the way bends sideways (only in the own third person view from behind). */
+    record Path(Vec3 start, Vec3 end, double rise, Vec3 side) {
         Vec3 point(float u) {
             float h = Mth.sin(Mth.PI * (float) Math.pow(Mth.clamp(u, 0.0F, 1.0F), 0.75));
-            return start.lerp(end, u).add(0.0, rise * h, 0.0);
+            return start.lerp(end, u).add(side.x * h, rise * h + side.y * h, side.z * h);
         }
 
         Vec3 tangent(float u) {
@@ -270,7 +275,15 @@ public final class DrainSoulBeam {
             }
             double length = tip.distanceTo(end);
             double rise = LIFT * Math.min(0.1 * length, 0.8);
-            beams.add(new Beam(player, target, new Path(tip, end, rise), channelTicks, interval, process.startedAt(), firstPerson, tick));
+            Vec3 side = Vec3.ZERO;
+            if (player == mc.player && mc.options.getCameraType() == net.minecraft.client.CameraType.THIRD_PERSON_BACK) {
+                // A4 no. 35: in the own third person view from behind the caster's body hid the strands; there they bend out past
+                // the right shoulder and a little higher (first person and the view from the front stay as they are)
+                Vector3f left = camera.getLeftVector();
+                side = new Vec3(-left.x(), -left.y(), -left.z()).scale(BEHIND_SIDE * Math.min(0.08 * length + 0.35, 1.0));
+                rise += BEHIND_LIFT * Math.min(0.1 * length, 0.8);
+            }
+            beams.add(new Beam(player, target, new Path(tip, end, rise, side), channelTicks, interval, process.startedAt(), firstPerson, tick));
         }
         return beams;
     }

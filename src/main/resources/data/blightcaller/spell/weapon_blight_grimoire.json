@@ -19,7 +19,7 @@
             {
               "id": "spell_engine:area_effect_293",
               "appearance": {
-                "color": 2321277081,
+                "color": 1868294297,
                 "scale": 4.5
               },
               "batch": {
@@ -31,7 +31,7 @@
             {
               "id": "spell_engine:magic_skull",
               "appearance": {
-                "color": 2321277183,
+                "color": 1868294399,
                 "motion": "BURST",
                 "scale": 0.9,
                 "glow": true
@@ -47,7 +47,7 @@
             {
               "id": "spell_engine:smoke_medium",
               "appearance": {
-                "color": 2321277081,
+                "color": 1868294297,
                 "motion": "BURST",
                 "scale": 1.2
               },
@@ -62,7 +62,7 @@
             {
               "id": "spell_engine:magic_spark",
               "appearance": {
-                "color": 2583652095,
+                "color": 2297462015,
                 "motion": "BURST",
                 "scale": 0.7
               },

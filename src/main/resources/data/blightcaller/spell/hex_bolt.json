@@ -18,7 +18,7 @@
         {
           "id": "spell_engine:magic_skull",
           "appearance": {
-            "color": 2321277183,
+            "color": 1868294399,
             "motion": "FLOAT",
             "scale": 0.5
           },
@@ -33,7 +33,7 @@
         {
           "id": "spell_engine:magic_spark",
           "appearance": {
-            "color": 2583652095,
+            "color": 2297462015,
             "scale": 0.5
           },
           "batch": {
@@ -73,7 +73,7 @@
             {
               "id": "spell_engine:magic_spark",
               "appearance": {
-                "color": 2321277183,
+                "color": 1868294399,
                 "scale": 0.55,
                 "glow": true
               },
@@ -86,36 +86,58 @@
               }
             },
             {
-              "id": "spell_engine:magic_skull",
+              "id": "spell_engine:magic_spark",
               "appearance": {
-                "color": 2321277183,
-                "motion": "DECELERATE",
-                "scale": 0.2,
+                "color": 3873243135,
+                "scale": 0.35,
                 "glow": true
               },
               "batch": {
-                "count": 0.5,
+                "count": 1.0,
                 "shape": "SPHERE",
                 "anchor": "ENTITY",
                 "min_speed": 0.0,
-                "max_speed": 0.03
+                "max_speed": 0.01
               }
             },
             {
               "id": "spell_engine:magic_spark",
               "appearance": {
-                "color": 2583652095,
-                "scale": 0.45
+                "color": 2297462015,
+                "scale": 0.4,
+                "glow": false
               },
               "batch": {
-                "count": 2.0,
+                "count": 1.0,
                 "shape": "SPHERE",
                 "anchor": "ENTITY",
                 "min_speed": 0.02,
-                "max_speed": 0.06
+                "max_speed": 0.05
               }
             }
-          ]
+          ],
+          "composite_model": {
+            "models": [
+              {
+                "orientation": "TOWARDS_MOTION",
+                "rotate_degrees_per_tick": 0.0,
+                "fx": {
+                  "model_id": "blightcaller:spell_projectile/hex_bolt",
+                  "light_emission": "NONE",
+                  "scale": 1.0
+                }
+              },
+              {
+                "orientation": "TOWARDS_MOTION",
+                "rotate_degrees_per_tick": 0.0,
+                "fx": {
+                  "model_id": "blightcaller:spell_projectile/hex_bolt_glow",
+                  "light_emission": "GLOW",
+                  "scale": 1.0
+                }
+              }
+            ]
+          }
         }
       }
     }
@@ -217,7 +239,7 @@
           {
             "id": "spell_engine:magic_skull",
             "appearance": {
-              "color": 2321277183,
+              "color": 1868294399,
               "motion": "BURST",
               "scale": 0.8,
               "glow": true
@@ -233,7 +255,7 @@
           {
             "id": "spell_engine:magic_spark",
             "appearance": {
-              "color": 2583652095,
+              "color": 2297462015,
               "motion": "BURST",
               "scale": 0.6
             },

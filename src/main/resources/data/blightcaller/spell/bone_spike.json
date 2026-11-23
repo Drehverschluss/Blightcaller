@@ -70,7 +70,7 @@
           {
             "id": "spell_engine:magic_spark",
             "appearance": {
-              "color": 2321277183,
+              "color": 1868294399,
               "motion": "DECELERATE",
               "scale": 0.5
             },

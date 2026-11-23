@@ -33,6 +33,7 @@ import net.spell_engine.api.effect.Synchronized;
  *     Drain Soul ({@link DrainSoulBeam}: soul smoke, the torn soul {@link EntityGhost}, soul shreds), one pass after the
  *     translucent blocks.</li>
  *     <li>The particle that starts the cast wave ({@link GraveWaveParticle}) and the dust of crumbling chains.</li>
+ *     <li>Blight Burst in flight: a ball of slime with a trail and a splash ({@link BlightBurstFx}, phase 12B.1).</li>
  * </ul>
  * Every hook catches its own exceptions: a visual must never break the game.
  */
@@ -57,6 +58,7 @@ public final class FxClient {
     private static void onClientTick(ClientTickEvent.Post event) {
         try {
             DrainSoulBeam.tick();
+            BlightBurstFx.tick();
         } catch (Exception e) {
             warn(e);
         }
@@ -116,6 +118,7 @@ public final class FxClient {
             CurseDisplay.renderLevel(base, cam, event.getFrustum(), buffers, partialTick, false);
             GravebindChains.render(base, cam, event.getFrustum(), buffers, partialTick);
             DrainSoulBeam.render(base, cam, camera, event.getProjectionMatrix(), buffers, partialTick);
+            BlightBurstFx.render(base, cam, camera, event.getFrustum(), buffers, partialTick);
             CurseDisplay.renderLevel(base, cam, event.getFrustum(), buffers, partialTick, true);
         } catch (Exception e) {
             warn(e);

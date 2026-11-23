@@ -1,0 +1,164 @@
+{
+  "item.armor.equip_robe": {
+    "subtitle": "subtitles.item.armor.equip",
+    "sounds": [
+      {
+        "name": "minecraft:dig/cloth1",
+        "volume": 0.7,
+        "pitch": 1.1,
+        "weight": 1
+      },
+      {
+        "name": "minecraft:dig/cloth2",
+        "volume": 0.7,
+        "pitch": 1.1,
+        "weight": 1
+      },
+      {
+        "name": "minecraft:dig/cloth3",
+        "volume": 0.7,
+        "pitch": 1.1,
+        "weight": 1
+      },
+      {
+        "name": "minecraft:dig/cloth4",
+        "volume": 0.7,
+        "pitch": 1.1,
+        "weight": 1
+      },
+      {
+        "name": "minecraft:step/cloth1",
+        "volume": 0.6,
+        "pitch": 0.9
+      },
+      {
+        "name": "minecraft:step/cloth2",
+        "volume": 0.6,
+        "pitch": 0.9
+      },
+      {
+        "name": "minecraft:step/cloth3",
+        "volume": 0.6,
+        "pitch": 0.9
+      },
+      {
+        "name": "minecraft:step/cloth4",
+        "volume": 0.6,
+        "pitch": 0.9
+      }
+    ]
+  },
+  "item.armor.equip_blightspore": {
+    "subtitle": "subtitles.item.armor.equip",
+    "sounds": [
+      {
+        "name": "minecraft:dig/cloth1",
+        "volume": 0.7,
+        "pitch": 1.05,
+        "weight": 2
+      },
+      {
+        "name": "minecraft:dig/cloth2",
+        "volume": 0.7,
+        "pitch": 1.05,
+        "weight": 2
+      },
+      {
+        "name": "minecraft:dig/cloth3",
+        "volume": 0.7,
+        "pitch": 1.05,
+        "weight": 2
+      },
+      {
+        "name": "minecraft:dig/cloth4",
+        "volume": 0.7,
+        "pitch": 1.05,
+        "weight": 2
+      },
+      {
+        "name": "minecraft:block/moss/step1",
+        "volume": 0.6,
+        "pitch": 0.85
+      },
+      {
+        "name": "minecraft:block/moss/step2",
+        "volume": 0.6,
+        "pitch": 0.85
+      },
+      {
+        "name": "minecraft:block/moss/step3",
+        "volume": 0.6,
+        "pitch": 0.85
+      },
+      {
+        "name": "minecraft:block/moss/step4",
+        "volume": 0.6,
+        "pitch": 0.85
+      },
+      {
+        "name": "minecraft:block/moss/step5",
+        "volume": 0.6,
+        "pitch": 0.85
+      },
+      {
+        "name": "minecraft:block/moss/step6",
+        "volume": 0.6,
+        "pitch": 0.85
+      }
+    ]
+  },
+  "item.armor.equip_hexbinder": {
+    "subtitle": "subtitles.item.armor.equip",
+    "sounds": [
+      {
+        "name": "minecraft:dig/cloth1",
+        "volume": 0.7,
+        "pitch": 1.0,
+        "weight": 2
+      },
+      {
+        "name": "minecraft:dig/cloth2",
+        "volume": 0.7,
+        "pitch": 1.0,
+        "weight": 2
+      },
+      {
+        "name": "minecraft:dig/cloth3",
+        "volume": 0.7,
+        "pitch": 1.0,
+        "weight": 2
+      },
+      {
+        "name": "minecraft:dig/cloth4",
+        "volume": 0.7,
+        "pitch": 1.0,
+        "weight": 2
+      },
+      {
+        "name": "minecraft:block/bone_block/step1",
+        "volume": 0.45,
+        "pitch": 1.35
+      },
+      {
+        "name": "minecraft:block/bone_block/step2",
+        "volume": 0.45,
+        "pitch": 1.35
+      },
+      {
+        "name": "minecraft:block/bone_block/step3",
+        "volume": 0.45,
+        "pitch": 1.35
+      },
+      {
+        "name": "minecraft:block/bone_block/step4",
+        "volume": 0.45,
+        "pitch": 1.35
+      },
+      {
+        "name": "minecraft:block/bone_block/step5",
+        "volume": 0.45,
+        "pitch": 1.35
+      }
+    ]
+  }
+}

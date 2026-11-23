@@ -87,7 +87,8 @@ public final class SkillMarkers {
     /** Passive markers that never run, they only mark the node (or carry a value, Grave Mould). */
     private static final List<String> PASSIVE_MARKERS = List.of(DEEPENING_ROT, BLIGHTBLOOM, INFECTIOUS_CURSES, COUP_DE_GRACE, MOULD_ROT);
     private static final SpellHandlers.ImpactResult NONE = new SpellHandlers.ImpactResult(false, false);
-    private static final Vector3f ROT_COLOR = new Vector3f(0.55F, 0.8F, 0.3F);
+    /** Rot green #5FBF5A (colour plan of phase 12B; before 0.55/0.8/0.3). */
+    private static final Vector3f ROT_COLOR = new Vector3f(0.373F, 0.749F, 0.353F);
 
     private SkillMarkers() {}
 
@@ -497,17 +498,18 @@ public final class SkillMarkers {
         return null;
     }
 
-    /** A short arc of rot from one target to the next (placeholder until the graphics phase). */
+    /** A short arc of rot from one target to the next (Spreading Rot and Infectious Curses). */
     static void arc(ServerLevel level, LivingEntity from, LivingEntity to) {
         Vec3 a = from.position().add(0.0, from.getBbHeight() * 0.6, 0.0);
         Vec3 b = to.position().add(0.0, to.getBbHeight() * 0.6, 0.0);
-        DustParticleOptions dust = new DustParticleOptions(ROT_COLOR, 1.2F);
+        // phase 12B (A4 no. 44): bigger dust (hardly visible before) and spores instead of black ink at the end
+        DustParticleOptions dust = new DustParticleOptions(ROT_COLOR, 1.7F);
         for (int i = 0; i <= 12; i++) {
             double t = i / 12.0;
             Vec3 p = a.lerp(b, t).add(0.0, 0.8 * 4.0 * t * (1.0 - t), 0.0);
             level.sendParticles(dust, p.x, p.y, p.z, 1, 0.03, 0.03, 0.03, 0.0);
         }
-        level.sendParticles(ParticleTypes.SQUID_INK, b.x, b.y, b.z, 4, 0.2, 0.2, 0.2, 0.01);
+        level.sendParticles(ParticleTypes.FALLING_SPORE_BLOSSOM, b.x, b.y, b.z, 4, 0.2, 0.2, 0.2, 0.01);
         level.playSound(null, b.x, b.y, b.z, SoundEvents.SLIME_SQUISH_SMALL, SoundSource.PLAYERS, 0.6F, 0.6F);
     }
 }

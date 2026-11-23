@@ -16,7 +16,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ArmorMaterial;
@@ -415,9 +415,23 @@ public final class BlightcallerItems {
         defense.put(ArmorItem.Type.CHESTPLATE, ARMOR_CHEST);
         defense.put(ArmorItem.Type.LEGGINGS, ARMOR_LEGS);
         defense.put(ArmorItem.Type.BOOTS, ARMOR_FEET);
-        ArmorMaterial material = new ArmorMaterial(defense, enchantability, SoundEvents.ARMOR_EQUIP_LEATHER, repair,
+        ArmorMaterial material = new ArmorMaterial(defense, enchantability, equipSound(name), repair,
                 List.of(new ArmorMaterial.Layer(Blightcaller.id(name))), 0.0F, 0.0F);
         return Registry.registerForHolder(BuiltInRegistries.ARMOR_MATERIAL, Blightcaller.id(name), material);
+    }
+
+    private static final Map<String, Holder<SoundEvent>> EQUIP_SOUNDS = new java.util.HashMap<>();
+
+    /**
+     * Equip sound of a robe (A4 no. 15, phase 12B): cloth instead of leather, Blightspore with something soft and mossy, Hexbinder
+     * with a quiet rattle of bones. Only entries in {@code assets/blightcaller/sounds.json} that point to Vanilla sound files, so a
+     * resource pack can change them. Registered here, before the armor materials that use them (both sides, like the materials).
+     */
+    private static Holder<SoundEvent> equipSound(String robe) {
+        String key = robe.startsWith("blightspore") ? "item.armor.equip_blightspore"
+                : robe.startsWith("hexbinder") ? "item.armor.equip_hexbinder" : "item.armor.equip_robe";
+        return EQUIP_SOUNDS.computeIfAbsent(key, k -> Registry.registerForHolder(BuiltInRegistries.SOUND_EVENT, Blightcaller.id(k),
+                SoundEvent.createVariableRangeEvent(Blightcaller.id(k))));
     }
 
     /**
