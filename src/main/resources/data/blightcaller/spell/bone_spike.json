@@ -68,7 +68,7 @@
             }
           },
           {
-            "id": "spell_engine:magic_spark",
+            "id": "blightcaller:hex_ember",
             "appearance": {
               "color": 1868294399,
               "motion": "DECELERATE",

@@ -31,7 +31,7 @@
                 }
               },
               {
-                "id": "spell_engine:magic_skull",
+                "id": "blightcaller:burning_skull",
                 "appearance": {
                   "color": 1868294399,
                   "motion": "BURST",
@@ -39,7 +39,7 @@
                   "glow": true
                 },
                 "batch": {
-                  "count": 4.0,
+                  "count": 2.0,
                   "shape": "SPHERE",
                   "anchor": "ENTITY",
                   "vertical_origin": 0.6,

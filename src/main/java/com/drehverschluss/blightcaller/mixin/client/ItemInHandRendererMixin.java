@@ -13,8 +13,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
- * Finds the tip of the wand of a Drain Soul caster while the item in the hand is drawn (first and third person use this
- * method), so the soul smoke leaves from it ({@link HandTip}). Reads only, changes nothing.
+ * Finds the tip of the wand of a caster (Drain Soul, cast particles) while the item in the hand is drawn (first and third
+ * person use this method), so the soul smoke and the cast particles leave from it ({@link HandTip}). Reads only, changes nothing.
  */
 @Mixin(ItemInHandRenderer.class)
 public abstract class ItemInHandRendererMixin {

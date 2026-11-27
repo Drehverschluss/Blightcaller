@@ -24,49 +24,18 @@
           }
         },
         {
-          "id": "spell_engine:magic_skull",
+          "id": "blightcaller:rune",
           "appearance": {
-            "color": 1868294399,
             "motion": "BURST",
             "scale": 0.8,
             "glow": true
           },
           "batch": {
-            "count": 30.0,
+            "count": 16.0,
             "shape": "CIRCLE",
             "anchor": "GROUND",
             "min_speed": 0.4,
             "max_speed": 0.6
-          }
-        },
-        {
-          "id": "spell_engine:magic_skull",
-          "appearance": {
-            "color": 1868294399,
-            "motion": "BURST",
-            "scale": 0.6
-          },
-          "batch": {
-            "count": 8.0,
-            "shape": "SPHERE",
-            "anchor": "LAUNCH_POINT",
-            "min_speed": 0.08,
-            "max_speed": 0.2
-          }
-        },
-        {
-          "id": "spell_engine:magic_spark",
-          "appearance": {
-            "color": 2297462015,
-            "motion": "BURST",
-            "scale": 0.6
-          },
-          "batch": {
-            "count": 12.0,
-            "shape": "SPHERE",
-            "anchor": "LAUNCH_POINT",
-            "min_speed": 0.1,
-            "max_speed": 0.3
           }
         }
       ]
@@ -178,7 +147,7 @@
       "visuals": {
         "particles": [
           {
-            "id": "spell_engine:magic_skull",
+            "id": "blightcaller:burning_skull",
             "appearance": {
               "color": 1868294399,
               "motion": "BURST",
@@ -186,7 +155,7 @@
               "glow": true
             },
             "batch": {
-              "count": 14.0,
+              "count": 3.0,
               "shape": "SPHERE",
               "anchor": "ENTITY",
               "vertical_origin": 0.6,
@@ -195,14 +164,14 @@
             }
           },
           {
-            "id": "spell_engine:magic_spark",
+            "id": "blightcaller:hex_ember",
             "appearance": {
-              "color": 2297462015,
+              "color": 1868294399,
               "motion": "BURST",
               "scale": 0.7
             },
             "batch": {
-              "count": 18.0,
+              "count": 8.0,
               "shape": "SPHERE",
               "anchor": "ENTITY",
               "vertical_origin": 0.6,

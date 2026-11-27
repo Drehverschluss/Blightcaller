@@ -34,7 +34,7 @@
     "visuals": {
       "particles": [
         {
-          "id": "spell_engine:magic_spark",
+          "id": "blightcaller:hex_ember",
           "appearance": {
             "color": 3113025535,
             "motion": "DECELERATE",

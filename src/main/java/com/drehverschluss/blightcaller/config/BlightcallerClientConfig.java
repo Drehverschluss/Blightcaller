@@ -20,6 +20,7 @@ public final class BlightcallerClientConfig {
     public static final ModConfigSpec.BooleanValue CURSE_TICK_FLASH;
     public static final ModConfigSpec.BooleanValue CURSE_TICK_SOUND;
     public static final ModConfigSpec.BooleanValue DRAIN_SOUL_TORN_SOUL;
+    public static final ModConfigSpec.BooleanValue CAST_WEAPON_PARTICLES;
     public static final ModConfigSpec.BooleanValue CURSE_VEIL;
     public static final ModConfigSpec.EnumValue<IconMode> CURSE_ICONS;
     public static final ModConfigSpec.IntValue CURSE_ICON_RANGE;
@@ -168,6 +169,16 @@ public final class BlightcallerClientConfig {
                 .translation("blightcaller.configuration.drain_soul_torn_soul")
                 .define("torn_soul", true);
         builder.pop();
+
+        builder.comment("Look of casting.")
+                .translation("blightcaller.configuration.casting")
+                .push("casting");
+        CAST_WEAPON_PARTICLES = builder
+                .comment("Small particles at the tip of the wand or grimoire while a Blightcaller spell is cast (yours and other players').",
+                        "Off: no cast particles.")
+                .translation("blightcaller.configuration.cast_weapon_particles")
+                .define("weapon_particles", true);
+        builder.pop();
         SPEC = builder.build();
     }
 
@@ -186,6 +197,11 @@ public final class BlightcallerClientConfig {
     /** The torn soul of Drain Soul (default on). */
     public static boolean drainSoulTornSoul() {
         return !SPEC.isLoaded() || DRAIN_SOUL_TORN_SOUL.get();
+    }
+
+    /** Cast particles at the tip of the weapon (default on, phase 14B1). */
+    public static boolean castWeaponParticles() {
+        return !SPEC.isLoaded() || CAST_WEAPON_PARTICLES.get();
     }
 
     /** The veil over cursed mobs (default off since phase I.1). */

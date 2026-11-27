@@ -53,7 +53,7 @@
           "particle_spawn_interval": 3,
           "interval_particles": [
             {
-              "id": "spell_engine:magic_spark",
+              "id": "blightcaller:spore",
               "appearance": {
                 "color": 2580638207,
                 "motion": "STATIC",
@@ -68,7 +68,7 @@
               }
             },
             {
-              "id": "spell_engine:smoke_medium",
+              "id": "blightcaller:rot_smoke",
               "appearance": {
                 "color": 1585068774,
                 "motion": "STATIC",
@@ -83,7 +83,7 @@
               }
             },
             {
-              "id": "spell_engine:magic_spark",
+              "id": "blightcaller:spore",
               "appearance": {
                 "color": 3387467980,
                 "motion": "ASCEND",
@@ -98,7 +98,7 @@
               }
             },
             {
-              "id": "spell_engine:magic_spark",
+              "id": "blightcaller:hex_ember",
               "appearance": {
                 "color": 3113025535,
                 "motion": "ASCEND",

@@ -38,14 +38,14 @@
     "visuals": {
       "particles": [
         {
-          "id": "spell_engine:magic_skull",
+          "id": "blightcaller:hex_skull",
           "appearance": {
             "color": 3113025535,
             "motion": "BURST",
             "scale": 0.7
           },
           "batch": {
-            "count": 12.0,
+            "count": 8.0,
             "shape": "CIRCLE",
             "anchor": "ENTITY",
             "vertical_origin": 1.4,

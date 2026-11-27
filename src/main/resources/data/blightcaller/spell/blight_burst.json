@@ -13,38 +13,7 @@
       "sound": {
         "id": "spell_engine:generic_soul_casting",
         "randomness": 0.0
-      },
-      "particles": [
-        {
-          "id": "spell_engine:magic_skull",
-          "appearance": {
-            "color": 1868294399,
-            "motion": "FLOAT",
-            "scale": 0.5
-          },
-          "batch": {
-            "count": 0.6,
-            "shape": "SPHERE",
-            "anchor": "LAUNCH_POINT",
-            "min_speed": 0.02,
-            "max_speed": 0.06
-          }
-        },
-        {
-          "id": "spell_engine:magic_spark",
-          "appearance": {
-            "color": 2297462015,
-            "scale": 0.5
-          },
-          "batch": {
-            "count": 0.8,
-            "shape": "SPHERE",
-            "anchor": "LAUNCH_POINT",
-            "min_speed": 0.02,
-            "max_speed": 0.08
-          }
-        }
-      ]
+      }
     }
   },
   "release": {
@@ -71,11 +40,10 @@
           "light_level": 12,
           "travel_particles": [
             {
-              "id": "spell_engine:magic_spark",
+              "id": "blightcaller:spore",
               "appearance": {
                 "color": 2580638207,
-                "scale": 0.5,
-                "glow": true
+                "scale": 0.5
               },
               "batch": {
                 "count": 1.0,
@@ -86,7 +54,7 @@
               }
             },
             {
-              "id": "spell_engine:dripping_blood",
+              "id": "blightcaller:rot_drip",
               "appearance": {
                 "color": 1606376191,
                 "scale": 0.8,
@@ -117,18 +85,17 @@
       "visuals": {
         "particles": [
           {
-            "id": "spell_engine:magic_skull",
+            "id": "blightcaller:rot_drip",
             "appearance": {
-              "color": 1868294399,
+              "color": 1606376191,
               "motion": "BURST",
-              "scale": 0.8,
-              "glow": true
+              "scale": 0.8
             },
             "batch": {
               "count": 8.0,
               "shape": "SPHERE",
               "anchor": "ENTITY",
-              "min_speed": 0.1,
+              "min_speed": 0.15,
               "max_speed": 0.3
             }
           }
@@ -174,25 +141,24 @@
           }
         },
         {
-          "id": "spell_engine:magic_skull",
+          "id": "blightcaller:rot_drip",
           "appearance": {
-            "color": 1868294399,
+            "color": 1606376191,
             "motion": "BURST",
-            "scale": 0.9,
-            "glow": true
+            "scale": 0.9
           },
           "batch": {
-            "count": 18.0,
+            "count": 12.0,
             "shape": "CIRCLE",
             "anchor": "GROUND",
-            "min_speed": 0.35,
-            "max_speed": 0.45
+            "min_speed": 0.15,
+            "max_speed": 0.3
           }
         },
         {
           "id": "spell_engine:smoke_medium",
           "appearance": {
-            "color": 1868294297,
+            "color": 1606376089,
             "motion": "BURST",
             "scale": 1.2
           },
@@ -205,14 +171,14 @@
           }
         },
         {
-          "id": "spell_engine:magic_spark",
+          "id": "blightcaller:spore",
           "appearance": {
             "color": 2297462015,
             "motion": "BURST",
             "scale": 0.7
           },
           "batch": {
-            "count": 24.0,
+            "count": 12.0,
             "shape": "SPHERE",
             "anchor": "ENTITY",
             "min_speed": 0.2,

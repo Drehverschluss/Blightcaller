@@ -34,6 +34,7 @@ import net.spell_engine.api.effect.Synchronized;
  *     translucent blocks.</li>
  *     <li>The particle that starts the cast wave ({@link GraveWaveParticle}) and the dust of crumbling chains.</li>
  *     <li>Blight Burst in flight: a ball of slime with a trail and a splash ({@link BlightBurstFx}, phase 12B.1).</li>
+ *     <li>Cast particles at the tip of the weapon ({@link CastFx}, phase 14B1) and the own particle set ({@link BlightParticle}).</li>
  * </ul>
  * Every hook catches its own exceptions: a visual must never break the game.
  */
@@ -60,6 +61,7 @@ public final class FxClient {
         event.registerSpriteSet(BlightcallerParticles.HEX_EMBER.get(), s -> new BlightParticle.Provider(BlightParticle.Kind.HEX_EMBER, s));
         event.registerSpriteSet(BlightcallerParticles.HEX_SKULL.get(), s -> new BlightParticle.Provider(BlightParticle.Kind.HEX_SKULL, s));
         event.registerSpriteSet(BlightcallerParticles.RUNE.get(), s -> new BlightParticle.Provider(BlightParticle.Kind.RUNE, s));
+        event.registerSpriteSet(BlightcallerParticles.BURNING_SKULL.get(), s -> new BlightParticle.Provider(BlightParticle.Kind.BURNING_SKULL, s));
     }
 
     private static void onClientTick(ClientTickEvent.Post event) {
@@ -126,6 +128,7 @@ public final class FxClient {
             GravebindChains.render(base, cam, event.getFrustum(), buffers, partialTick);
             DrainSoulBeam.render(base, cam, camera, event.getProjectionMatrix(), buffers, partialTick);
             BlightBurstFx.render(base, cam, camera, event.getFrustum(), buffers, partialTick);
+            CastFx.render(camera, event.getProjectionMatrix(), partialTick);
             CurseDisplay.renderLevel(base, cam, event.getFrustum(), buffers, partialTick, true);
         } catch (Exception e) {
             warn(e);

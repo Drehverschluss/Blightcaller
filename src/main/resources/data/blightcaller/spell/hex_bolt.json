@@ -13,38 +13,7 @@
       "sound": {
         "id": "spell_engine:generic_soul_casting",
         "randomness": 0.0
-      },
-      "particles": [
-        {
-          "id": "spell_engine:magic_skull",
-          "appearance": {
-            "color": 1868294399,
-            "motion": "FLOAT",
-            "scale": 0.5
-          },
-          "batch": {
-            "count": 0.6,
-            "shape": "SPHERE",
-            "anchor": "LAUNCH_POINT",
-            "min_speed": 0.02,
-            "max_speed": 0.06
-          }
-        },
-        {
-          "id": "spell_engine:magic_spark",
-          "appearance": {
-            "color": 2297462015,
-            "scale": 0.5
-          },
-          "batch": {
-            "count": 0.8,
-            "shape": "SPHERE",
-            "anchor": "LAUNCH_POINT",
-            "min_speed": 0.02,
-            "max_speed": 0.08
-          }
-        }
-      ]
+      }
     }
   },
   "release": {
@@ -71,7 +40,7 @@
           "light_level": 10,
           "travel_particles": [
             {
-              "id": "spell_engine:magic_spark",
+              "id": "blightcaller:hex_ember",
               "appearance": {
                 "color": 1868294399,
                 "scale": 0.55,
@@ -86,7 +55,7 @@
               }
             },
             {
-              "id": "spell_engine:magic_spark",
+              "id": "blightcaller:hex_ember",
               "appearance": {
                 "color": 3873243135,
                 "scale": 0.35,
@@ -98,21 +67,6 @@
                 "anchor": "ENTITY",
                 "min_speed": 0.0,
                 "max_speed": 0.01
-              }
-            },
-            {
-              "id": "spell_engine:magic_spark",
-              "appearance": {
-                "color": 2297462015,
-                "scale": 0.4,
-                "glow": false
-              },
-              "batch": {
-                "count": 1.0,
-                "shape": "SPHERE",
-                "anchor": "ENTITY",
-                "min_speed": 0.02,
-                "max_speed": 0.05
               }
             }
           ],
@@ -237,7 +191,7 @@
       "visuals": {
         "particles": [
           {
-            "id": "spell_engine:magic_skull",
+            "id": "blightcaller:burning_skull",
             "appearance": {
               "color": 1868294399,
               "motion": "BURST",
@@ -245,7 +199,7 @@
               "glow": true
             },
             "batch": {
-              "count": 8.0,
+              "count": 4.0,
               "shape": "SPHERE",
               "anchor": "ENTITY",
               "min_speed": 0.1,
@@ -253,9 +207,9 @@
             }
           },
           {
-            "id": "spell_engine:magic_spark",
+            "id": "blightcaller:hex_ember",
             "appearance": {
-              "color": 2297462015,
+              "color": 1868294399,
               "motion": "BURST",
               "scale": 0.6
             },
