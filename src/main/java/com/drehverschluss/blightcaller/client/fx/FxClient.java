@@ -53,6 +53,13 @@ public final class FxClient {
 
     private static void onRegisterParticles(RegisterParticleProvidersEvent event) {
         event.registerSpecial(BlightcallerParticles.GRAVE_WAVE.get(), new GraveWaveParticle.Provider());
+        // own particle set (phase 14A)
+        event.registerSpriteSet(BlightcallerParticles.ROT_SMOKE.get(), s -> new BlightParticle.Provider(BlightParticle.Kind.ROT_SMOKE, s));
+        event.registerSpriteSet(BlightcallerParticles.ROT_DRIP.get(), s -> new BlightParticle.Provider(BlightParticle.Kind.ROT_DRIP, s));
+        event.registerSpriteSet(BlightcallerParticles.SPORE.get(), s -> new BlightParticle.Provider(BlightParticle.Kind.SPORE, s));
+        event.registerSpriteSet(BlightcallerParticles.HEX_EMBER.get(), s -> new BlightParticle.Provider(BlightParticle.Kind.HEX_EMBER, s));
+        event.registerSpriteSet(BlightcallerParticles.HEX_SKULL.get(), s -> new BlightParticle.Provider(BlightParticle.Kind.HEX_SKULL, s));
+        event.registerSpriteSet(BlightcallerParticles.RUNE.get(), s -> new BlightParticle.Provider(BlightParticle.Kind.RUNE, s));
     }
 
     private static void onClientTick(ClientTickEvent.Post event) {
